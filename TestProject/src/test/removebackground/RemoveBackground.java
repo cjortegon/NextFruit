@@ -1,18 +1,11 @@
 package test.removebackground;
 
-import java.awt.Image;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.imageio.ImageIO;
 
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
-import org.opencv.core.MatOfByte;
 import org.opencv.core.MatOfFloat;
 import org.opencv.core.MatOfInt;
 import org.opencv.core.Point;
@@ -21,31 +14,28 @@ import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
-
 public class RemoveBackground {
 
 	private boolean isInverse;
-	private Image image;
-	private Image processed;
+	private Mat image;
 
-	public RemoveBackground(Image image) {
-		this.image = image;
-
-		// init everything
-		Mat frame = new Mat();
-
-		frame = this.doBackgroundRemoval(frame);
-
-		// convert the Mat object (OpenCV) to Image (AWT)
-		processed = mat2Image(frame);
-
+	public RemoveBackground(String imagePath) {
+		image = Imgcodecs.imread(imagePath);
 	}
 
-	public Image getImage() {
-		return processed;
+	public Mat getOriginalImage() {
+		return image;
 	}
 
-	private Mat doBackgroundRemoval(Mat frame) {
+	public boolean isInverse() {
+		return isInverse;
+	}
+
+	public void setInverse(boolean isInverse) {
+		this.isInverse = isInverse;
+	}
+
+	public Mat doBackgroundRemoval(Mat frame) {
 		// init
 		Mat hsvImg = new Mat();
 		List<Mat> hsvPlanes = new ArrayList<>();
@@ -105,21 +95,6 @@ public class RemoveBackground {
 
 		// return the average hue of the image
 		return average = average / hsvImg.size().height / hsvImg.size().width;
-	}
-
-	private Image mat2Image(Mat frame) {
-		// create a temporary buffer
-		MatOfByte buffer = new MatOfByte();
-		// encode the frame in the buffer, according to the PNG format
-		Imgcodecs.imencode(".png", frame, buffer);
-		// build and return an Image created from the image encoded in the
-		// buffer
-		BufferedImage imag = null;
-		try {
-			imag = ImageIO.read(new ByteArrayInputStream(buffer.toArray()));
-		} catch (IOException e) {
-		}
-		return imag;
 	}
 
 }
