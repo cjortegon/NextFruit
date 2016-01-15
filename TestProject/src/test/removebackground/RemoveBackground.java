@@ -27,13 +27,10 @@ public class RemoveBackground {
 	private boolean isInverse;
 	private Image image;
 	private Image processed;
-	
+
 	public RemoveBackground(Image image) {
 		this.image = image;
-		processImage();
-	}
-	
-	private void processImage() {
+
 		// init everything
 		Mat frame = new Mat();
 
@@ -41,6 +38,11 @@ public class RemoveBackground {
 
 		// convert the Mat object (OpenCV) to Image (AWT)
 		processed = mat2Image(frame);
+
+	}
+
+	public Image getImage() {
+		return processed;
 	}
 
 	private Mat doBackgroundRemoval(Mat frame) {
@@ -77,7 +79,7 @@ public class RemoveBackground {
 
 		return foreground;
 	}
-	
+
 	private double getHistAverage(Mat hsvImg, Mat hueValues) {
 		// init
 		double average = 0.0;
@@ -86,10 +88,10 @@ public class RemoveBackground {
 		MatOfInt histSize = new MatOfInt(180);
 		List<Mat> hue = new ArrayList<>();
 		hue.add(hueValues);
-		
+
 		// compute the histogram
 		Imgproc.calcHist(hue, new MatOfInt(0), new Mat(), hist_hue, histSize, new MatOfFloat(0, 179));
-		
+
 		// get the average Hue value of the image
 		// (sum(bin(h)*h))/(image-height*image-width)
 		// -----------------
@@ -100,11 +102,11 @@ public class RemoveBackground {
 			// hue
 			average += (hist_hue.get(h, 0)[0] * h);
 		}
-		
+
 		// return the average hue of the image
 		return average = average / hsvImg.size().height / hsvImg.size().width;
 	}
-	
+
 	private Image mat2Image(Mat frame) {
 		// create a temporary buffer
 		MatOfByte buffer = new MatOfByte();
