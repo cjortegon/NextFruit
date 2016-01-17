@@ -11,7 +11,7 @@ import visualkey.KCanvas;
 
 public class Test extends KCanvas {
 
-	private static final String PHOTO_PATH = "resources/strawberry.jpg";
+	private static final String PHOTO_PATH = "resources/foto.jpg";
 
 	private Image image;
 	private RemoveBackground remover;

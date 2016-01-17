@@ -54,7 +54,6 @@ public class RemoveBackground {
 		double threshValue = this.getHistAverage(hsvImg, hsvPlanes.get(0));
 
 		Imgproc.threshold(hsvPlanes.get(0), thresholdImg, threshValue, 179.0, thresh_type);
-
 		Imgproc.blur(thresholdImg, thresholdImg, new Size(5, 5));
 
 		// dilate to fill gaps, erode to smooth edges
