@@ -11,7 +11,7 @@ import visualkey.KCanvas;
 
 public class RBTest extends KCanvas {
 
-	private static final String PHOTO_PATH = "resources/fresas.jpg";
+	private static final String PHOTO_PATH = "resources/strawberry.jpg";
 
 	private Image image;
 	private RemoveBackground remover;
@@ -41,7 +41,6 @@ public class RBTest extends KCanvas {
 					Thread.sleep(3000);
 				} catch (InterruptedException e) {
 				}
-				System.out.println("Remove background");
 				removeBackground();
 			}
 		}).start();
@@ -55,7 +54,7 @@ public class RBTest extends KCanvas {
 
 	@Override
 	protected void paintCanvas(Graphics g) {
-		g.drawImage(image, 0, 0, 0, 0, null);
+		g.drawImage(image, 0, 0, null);
 	}
 
 }
