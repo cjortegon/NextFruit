@@ -1,5 +1,7 @@
 package co.edu.icesi.frutificator.util;
 
+import java.awt.Dimension;
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -27,6 +29,26 @@ public class ImageUtility {
 		} catch (IOException e) {
 		}
 		return image;
+	}
+
+	public static double[] getResize(Image image, Dimension windowSize) {
+		double w = image.getWidth(null);
+		double h = image.getHeight(null);
+		double f = 1;
+		double fw = w/windowSize.getWidth();
+		double fh = h/windowSize.getHeight();
+		if(fw > 1 || fh > 1) {
+			if(fh > fw) {
+				w /= fh;
+				h = windowSize.getHeight();
+				f = fh;
+			} else {
+				w = windowSize.getWidth();
+				h /= fw;
+				f = fw;
+			}
+		}
+		return new double[]{w, h, 1/f};
 	}
 
 }
