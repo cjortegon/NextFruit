@@ -9,18 +9,18 @@ import org.opencv.core.Core;
 import co.edu.icesi.frutificator.util.ImageUtility;
 import visualkey.KCanvas;
 
-public class Test extends KCanvas {
+public class RBTest extends KCanvas {
 
-	private static final String PHOTO_PATH = "resources/foto.jpg";
+	private static final String PHOTO_PATH = "resources/fresas.jpg";
 
 	private Image image;
 	private RemoveBackground remover;
 
 	public static void main(String args[]) {
-		new Test();
+		new RBTest();
 	}
 
-	public Test() {
+	public RBTest() {
 		super(new Dimension(500, 500));
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setVisible(true);
@@ -41,6 +41,7 @@ public class Test extends KCanvas {
 					Thread.sleep(3000);
 				} catch (InterruptedException e) {
 				}
+				System.out.println("Remove background");
 				removeBackground();
 			}
 		}).start();
@@ -54,7 +55,7 @@ public class Test extends KCanvas {
 
 	@Override
 	protected void paintCanvas(Graphics g) {
-		g.drawImage(image, 0, 0, null);
+		g.drawImage(image, 0, 0, 0, 0, null);
 	}
 
 }
