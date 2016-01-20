@@ -1,6 +1,7 @@
 package co.edu.icesi.frutificator.util;
 
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -31,6 +32,11 @@ public class ImageUtility {
 		return image;
 	}
 
+	/**
+	 * @param image the source image
+	 * @param windowSize maximum space to fit the image
+	 * @return {width, height, used scale}
+	 */
 	public static double[] getResize(Image image, Dimension windowSize) {
 		double w = image.getWidth(null);
 		double h = image.getHeight(null);
@@ -50,5 +56,10 @@ public class ImageUtility {
 		}
 		return new double[]{w, h, 1/f};
 	}
-
+	
+	public static double[] drawImage(Image image, Dimension windowSize, Graphics graphics) {
+		double size[] = getResize(image, windowSize);
+		graphics.drawImage(image, 0, 0, (int)size[0], (int)size[1], null);
+		return size;
+	}
 }

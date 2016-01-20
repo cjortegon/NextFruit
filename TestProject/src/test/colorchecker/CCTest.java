@@ -33,21 +33,30 @@ public class CCTest extends KCanvas {
 		colorChecker = new ColorChecker(PHOTO_PATH, 30, 24);
 
 		// Draw original image
-		image = ImageUtility.mat2Image(colorChecker.getBGR());
+		image = ImageUtility.mat2Image(colorChecker.getBlackAndWhite());
 		repaint();
 	}
 
 	@Override
 	protected void paintCanvas(Graphics g) {
 		try {
-			double size[] = ImageUtility.getResize(image, WINDOW);
-			g.drawImage(image, 0, 0, (int)size[0], (int)size[1], null);
-			Point centers[] = colorChecker.getCenters();
-			for (Point point : centers) {
+			double size[] = ImageUtility.drawImage(image, WINDOW, g);
+			ColorBox boxes[] = colorChecker.getColorBoxes();
+			for (ColorBox box : boxes) {
 				g.setColor(Color.black);
-				g.drawRect((int)(point.x*size[2])-5, (int)(point.y*size[2])-5, 10, 10);
+				g.drawRect((int)(box.getCenter().x*size[2])-5, (int)(box.getCenter().y*size[2])-5, 10, 10);
 				g.setColor(Color.white);
-				g.fillRect((int)(point.x*size[2])-4, (int)(point.y*size[2])-4, 9, 9);
+				g.fillRect((int)(box.getCenter().x*size[2])-4, (int)(box.getCenter().y*size[2])-4, 9, 9);
+				int[] xs = new int[box.getBox().length];
+				int[] ys = new int[box.getBox().length];
+				int i = 0;
+				for (Point p : box.getBox()) {
+					xs[i] = (int)(p.x*size[2]);
+					ys[i] = (int)(p.y*size[2]);
+					i ++;
+				}
+				g.setColor(Color.green);
+				g.drawPolygon(xs, ys, xs.length);
 			}
 		} catch(NullPointerException npe) {}
 	}

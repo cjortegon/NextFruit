@@ -30,7 +30,7 @@ public class SDTest extends KCanvas {
 		colorChecker = new SilhouetteDetector(PHOTO_PATH, 130, 255);
 
 		// Draw original image
-		image = ImageUtility.mat2Image(colorChecker.getOriginalImage());
+		image = ImageUtility.mat2Image(colorChecker.getProcessedImage());
 		repaint();
 	}
 
