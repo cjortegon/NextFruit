@@ -1,4 +1,4 @@
-package co.edu.icesi.frutificator.util;
+package test.contourmanipulation;
 
 import java.util.ArrayList;
 

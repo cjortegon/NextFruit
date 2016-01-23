@@ -8,6 +8,7 @@ import java.util.List;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
+import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
@@ -16,32 +17,43 @@ import test.silhouettedetector.SilhouetteDetector;
 
 public class ColorChecker {
 
-	private Mat BGR, LAB, BW;
+	private Mat BGR, LAB, gray, MBlurred, silhouette;
 	private ColorBox grid[][];
 	private ColorBox boxes[];
 	private int numberOfColors;
-	private SilhouetteDetector silohuette;
+	//	private SilhouetteDetector silhouette;
 
 	public ColorChecker(String imagePath, int sensibility, int numberOfColors) {
 
 		// Setting parameters
 		this.numberOfColors = numberOfColors;
 
-		// Reading images
+		// Reading image
 		BGR = Imgcodecs.imread(imagePath);
-		LAB = new Mat();
-		Imgproc.cvtColor(BGR, LAB, Imgproc.COLOR_BGR2Lab);
-		silohuette = new SilhouetteDetector(imagePath, sensibility, 255);
-		BW = silohuette.getProcessedImage();
-		//		BW = Imgcodecs.imread(imagePath, Imgcodecs.IMREAD_GRAYSCALE);
+
+		// Median blur
+		MBlurred = new Mat();
+		int ksize = (int) (Math.sqrt(BGR.width()*BGR.height())/100);
+		if(ksize %2 == 0)
+			ksize ++;
+		System.out.println("ksize for blur: "+ksize);
+		Imgproc.medianBlur(BGR, MBlurred, ksize);
+
+		// Silhouette detection
+		silhouette = new Mat();
+		Imgproc.threshold(MBlurred, silhouette, sensibility, 255, 1);
+
+		// Gray scale
+		gray = silhouette.clone();
+		Imgproc.cvtColor(silhouette, gray, Imgproc.COLOR_BGR2GRAY, 1);
 
 		// Getting colors
-		obtainCenters(sensibility, BW.clone());
+		obtainBoxes(sensibility, gray.clone());
 		obtainColors();
 		defineGrid();
 	}
 
-	private void obtainCenters(int sensibility, Mat mat) {
+	private void obtainBoxes(int sensibility, Mat mat) {
 		Mat thresh = new Mat();
 		Imgproc.threshold(mat, thresh, sensibility, 255, 1);
 		List<MatOfPoint> contours = new ArrayList<>();
@@ -51,26 +63,21 @@ public class ColorChecker {
 		boxes = new ColorBox[contours.size()];
 		int i = 0;
 		for (MatOfPoint cnt : contours) {
-			Point[] points = cnt.toArray();
-			double xSum = 0;
-			double ySum = 0;
-			for (Point point : points) {
-				xSum += point.x;
-				ySum += point.y;
-			}
-			xSum /= points.length;
-			ySum /= points.length;
-			boxes[i++] = new ColorBox(points);
+			boxes[i++] = new ColorBox(cnt.toArray());
 		}
 		Arrays.sort(boxes);
 	}
-	
+
+	private void filterBoxes() {
+
+	}
+
 	private void defineGrid() {
 		Statistics xStat = new Statistics(), yStat = new Statistics();
 		for (int i = 0; i < boxes.length; i++) {
-			double smallX = boxes[i].getBoxEdgeLength();
-			double smallY = boxes[i].getBoxEdgeLength();
-			double measure = boxes[i].getBoxEdgeLength()/2;
+			double smallX = boxes[i].getPerimeter();
+			double smallY = boxes[i].getPerimeter();
+			double measure = boxes[i].getPerimeter()/2;
 			for (int j = i + 1; j < boxes.length; j++) {
 				double xValue = Math.abs(boxes[i].getCenter().x - boxes[j].getCenter().x);
 				double yValue = Math.abs(boxes[i].getCenter().y - boxes[j].getCenter().y);
@@ -79,6 +86,7 @@ public class ColorChecker {
 				if(yValue > measure && yValue < smallY)
 					smallY = yValue;
 			}
+			System.out.println("small ->> ("+smallX+","+smallY+")");
 			xStat.addValue(smallX);
 			yStat.addValue(smallY);
 		}
@@ -89,10 +97,9 @@ public class ColorChecker {
 	private void obtainColors() {
 		ArrayList<double[]> colorsTmp = new ArrayList<>();
 		for (ColorBox box : boxes) {
+
 			double d[] = BGR.get((int)box.getCenter().y, (int)box.getCenter().x);
-			System.out.print("("+d[2]+","+d[1]+","+d[0]+") // ");
-			d = LAB.get((int)box.getCenter().y, (int)box.getCenter().x);
-			System.out.println("("+d[2]+","+d[1]+","+d[0]+")");
+			System.out.print("("+d[2]+","+d[1]+","+d[0]+")");
 			colorsTmp.add(d);
 		}
 	}
@@ -106,7 +113,7 @@ public class ColorChecker {
 	}
 
 	public Mat getBlackAndWhite() {
-		return BW;
+		return gray;
 	}
 
 	public Mat getLabColorSpace() {
