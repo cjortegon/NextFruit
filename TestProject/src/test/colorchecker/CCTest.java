@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.util.ArrayList;
 
 import org.opencv.core.Core;
 import org.opencv.core.Point;
@@ -33,7 +34,7 @@ public class CCTest extends KCanvas {
 		colorChecker = new ColorChecker(PHOTO_PATH, 200, 24);
 
 		// Draw original image
-		image = ImageUtility.mat2Image(colorChecker.getBGR());
+		image = ImageUtility.mat2Image(colorChecker.getMedianBlurred());
 		repaint();
 	}
 
@@ -41,7 +42,7 @@ public class CCTest extends KCanvas {
 	protected void paintCanvas(Graphics g) {
 		try {
 			double size[] = ImageUtility.drawImage(image, WINDOW, g);
-			ColorBox boxes[] = colorChecker.getColorBoxes();
+			ArrayList<ColorBox> boxes = colorChecker.getColorBoxes();
 			for (ColorBox box : boxes) {
 				g.setColor(Color.black);
 				g.drawRect((int)(box.getCenter().x*size[2])-5, (int)(box.getCenter().y*size[2])-5, 10, 10);

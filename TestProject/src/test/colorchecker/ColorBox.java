@@ -21,22 +21,21 @@ public class ColorBox implements Comparable<ColorBox> {
 		for (Point point : box) {
 			cordX[i] = point.x;
 			cordY[i] = point.y;
-			i ++;
 			if(last != null) {
 				perimeter += Geometry.distance(last.x, last.y, point.x, point.y);
 				area += (last.x*point.y-last.y*point.x);
 			}
+			i ++;
 			last = point;
 		}
-		area += (last.x*cordY[0]-last.y*cordX[0]);
+		area += (last.x*cordY[0] - cordX[0]*last.y);
 		area = Math.abs(area/2);
-		
+
 		Arrays.sort(cordX);
 		Arrays.sort(cordY);
 		double centerX = (cordX[0]+cordX[box.length-1])/2;
 		double centerY = (cordY[0]+cordY[box.length-1])/2;
 		center = new Point(centerX, centerY);
-		System.out.println("Area: "+area+" Perimeter: "+perimeter);
 	}
 
 	public Point[] getBox() {
