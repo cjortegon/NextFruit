@@ -31,10 +31,10 @@ public class CCTest extends KCanvas {
 
 		// Starting OpenCV
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-		colorChecker = new ColorChecker(PHOTO_PATH, 200, 24);
+		colorChecker = new ColorChecker(PHOTO_PATH, 200, new int[]{4, 6});
 
 		// Draw original image
-		image = ImageUtility.mat2Image(colorChecker.getMedianBlurred());
+		image = ImageUtility.mat2Image(colorChecker.getBGR());
 		repaint();
 	}
 

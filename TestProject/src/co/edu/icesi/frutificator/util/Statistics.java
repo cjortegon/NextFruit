@@ -1,6 +1,7 @@
 package co.edu.icesi.frutificator.util;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class Statistics {
 
@@ -18,6 +19,13 @@ public class Statistics {
 
 	public double getMean() {
 		return sum/set.size();
+	}
+
+	public double getMedian() {
+		if(set.size() == 0)
+			throw new IndexOutOfBoundsException();
+		Collections.sort(set);
+		return set.get((set.size()-1)/2);
 	}
 
 	public double getStandardDeviation() {

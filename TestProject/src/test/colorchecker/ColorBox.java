@@ -1,5 +1,6 @@
 package test.colorchecker;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.opencv.core.Point;
@@ -14,6 +15,7 @@ public class ColorBox implements Comparable<ColorBox> {
 
 	public ColorBox(Point[] box) {
 		this.box = box;
+		reduceToSquare();
 		Point last = null;
 		double cordX[] = new double[box.length];
 		double cordY[] = new double[box.length];
@@ -36,6 +38,47 @@ public class ColorBox implements Comparable<ColorBox> {
 		double centerX = (cordX[0]+cordX[box.length-1])/2;
 		double centerY = (cordY[0]+cordY[box.length-1])/2;
 		center = new Point(centerX, centerY);
+	}
+	
+	public void reduceToSquare() {
+		double xStart = Double.MAX_VALUE, xEnd = Double.MIN_VALUE, yStart = Double.MAX_VALUE, yEnd = Double.MIN_VALUE;
+		for (Point p : box) {
+			if(p.x < xStart)
+				xStart = p.x;
+			if(p.x > xEnd)
+				xEnd = p.x;
+			if(p.y < yStart)
+				yStart = p.y;
+			if(p.y > yEnd)
+				yEnd = p.y;
+		}
+		box = new Point[]{new Point(xStart, yStart), new Point(xEnd, yStart),
+				new Point(xEnd, yEnd), new Point(xStart, yEnd)};
+	}
+	
+	public void reduceBoxPoints() {
+		Point last = null;
+		ArrayList<Point> newPoints = new ArrayList<>();
+		Double lastAngle = null;
+		for (Point point : box) {
+			if(last == null) {
+				newPoints.add(point);
+			} else {
+				double angle = Geometry.getAngleOfLineBetweenTwoPoints(point.x, point.y, last.x, last.y);
+				if(lastAngle == null) {
+					newPoints.add(point);
+					lastAngle = angle;
+				} else if(Math.abs(lastAngle - angle) > Math.PI/4) {
+					newPoints.add(point);
+					lastAngle = angle;
+				}
+			}
+			last = point;
+		}
+		box = new Point[newPoints.size()];
+		for (int i = 0; i < box.length; i++) {
+			box[i] = newPoints.get(i);
+		}
 	}
 
 	public Point[] getBox() {

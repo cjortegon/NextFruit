@@ -3,6 +3,7 @@ package test.colorchecker;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import org.opencv.core.Mat;
@@ -22,12 +23,13 @@ public class ColorChecker {
 	private ColorBox grid[][];
 	private ArrayList<ColorBox> boxes;
 	private int numberOfColors;
-	//	private SilhouetteDetector silhouette;
+	private double averageBoxArea, averageBoxDistance, distanceDeviation;
 
-	public ColorChecker(String imagePath, int sensibility, int numberOfColors) {
+	public ColorChecker(String imagePath, int sensibility, int[] size) {
 
 		// Setting parameters
-		this.numberOfColors = numberOfColors;
+		this.numberOfColors = size[0]*size[1];
+		this.grid = new ColorBox[size[0]][size[1]];
 
 		// Reading image
 		BGR = Imgcodecs.imread(imagePath);
@@ -50,7 +52,9 @@ public class ColorChecker {
 
 		// Getting colors
 		obtainBoxes(sensibility, gray.clone());
-		System.out.println("Average distance: "+filterBoxes());
+		filterBoxes();
+		System.out.println("Average distance between boxes: "+averageBoxDistance);
+		System.out.println("Average area of boxes: "+averageBoxArea);
 		obtainColors();
 		defineGrid();
 	}
@@ -67,10 +71,10 @@ public class ColorChecker {
 		for (MatOfPoint cnt : contours) {
 			boxes.add(new ColorBox(cnt.toArray()));
 		}
-		Collections.sort(boxes);
+		//		Collections.sort(boxes);
 	}
 
-	private double filterBoxes() {
+	private void filterBoxes() {
 
 		// Getting statistics
 		Statistics area = new Statistics();
@@ -79,8 +83,8 @@ public class ColorChecker {
 			area.addValue(boxes.get(i).getArea());
 			perimeter.addValue(boxes.get(i).getPerimeter());
 		}
-		System.out.println("Areas "+((int)area.getStandardDeviation()));
-		System.out.println("Perimeter "+((int)perimeter.getStandardDeviation()));
+		System.out.println("Deviations -> (Deviation: "+((int)area.getStandardDeviation())
+				+")(Perimeter: "+((int)perimeter.getStandardDeviation())+")");
 
 		// Separating groups by area and perimeter differences
 		GroupManager groupManager = new GroupManager(new double[]{area.getStandardDeviation(), perimeter.getStandardDeviation()});
@@ -98,7 +102,7 @@ public class ColorChecker {
 				Statistics distances = new Statistics();
 				for (int j = 0; j < groups[i].size()-1; j++) {
 					double smallDist = Double.MAX_VALUE;
-					double levelDist = Math.sqrt(groups[i].get(j).getArea())*0.25;
+					//					double levelDist = Math.sqrt(groups[i].get(j).getArea())*0.25;
 					for (int k = j+1; k < groups[i].size(); k++) {
 						Point a = groups[i].get(j).getCenter();
 						Point b = groups[i].get(k).getCenter();
@@ -121,40 +125,83 @@ public class ColorChecker {
 
 		// Removing boxes that are not correlated
 		int index = 0;
-		double smallest = Double.MAX_VALUE;
-		double averageDistance = 0;
+		distanceDeviation = Double.MAX_VALUE;
 		for (int i = 0; i < deviations.length; i++) {
-			if(groups[i].size() > 1 && deviations[i][1] < smallest) {
-				averageDistance = deviations[i][0];
-				smallest = deviations[i][1];
+			if(groups[i].size() > 1 && deviations[i][1] < distanceDeviation) {
+				distanceDeviation = deviations[i][1];
 				index = i;
 			}
 		}
-		//		System.out.println("Correlations: "+averageDistance+"//"+smallest);
 		boxes.clear();
 		boxes.addAll(groups[index]);
-		return averageDistance-(smallest/1.75);
+		averageBoxDistance -= (distanceDeviation/1.75);
 	}
 
 	private void defineGrid() {
-		Statistics xStat = new Statistics(), yStat = new Statistics();
-		for (int i = 0; i < boxes.size(); i++) {
-			double smallX = boxes.get(i).getPerimeter();
-			double smallY = boxes.get(i).getPerimeter();
-			double measure = boxes.get(i).getPerimeter()/2;
-			for (int j = i + 1; j < boxes.size(); j++) {
-				double xValue = Math.abs(boxes.get(i).getCenter().x - boxes.get(i).getCenter().x);
-				double yValue = Math.abs(boxes.get(i).getCenter().y - boxes.get(i).getCenter().y);
-				if(xValue > measure && xValue < smallX)
-					smallX = xValue;
-				if(yValue > measure && yValue < smallY)
-					smallY = yValue;
-			}
-			xStat.addValue(smallX);
-			yStat.addValue(smallY);
+
+		// Getting average area
+		Statistics boxStat = new Statistics();
+		double xStart = Double.MAX_VALUE, xEnd = Double.MIN_VALUE, yStart = Double.MAX_VALUE, yEnd = Double.MIN_VALUE;
+		for (ColorBox box : boxes) {
+			boxStat.addValue(box.getArea());
+			Point center = box.getCenter();
+			if(center.x < xStart)
+				xStart = center.x;
+			if(center.x > xEnd)
+				xEnd = center.x;
+			if(center.y < yStart)
+				yStart = center.y;
+			if(center.y > yEnd)
+				yEnd = center.y;
 		}
-		System.out.println("X >> Mean: "+xStat.getMean()+" Standard Deviation: "+xStat.getStandardDeviation());
-		System.out.println("Y >> Mean: "+yStat.getMean()+" Standard Deviation: "+yStat.getStandardDeviation());
+		averageBoxDistance = (((xEnd-xStart)/(grid[0].length-1))+((yEnd-yStart)/(grid.length-1)))/2;
+		averageBoxArea = boxStat.getMean();
+		double diff = Math.sqrt(averageBoxArea)/2;
+		Collections.sort(boxes);
+		//		for (ColorBox box : boxes) {
+		//			System.out.println("("+((int)box.getCenter().x)+","+((int)box.getCenter().y)+")");
+		//		}
+		boolean[] used = new boolean[boxes.size()];
+		for (int i = 0; i < grid.length; i++) {
+			for (int j = 0; j < grid[0].length; j++) {
+				ColorBox box = null;
+				double x = xStart + j*averageBoxDistance;
+				double y = yStart + i*averageBoxDistance;
+				for (int k = 0; k < used.length; k++) {
+					Point kCenter = boxes.get(k).getCenter();
+					if(!used[k] && Geometry.distance(x, y, kCenter.x, kCenter.y) < distanceDeviation) {
+						box = boxes.get(k);
+						break;
+					}
+				}
+				if(box == null) {
+					box = new ColorBox(new Point[]{new Point(x-diff, y-diff), new Point(x+diff, y-diff),
+							new Point(x+diff, y+diff), new Point(x-diff, y+diff)});
+					boxes.add(box);
+				}
+				grid[i][j] = box;
+			}
+		}
+
+
+		//		Statistics xStat = new Statistics(), yStat = new Statistics();
+		//		for (int i = 0; i < boxes.size(); i++) {
+		//			double smallX = boxes.get(i).getPerimeter();
+		//			double smallY = boxes.get(i).getPerimeter();
+		//			double measure = boxes.get(i).getPerimeter()/2;
+		//			for (int j = i + 1; j < boxes.size(); j++) {
+		//				double xValue = Math.abs(boxes.get(i).getCenter().x - boxes.get(i).getCenter().x);
+		//				double yValue = Math.abs(boxes.get(i).getCenter().y - boxes.get(i).getCenter().y);
+		//				if(xValue > measure && xValue < smallX)
+		//					smallX = xValue;
+		//				if(yValue > measure && yValue < smallY)
+		//					smallY = yValue;
+		//			}
+		//			xStat.addValue(smallX);
+		//			yStat.addValue(smallY);
+		//		}
+		//		System.out.println("X >> Mean: "+xStat.getMean()+" Standard Deviation: "+xStat.getStandardDeviation());
+		//		System.out.println("Y >> Mean: "+yStat.getMean()+" Standard Deviation: "+yStat.getStandardDeviation());
 	}
 
 	private void obtainColors() {
