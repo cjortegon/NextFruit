@@ -14,7 +14,7 @@ import visualkey.KCanvas;
 
 public class CCTest extends KCanvas {
 
-	private static final String PHOTO_PATH = "resources/color_checker_1.jpg";
+	private static final String PHOTO_PATH = "resources/color_checker_2.jpg";
 	private static final Dimension WINDOW = new Dimension(1100, 600);
 
 	private Image image;
@@ -31,7 +31,7 @@ public class CCTest extends KCanvas {
 
 		// Starting OpenCV
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-		colorChecker = new ColorChecker(PHOTO_PATH, 200, new int[]{4, 6});
+		colorChecker = new ColorChecker(PHOTO_PATH, 150, new int[]{4, 6});
 
 		// Draw original image
 		image = ImageUtility.mat2Image(colorChecker.getBGR());
