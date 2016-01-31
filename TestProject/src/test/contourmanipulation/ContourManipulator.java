@@ -44,7 +44,7 @@ public class ContourManipulator {
 	 * @param imagenACentrar
 	 * @return
 	 */
-	public void centrarImagen(){
+	public void centerImage(){
 		List<MatOfPoint> contornos = findContours();	
 		RectContour contornoRectangularMayor = findMaxRectangleContour(contornos);
 		image = findWarpPerspective(contornoRectangularMayor);
