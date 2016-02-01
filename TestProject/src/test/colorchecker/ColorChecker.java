@@ -13,6 +13,7 @@ import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
+import co.edu.icesi.frutificator.util.ColorConverter;
 import co.edu.icesi.frutificator.util.Geometry;
 import co.edu.icesi.frutificator.util.Statistics;
 import test.silhouettedetector.SilhouetteDetector;
@@ -20,16 +21,30 @@ import test.silhouettedetector.SilhouetteDetector;
 public class ColorChecker {
 
 	private Mat BGR, LAB, gray, MBlurred, silhouette;
-	private ColorBox grid[][];
+	private ColorBox[][] grid;
+	private double[][][] originalsRGB, originalsLAB, readLAB;
 	private ArrayList<ColorBox> boxes;
-	private int numberOfColors;
 	private double averageBoxArea, averageBoxDistance, distanceDeviation;
 
-	public ColorChecker(String imagePath, int sensibility, int[] size) {
+	public ColorChecker(String imagePath, int sensibility, double[][][] originals) {
 
 		// Setting parameters
-		this.numberOfColors = size[0]*size[1];
-		this.grid = new ColorBox[size[0]][size[1]];
+		this.grid = new ColorBox[originals.length][originals[0].length];
+		this.originalsRGB = originals;
+
+		// Converting originals to LAB
+		originalsLAB = new double[originals.length][originals[0].length][3];
+		for (int i = 0; i < originalsLAB.length; i++) {
+			for (int j = 0; j < originalsLAB[0].length; j++) {
+				for (int k = 0; k < 3; k++)
+					originalsLAB[i][j][k] = originals[i][j][k]/255;
+				//				System.out.print("("+originalsLAB[i][j][0]+","+originalsLAB[i][j][1]+","+originalsLAB[i][j][2]+") -> ");
+				originalsLAB[i][j] = ColorConverter.rgb2xyz(originalsLAB[i][j]);
+				//				System.out.print("("+originalsLAB[i][j][0]+","+originalsLAB[i][j][1]+","+originalsLAB[i][j][2]+") -> ");
+				originalsLAB[i][j] = ColorConverter.xyz2lab(originalsLAB[i][j]);
+				//				System.out.println("("+originalsLAB[i][j][0]+","+originalsLAB[i][j][1]+","+originalsLAB[i][j][2]+")");
+			}
+		}
 
 		// Reading image
 		BGR = Imgcodecs.imread(imagePath);
@@ -53,10 +68,10 @@ public class ColorChecker {
 		// Getting colors
 		obtainBoxes(sensibility, gray.clone());
 		filterBoxes();
-		System.out.println("Average distance between boxes: "+averageBoxDistance);
-		System.out.println("Average area of boxes: "+averageBoxArea);
 		obtainColors();
 		defineGrid();
+		System.out.println("Average distance between boxes: "+averageBoxDistance);
+		System.out.println("Average area of boxes: "+averageBoxArea);
 	}
 
 	private void obtainBoxes(int sensibility, Mat mat) {
@@ -71,7 +86,6 @@ public class ColorChecker {
 		for (MatOfPoint cnt : contours) {
 			boxes.add(new ColorBox(cnt.toArray()));
 		}
-		//		Collections.sort(boxes);
 	}
 
 	private void filterBoxes() {
@@ -102,16 +116,9 @@ public class ColorChecker {
 				Statistics distances = new Statistics();
 				for (int j = 0; j < groups[i].size()-1; j++) {
 					double smallDist = Double.MAX_VALUE;
-					//					double levelDist = Math.sqrt(groups[i].get(j).getArea())*0.25;
 					for (int k = j+1; k < groups[i].size(); k++) {
 						Point a = groups[i].get(j).getCenter();
 						Point b = groups[i].get(k).getCenter();
-						//						double xx = Math.abs(a.x - b.x);
-						//						double yy = Math.abs(a.y - b.y);
-						//						if(xx < levelDist && xx < smallDist)
-						//							smallDist = xx;
-						//						if(yy < levelDist && yy < smallDist)
-						//							smallDist = yy;
 						double distTmp = Geometry.distance(a.x, a.y, b.x, b.y);
 						if(distTmp < smallDist)
 							smallDist = distTmp;
@@ -157,10 +164,6 @@ public class ColorChecker {
 		averageBoxDistance = (((xEnd-xStart)/(grid[0].length-1))+((yEnd-yStart)/(grid.length-1)))/2;
 		averageBoxArea = boxStat.getMean();
 		double diff = Math.sqrt(averageBoxArea)/2;
-		Collections.sort(boxes);
-		//		for (ColorBox box : boxes) {
-		//			System.out.println("("+((int)box.getCenter().x)+","+((int)box.getCenter().y)+")");
-		//		}
 		boolean[] used = new boolean[boxes.size()];
 		for (int i = 0; i < grid.length; i++) {
 			for (int j = 0; j < grid[0].length; j++) {
@@ -180,35 +183,21 @@ public class ColorChecker {
 					boxes.add(box);
 				}
 				grid[i][j] = box;
+				readLAB[i][j] = box.getAverageRGB(BGR);
+				readLAB[i][j] = ColorConverter.rgb2xyz(readLAB[i][j]);
+				readLAB[i][j] = ColorConverter.xyz2lab(readLAB[i][j]);
 			}
 		}
-
-
-		//		Statistics xStat = new Statistics(), yStat = new Statistics();
-		//		for (int i = 0; i < boxes.size(); i++) {
-		//			double smallX = boxes.get(i).getPerimeter();
-		//			double smallY = boxes.get(i).getPerimeter();
-		//			double measure = boxes.get(i).getPerimeter()/2;
-		//			for (int j = i + 1; j < boxes.size(); j++) {
-		//				double xValue = Math.abs(boxes.get(i).getCenter().x - boxes.get(i).getCenter().x);
-		//				double yValue = Math.abs(boxes.get(i).getCenter().y - boxes.get(i).getCenter().y);
-		//				if(xValue > measure && xValue < smallX)
-		//					smallX = xValue;
-		//				if(yValue > measure && yValue < smallY)
-		//					smallY = yValue;
-		//			}
-		//			xStat.addValue(smallX);
-		//			yStat.addValue(smallY);
+		Collections.sort(boxes);
+		//		for (ColorBox box : boxes) {
+		//			System.out.println("("+((int)box.getCenter().x)+","+((int)box.getCenter().y)+")");
 		//		}
-		//		System.out.println("X >> Mean: "+xStat.getMean()+" Standard Deviation: "+xStat.getStandardDeviation());
-		//		System.out.println("Y >> Mean: "+yStat.getMean()+" Standard Deviation: "+yStat.getStandardDeviation());
 	}
 
 	private void obtainColors() {
 		ArrayList<double[]> colorsTmp = new ArrayList<>();
 		for (ColorBox box : boxes) {
 			double d[] = BGR.get((int)box.getCenter().y, (int)box.getCenter().x);
-			System.out.print("("+d[2]+","+d[1]+","+d[0]+")");
 			colorsTmp.add(d);
 		}
 		System.out.println();

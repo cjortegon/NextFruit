@@ -3,6 +3,7 @@ package test.colorchecker;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import org.opencv.core.Mat;
 import org.opencv.core.Point;
 
 import co.edu.icesi.frutificator.util.Geometry;
@@ -39,7 +40,7 @@ public class ColorBox implements Comparable<ColorBox> {
 		double centerY = (cordY[0]+cordY[box.length-1])/2;
 		center = new Point(centerX, centerY);
 	}
-	
+
 	public void reduceToSquare() {
 		double xStart = Double.MAX_VALUE, xEnd = Double.MIN_VALUE, yStart = Double.MAX_VALUE, yEnd = Double.MIN_VALUE;
 		for (Point p : box) {
@@ -55,7 +56,7 @@ public class ColorBox implements Comparable<ColorBox> {
 		box = new Point[]{new Point(xStart, yStart), new Point(xEnd, yStart),
 				new Point(xEnd, yEnd), new Point(xStart, yEnd)};
 	}
-	
+
 	public void reduceBoxPoints() {
 		Point last = null;
 		ArrayList<Point> newPoints = new ArrayList<>();
@@ -79,6 +80,31 @@ public class ColorBox implements Comparable<ColorBox> {
 		for (int i = 0; i < box.length; i++) {
 			box[i] = newPoints.get(i);
 		}
+	}
+
+	public double[] getAverageRGB(Mat mat) {
+		double xStart = Double.MAX_VALUE, xEnd = Double.MIN_VALUE, yStart = Double.MAX_VALUE, yEnd = Double.MIN_VALUE;
+		for (Point p : box) {
+			if(p.x < xStart)
+				xStart = p.x;
+			if(p.x > xEnd)
+				xEnd = p.x;
+			if(p.y < yStart)
+				yStart = p.y;
+			if(p.y > yEnd)
+				yEnd = p.y;
+		}
+		double qw = (xEnd - xStart)/4, qh = (yEnd - yStart)/4;
+		int startX = (int) (xStart + qw), startY = (int) (yStart + qh), endX = (int) (xStart + qw*3), endY = (int) (yStart + qh*3);
+		int pixels = (endX - startX)*(endY - startY);
+		double r = 0, g = 0, b = 0;
+		for (int x = startX; x < endX; x++) {
+			for (int y = startY; y < endY; y++) {
+				double d[] = mat.get(y, x);
+				r = d[2]; g = d[1]; b = d[0];
+			}
+		}
+		return new double[]{r/pixels, g/pixels, b/pixels};
 	}
 
 	public Point[] getBox() {
