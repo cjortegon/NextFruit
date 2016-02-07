@@ -1,6 +1,5 @@
 package co.edu.icesi.frutificator.util;
 
-
 /**
  * This static class converts color values from one color space to another.
  * @author JuanD
@@ -10,7 +9,7 @@ public class ColorConverter {
 
 	private static final double EPSILON = 216/24389;
 	private static final double KAPPA = 24389/27;
-
+	
 	/**
 	 * Converts from RGB color space to equivalent XYZ color space.
 	 * Color must be arranged in [R,G,B] order.
@@ -54,15 +53,10 @@ public class ColorConverter {
 	public static double[] xyz2lab(double[] xyz) {
 		double[] Lab = new double[3];
 
-		/*
-		 * De momento x, y e z sub r se dejan con un valor de 1.
-		 * Averiguar y corregir el valor verdadero cuando sepamos
-		 * a que se refieren con:
-		 * This conversion requires a reference white Xr, Yr, Zr!
-		 */
-		double XOfR = 1;
-		double YOfR = 1;
-		double ZOfR = 1;
+		//White Reference
+		double XOfR = 0.95047;
+		double YOfR = 1.00000;
+		double ZOfR = 1.08883;
 
 		double x = xyz[0]/XOfR;
 		double y = xyz[1]/YOfR;
@@ -99,6 +93,7 @@ public class ColorConverter {
 		Lab[0] = L;
 		Lab[1] = a;
 		Lab[2] = b;
+		
 		return Lab;
 	}
 
