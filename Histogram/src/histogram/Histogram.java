@@ -14,33 +14,60 @@ public class Histogram {
 	public Histogram(String imagePath) {
 		mat = Imgcodecs.imread(imagePath);
 		histogram = new int[768];
-		rgbHistogram = new int[3][768];
+		rgbHistogram = new int[3][255];
+	}
+	
+	public void convertToCromaticScale() {
+		for (int i = 0; i < mat.height(); i++) {
+			for (int j = 0; j < mat.width(); j++) {
+				double d[] = mat.get(i, j);
+				double sum = (d[0] + d[1] + d[2]) / 255;
+				if(sum > 0) {
+					d[0] /= sum;
+					d[1] /= sum;
+					d[2] /= sum;
+					mat.put(i, j, d);
+				}
+			}
+		}
+	}
+	
+	public void readHistogram(boolean useAutoFill) {
+		histogram = new int[768];
+		rgbHistogram = new int[3][255];
 		for (int i = 0; i < mat.height(); i++) {
 			for (int j = 0; j < mat.width(); j++) {
 				double d[] = mat.get(i, j);
 				int pos = (int) (d[0]+d[1]+d[2]);
-				addToHistogram(pos, histogram);
-				addToHistogram((int)d[2], rgbHistogram[0]);
-				addToHistogram((int)d[1], rgbHistogram[1]);
-				addToHistogram((int)d[0], rgbHistogram[2]);
+				if(useAutoFill) {
+					addToHistogram(pos, histogram);
+					addToHistogram((int)d[2], rgbHistogram[0]);
+					addToHistogram((int)d[1], rgbHistogram[1]);
+					addToHistogram((int)d[0], rgbHistogram[2]);
+				} else {
+					histogram[pos] ++;
+					rgbHistogram[0][(int)d[2]] ++;
+					rgbHistogram[1][(int)d[1]] ++;
+					rgbHistogram[2][(int)d[0]] ++;
+				}
 			}
 		}
-		
+
 		// Fix RGB
-		for (int i = 255; i >= 0; i--) {
-			int red = rgbHistogram[0][i]/3;
-			int green = rgbHistogram[1][i]/3;
-			int blue = rgbHistogram[2][i]/3;
-			rgbHistogram[0][i*3] = red;
-			rgbHistogram[0][i*3+1] = red;
-			rgbHistogram[0][i*3+2] = red;
-			rgbHistogram[1][i*3] = green;
-			rgbHistogram[1][i*3+1] = green;
-			rgbHistogram[1][i*3+2] = green;
-			rgbHistogram[2][i*3] =blue;
-			rgbHistogram[2][i*3+1] =blue;
-			rgbHistogram[2][i*3+2] =blue;
-		}
+		//		for (int i = 255; i >= 0; i--) {
+		//			int red = rgbHistogram[0][i]/3;
+		//			int green = rgbHistogram[1][i]/3;
+		//			int blue = rgbHistogram[2][i]/3;
+		//			rgbHistogram[0][i*3] = red;
+		//			rgbHistogram[0][i*3+1] = red;
+		//			rgbHistogram[0][i*3+2] = red;
+		//			rgbHistogram[1][i*3] = green;
+		//			rgbHistogram[1][i*3+1] = green;
+		//			rgbHistogram[1][i*3+2] = green;
+		//			rgbHistogram[2][i*3] =blue;
+		//			rgbHistogram[2][i*3+1] =blue;
+		//			rgbHistogram[2][i*3+2] =blue;
+		//		}
 	}
 
 	private void addToHistogram(int pos, int[] histogram) {
@@ -50,9 +77,9 @@ public class Histogram {
 			if(pos > 0)
 				histogram[pos-1] += 2;
 		}
-		if(pos < 767) {
+		if(pos < histogram.length-1) {
 			histogram[pos+1] += 2;
-			if(pos < 766)
+			if(pos < histogram.length-2)
 				histogram[pos+2] ++;
 		}
 	}
@@ -64,6 +91,34 @@ public class Histogram {
 				int pos = (int) (d[0]+d[1]+d[2]);
 				if(pos > start && pos < end) {
 					mat.put(i, j, fill);
+				}
+			}
+		}
+	}
+
+	public void filterFigureByColorProfile(double[] rgb, double[] range, double[] matchColor, double[] notMatchColor) {
+		if(matchColor != null || notMatchColor != null) {
+			range[0] /= 2;
+			range[1] /= 2;
+			range[2] /= 2;
+			int minR = (int) (rgb[0] - range[0]), maxR = (int) (rgb[0] + range[0]);
+			int minG = (int) (rgb[1] - range[1]), maxG = (int) (rgb[1] + range[1]);
+			int minB = (int) (rgb[2] - range[2]), maxB = (int) (rgb[2] + range[2]);
+			for (int i = 0; i < mat.height(); i++) {
+				for (int j = 0; j < mat.width(); j++) {
+					double[] d = mat.get(i, j);
+					boolean match = d[0] > minB && d[0] < maxB
+							&& d[1] > minG && d[1] < maxG
+							&& d[2] > minR && d[2] < maxR;
+							if(match) {
+								if(matchColor != null) {
+									mat.put(i, j, matchColor);
+								}
+							} else {
+								if(notMatchColor != null) {
+									mat.put(i, j, notMatchColor);
+								}
+							}
 				}
 			}
 		}

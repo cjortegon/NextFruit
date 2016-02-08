@@ -101,7 +101,7 @@ public class ColorBox implements Comparable<ColorBox> {
 		for (int x = startX; x < endX; x++) {
 			for (int y = startY; y < endY; y++) {
 				double d[] = mat.get(y, x);
-				r = d[2]; g = d[1]; b = d[0];
+				r += d[2]; g += d[1]; b += d[0];
 			}
 		}
 		return new double[]{r/pixels, g/pixels, b/pixels};

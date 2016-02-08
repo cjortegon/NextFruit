@@ -28,6 +28,7 @@ public class ImageUtility {
 		try {
 			image = ImageIO.read(new ByteArrayInputStream(buffer.toArray()));
 		} catch (IOException e) {
+			System.out.println("Error convirtiendo la imagen");
 		}
 		return image;
 	}

@@ -12,7 +12,7 @@ import visualkey.KCanvas;
 
 public class Test extends KCanvas {
 
-	private static final String PHOTO_PATH = "resources/arbol_oculto.png";
+	private static final String PHOTO_PATH = "resources/imagen3.bmp";
 	private static final Dimension WINDOW = new Dimension(768, 500);
 
 	private Histogram histogram;
@@ -31,11 +31,16 @@ public class Test extends KCanvas {
 		// Starting OpenCV
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 		histogram = new Histogram(PHOTO_PATH);
+		histogram.readHistogram(true);
 		histogram.statisticalSmothHistogram();
 		histogram.smoothFillHistogram();
 		
+		// Convert color format
+		histogram.convertToCromaticScale();
+		
 		// Removing one part of the image
-		histogram.removeGrayRegion(30, 800, new double[]{255, 255, 255});
+//		histogram.removeGrayRegion(30, 800, new double[]{255, 255, 255});
+		histogram.filterFigureByColorProfile(new double[]{117.5, 66, 38.5}, new double[]{113, 80, 77}, new double[]{255, 255, 255}, null);
 
 		// Draw original image
 		image = ImageUtility.mat2Image(histogram.getImage());
@@ -65,7 +70,7 @@ public class Test extends KCanvas {
 				
 //				// Red
 //				g.setColor(new Color(255, 0, 0, 128));
-//				bar = (int) ((red[i]/((double)max))*WINDOW.height);
+//				bar = (int) ((red[i/3]/((double)max))*WINDOW.height);
 //				g.drawLine(i, 500-bar, i, 500);
 //				
 //				// Green

@@ -22,15 +22,17 @@ public class ColorChecker {
 
 	private Mat BGR, LAB, gray, MBlurred, silhouette;
 	private ColorBox[][] grid;
-	private double[][][] originalsRGB, originalsLAB, readLAB;
+	private double[][][] originalsRGB, originalsLAB, readRGB, readLAB;
 	private ArrayList<ColorBox> boxes;
 	private double averageBoxArea, averageBoxDistance, distanceDeviation;
 
 	public ColorChecker(String imagePath, int sensibility, double[][][] originals) {
 
 		// Setting parameters
-		this.grid = new ColorBox[originals.length][originals[0].length];
-		this.originalsRGB = originals;
+		grid = new ColorBox[originals.length][originals[0].length];
+		readLAB = new double[grid.length][grid[0].length][3];
+		readRGB = new double[grid.length][grid[0].length][3];
+		originalsRGB = originals;
 
 		// Converting originals to LAB
 		originalsLAB = new double[originals.length][originals[0].length][3];
@@ -183,15 +185,15 @@ public class ColorChecker {
 					boxes.add(box);
 				}
 				grid[i][j] = box;
-				readLAB[i][j] = box.getAverageRGB(BGR);
-				readLAB[i][j] = ColorConverter.rgb2xyz(readLAB[i][j]);
+				readRGB[i][j] = box.getAverageRGB(BGR);
+				double rgb[] = new double[] {readRGB[i][j][0]/255, readRGB[i][j][1]/255, readRGB[i][j][2]/255};
+				readLAB[i][j] = ColorConverter.rgb2xyz(rgb);
 				readLAB[i][j] = ColorConverter.xyz2lab(readLAB[i][j]);
+				System.out.println("("+readRGB[i][j][0]+", "+readRGB[i][j][1]+", "+readRGB[i][j][2]
+						+") >>> ("+readLAB[i][j][0]+", "+readLAB[i][j][1]+", "+readLAB[i][j][2]+")");
 			}
 		}
 		Collections.sort(boxes);
-		//		for (ColorBox box : boxes) {
-		//			System.out.println("("+((int)box.getCenter().x)+","+((int)box.getCenter().y)+")");
-		//		}
 	}
 
 	private void obtainColors() {
