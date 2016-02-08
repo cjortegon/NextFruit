@@ -31,7 +31,9 @@ public class CalibrationsTest extends KCanvas {
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 		
 		// Process imag
-		sizeCalibrator = new SizeCalibrator(PHOTO_PATH, 9, 6);
+		sizeCalibrator = new SizeCalibrator(PHOTO_PATH, 6, 9, 2.3);
+		System.out.println("Pixels for each 2.3cm: "+sizeCalibrator.getPixelsBetweenIntersections());
+		System.out.println("Pixels for cm: "+sizeCalibrator.getPixelsForCentimeter());
 
 		// Draw original image
 		image = ImageUtility.mat2Image(sizeCalibrator.getImage());

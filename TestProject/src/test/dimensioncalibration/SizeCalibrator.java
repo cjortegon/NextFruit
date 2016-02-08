@@ -11,40 +11,58 @@ import org.opencv.core.TermCriteria;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
+import co.edu.icesi.frutificator.util.Geometry;
+
 public class SizeCalibrator {
 
 	private Mat mat;
 	private List<Point> points;
-	private int numCornersHor;
-	private int numCornersVer;
+	private int rows;
+	private int columns;
+	private double intersectionsCentimeters, pixelsBetweenIntersections;
 
-	public SizeCalibrator(String path, int rows, int columns) {
+	public SizeCalibrator(String path, int rows, int columns, double intersectionsSize) {
 		mat = Imgcodecs.imread(path);
-		numCornersVer = columns;
-		numCornersHor = rows;
+		this.rows = rows;
+		this.columns = columns;
+		this.intersectionsCentimeters = intersectionsSize;
 		findAndDrawPoints();
 	}
 
 	private void findAndDrawPoints() {
 		Mat grayImage = new Mat();
 		Imgproc.cvtColor(mat, grayImage, Imgproc.COLOR_BGR2GRAY);
-		Size boardSize = new Size(this.numCornersHor, this.numCornersVer);
+		Size boardSize = new Size(columns, rows);
 		MatOfPoint2f imageCorners = new MatOfPoint2f();
 		boolean found = Calib3d.findChessboardCorners(grayImage, boardSize, imageCorners,
 				Calib3d.CALIB_CB_ADAPTIVE_THRESH + Calib3d.CALIB_CB_NORMALIZE_IMAGE + Calib3d.CALIB_CB_FAST_CHECK);
 		if (found) {
-			System.out.println("Se encontro un patron");
 			TermCriteria term = new TermCriteria(TermCriteria.EPS | TermCriteria.MAX_ITER, 30, 0.1);
 			Imgproc.cornerSubPix(grayImage, imageCorners, new Size(11, 11), new Size(-1, -1), term);
-			Calib3d.drawChessboardCorners(mat, boardSize, imageCorners, found);
+//			Calib3d.drawChessboardCorners(mat, boardSize, imageCorners, found);
 		} else {
 			System.out.println("No se encontro un patron");
 		}
 		
 		points = imageCorners.toList();
-//		for (Point point : points) {
-//			System.out.println(point.x+","+point.y);
-//		}
+		Point last = null;
+		int count = 0;
+		for (Point point : points) {
+			if(count%columns != 0) {
+				pixelsBetweenIntersections += Geometry.distance(last.x, last.y, point.x, point.y);
+			}
+			last = point;
+			count ++;
+		}
+		pixelsBetweenIntersections /= (count - rows);
+	}
+	
+	public double getPixelsBetweenIntersections () {
+		return pixelsBetweenIntersections;
+	}
+	
+	public double getPixelsForCentimeter() {
+		return pixelsBetweenIntersections / intersectionsCentimeters;
 	}
 
 	public Mat getImage() {
