@@ -36,11 +36,8 @@ public class ColorChecker {
 			for (int j = 0; j < originalsLAB[0].length; j++) {
 				for (int k = 0; k < 3; k++)
 					originalsLAB[i][j][k] = originals[i][j][k]/255;
-				//				System.out.print("("+originalsLAB[i][j][0]+","+originalsLAB[i][j][1]+","+originalsLAB[i][j][2]+") -> ");
 				originalsLAB[i][j] = ColorConverter.rgb2xyz(originalsLAB[i][j]);
-				//				System.out.print("("+originalsLAB[i][j][0]+","+originalsLAB[i][j][1]+","+originalsLAB[i][j][2]+") -> ");
 				originalsLAB[i][j] = ColorConverter.xyz2lab(originalsLAB[i][j]);
-				//				System.out.println("("+originalsLAB[i][j][0]+","+originalsLAB[i][j][1]+","+originalsLAB[i][j][2]+")");
 			}
 		}
 
@@ -52,7 +49,6 @@ public class ColorChecker {
 		int ksize = (int) (Math.sqrt(BGR.width()*BGR.height())/60);
 		if(ksize %2 == 0)
 			ksize ++;
-		System.out.println("ksize for blur: "+ksize);
 		Imgproc.medianBlur(BGR, MBlurred, ksize);
 
 		// Silhouette detection
@@ -68,8 +64,6 @@ public class ColorChecker {
 		filterBoxes();
 		obtainColors();
 		defineGrid();
-		System.out.println("Average distance between boxes: "+averageBoxDistance);
-		System.out.println("Average area of boxes: "+averageBoxArea);
 	}
 
 	private void obtainBoxes(int sensibility, Mat mat) {
@@ -77,7 +71,6 @@ public class ColorChecker {
 		Imgproc.threshold(mat, thresh, sensibility, 255, 1);
 		List<MatOfPoint> contours = new ArrayList<>();
 		Imgproc.findContours(thresh, contours, mat, 1, 2);
-		System.out.println("Contours: "+contours.size());
 
 		boxes = new ArrayList<ColorBox>();
 		int i = 0;
@@ -95,8 +88,6 @@ public class ColorChecker {
 			area.addValue(boxes.get(i).getArea());
 			perimeter.addValue(boxes.get(i).getPerimeter());
 		}
-		System.out.println("Deviations -> (Deviation: "+((int)area.getStandardDeviation())
-				+")(Perimeter: "+((int)perimeter.getStandardDeviation())+")");
 
 		// Separating groups by area and perimeter differences
 		GroupManager groupManager = new GroupManager(new double[]{area.getStandardDeviation(), perimeter.getStandardDeviation()});
@@ -185,8 +176,6 @@ public class ColorChecker {
 				double rgb[] = new double[] {readRGB[i][j][0]/255, readRGB[i][j][1]/255, readRGB[i][j][2]/255};
 				readLAB[i][j] = ColorConverter.rgb2xyz(rgb);
 				readLAB[i][j] = ColorConverter.xyz2lab(readLAB[i][j]);
-				System.out.println("("+readRGB[i][j][0]+", "+readRGB[i][j][1]+", "+readRGB[i][j][2]
-						+") >>> ("+readLAB[i][j][0]+", "+readLAB[i][j][1]+", "+readLAB[i][j][2]+")");
 			}
 		}
 		Collections.sort(boxes);
@@ -198,7 +187,6 @@ public class ColorChecker {
 			double d[] = BGR.get((int)box.getCenter().y, (int)box.getCenter().x);
 			colorsTmp.add(d);
 		}
-		System.out.println();
 	}
 
 	public ArrayList<ColorBox> getColorBoxes() {

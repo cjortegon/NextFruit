@@ -39,9 +39,7 @@ public class SizeCalibrator {
 		if (found) {
 			TermCriteria term = new TermCriteria(TermCriteria.EPS | TermCriteria.MAX_ITER, 30, 0.1);
 			Imgproc.cornerSubPix(grayImage, imageCorners, new Size(11, 11), new Size(-1, -1), term);
-//			Calib3d.drawChessboardCorners(mat, boardSize, imageCorners, found);
 		} else {
-			System.out.println("No se encontro un patron");
 		}
 		
 		points = imageCorners.toList();
