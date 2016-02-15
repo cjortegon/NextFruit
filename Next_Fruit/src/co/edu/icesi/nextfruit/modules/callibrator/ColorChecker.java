@@ -21,28 +21,31 @@ public class ColorChecker {
 	private double[][][] originalsRGB, originalsLAB, readRGB, readLAB;
 	private ArrayList<ColorBox> boxes;
 	private double averageBoxArea, averageBoxDistance, distanceDeviation;
+	private int sensibility;
 
-	public ColorChecker(String imagePath, int sensibility, double[][][] originals) {
+	public ColorChecker(String imagePath, int sensibility, double[][][] originalsRGB) {
+		this.originalsRGB = originalsRGB;
+		this.sensibility = sensibility;
+		this.BGR = Imgcodecs.imread(imagePath);
+	}
+
+	public void process() {
 
 		// Setting parameters
-		grid = new ColorBox[originals.length][originals[0].length];
+		grid = new ColorBox[originalsRGB.length][originalsRGB[0].length];
 		readLAB = new double[grid.length][grid[0].length][3];
 		readRGB = new double[grid.length][grid[0].length][3];
-		originalsRGB = originals;
 
 		// Converting originals to LAB
-		originalsLAB = new double[originals.length][originals[0].length][3];
+		originalsLAB = new double[originalsRGB.length][originalsRGB[0].length][3];
 		for (int i = 0; i < originalsLAB.length; i++) {
 			for (int j = 0; j < originalsLAB[0].length; j++) {
 				for (int k = 0; k < 3; k++)
-					originalsLAB[i][j][k] = originals[i][j][k]/255;
+					originalsLAB[i][j][k] = originalsRGB[i][j][k]/255;
 				originalsLAB[i][j] = ColorConverter.rgb2xyz(originalsLAB[i][j]);
 				originalsLAB[i][j] = ColorConverter.xyz2lab(originalsLAB[i][j]);
 			}
 		}
-
-		// Reading image
-		BGR = Imgcodecs.imread(imagePath);
 
 		// Median blur
 		MBlurred = new Mat();
@@ -64,6 +67,7 @@ public class ColorChecker {
 		filterBoxes();
 		obtainColors();
 		defineGrid();
+
 	}
 
 	private void obtainBoxes(int sensibility, Mat mat) {

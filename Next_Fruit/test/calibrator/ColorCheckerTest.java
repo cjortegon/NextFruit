@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import org.opencv.core.Core;
 import org.opencv.core.Point;
 
+import co.edu.icesi.nextfruit.modules.Constants;
 import co.edu.icesi.nextfruit.modules.callibrator.ColorBox;
 import co.edu.icesi.nextfruit.modules.callibrator.ColorChecker;
 import co.edu.icesi.nextfruit.util.ImageUtility;
@@ -34,6 +35,7 @@ public class ColorCheckerTest extends KCanvas {
 		// Starting OpenCV
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 		colorChecker = new ColorChecker(PHOTO_PATH, 150, Constants.ORIGINALS);
+		colorChecker.process();
 
 		// Draw original image
 		image = ImageUtility.mat2Image(colorChecker.getBGR());

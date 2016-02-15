@@ -51,17 +51,21 @@ public class KPanel extends JPanel {
 	// Layout
 	private GridBagLayout layout = new GridBagLayout();
 
-	public void addLabel(String text, int fila, int columna, int ancho, int alto, int wightx, int weightx, int weighty, boolean centrado) {
+	public void addLabel(String text, int fila, int columna, int ancho, int alto, boolean centrado) {
 		label = new JLabel(text);
-		setRestriction(fila, columna, ancho, alto, wightx, weightx, centrado);
+		setRestriction(fila, columna, ancho, alto, 1, 1, centrado);
 		layout.setConstraints(label, restriction);
 		this.add(label);
 	}
 
-	public void addComponent(Component component, int fila, int columna, int ancho, int alto, int nweightx, int nweighty, boolean centrado){
+	public void addComponent(Component component, int fila, int columna, int ancho, int alto, int nweightx, int nweighty, boolean centrado) {
 		setRestriction(fila, columna, ancho, alto, nweighty, nweightx, centrado);
 		layout.setConstraints(component, restriction);
 		this.add(component);
+	}
+
+	public void addComponent(Component component, int fila, int columna, int ancho, int alto, boolean centrado){
+		addComponent(component, fila, columna, ancho, alto, 1, 1, centrado);
 	}
 
 	public void setRestriction(int fila, int columna, int ancho, int alto, int nweightx, int nweighty, boolean centrado) {

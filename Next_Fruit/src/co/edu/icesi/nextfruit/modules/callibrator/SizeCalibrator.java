@@ -21,15 +21,14 @@ public class SizeCalibrator {
 	private int columns;
 	private double intersectionsCentimeters, pixelsBetweenIntersections;
 
-	public SizeCalibrator(String path, int rows, int columns, double intersectionsSize) {
+	public SizeCalibrator(String path, int rows, int columns) {
 		mat = Imgcodecs.imread(path);
 		this.rows = rows;
 		this.columns = columns;
-		this.intersectionsCentimeters = intersectionsSize;
-		findAndDrawPoints();
 	}
 
-	private void findAndDrawPoints() {
+	public void process(double intersectionsSize) {
+		this.intersectionsCentimeters = intersectionsSize;
 		Mat grayImage = new Mat();
 		Imgproc.cvtColor(mat, grayImage, Imgproc.COLOR_BGR2GRAY);
 		Size boardSize = new Size(columns, rows);

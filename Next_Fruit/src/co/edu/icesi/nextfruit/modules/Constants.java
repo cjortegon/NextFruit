@@ -1,4 +1,4 @@
-package calibrator;
+package co.edu.icesi.nextfruit.modules;
 
 public class Constants {
 
