@@ -4,6 +4,8 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import java.awt.image.WritableRaster;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
@@ -16,20 +18,17 @@ import org.opencv.imgcodecs.Imgcodecs;
 public class ImageUtility {
 
 	public static BufferedImage mat2Image(Mat mat) {
-
-		// Create a temporary buffer
-		MatOfByte buffer = new MatOfByte();
-
-		// Encode the frame in the buffer, according to the PNG format
-		Imgcodecs.imencode(".png", mat, buffer);
-
-		// Build and return an Image created from the image encoded in the buffer
-		BufferedImage image = null;
-		try {
-			image = ImageIO.read(new ByteArrayInputStream(buffer.toArray()));
-		} catch (IOException e) {
-			System.out.println("Error convirtiendo la imagen");
+		int type = 0;
+		if (mat.channels() == 1) {
+			type = BufferedImage.TYPE_BYTE_GRAY;
+		} else if (mat.channels() == 3) {
+			type = BufferedImage.TYPE_3BYTE_BGR;
 		}
+		BufferedImage image = new BufferedImage(mat.width(), mat.height(), type);
+		WritableRaster raster = image.getRaster();
+		DataBufferByte dataBuffer = (DataBufferByte) raster.getDataBuffer();
+		byte[] data = dataBuffer.getData();
+		mat.get(0, 0, data);
 		return image;
 	}
 
@@ -57,7 +56,7 @@ public class ImageUtility {
 		}
 		return new double[]{w, h, 1/f};
 	}
-	
+
 	public static double[] drawImage(Image image, Dimension windowSize, Graphics graphics) {
 		double size[] = getResize(image, windowSize);
 		graphics.drawImage(image, 0, 0, (int)size[0], (int)size[1], null);
