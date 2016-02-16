@@ -29,19 +29,18 @@ public class CalibrationController implements Initializable, ActionListener {
 	public void init(Attachable model, Updateable view) {
 		this.model = (Model) model;
 		this.view = (CalibrationWindow) view;
-		addListeners(view);
+		addListeners();
 	}
 
-	private void addListeners(Object view) {
-		CalibrationWindow window = (CalibrationWindow) view;
-		window.getLoadColorCheckerButton().setActionCommand(LOAD_COLOR_CHECKER);
-		window.getLoadColorCheckerButton().addActionListener(this);
-		window.getLoadSizeCalibrationButton().setActionCommand(LOAD_SIZE_CALIBRATION);
-		window.getLoadSizeCalibrationButton().addActionListener(this);
-		window.getProcessButton().setActionCommand(PROCESS);
-		window.getProcessButton().addActionListener(this);
-		window.getResultsButton().setActionCommand(RESULTS);
-		window.getResultsButton().addActionListener(this);
+	private void addListeners() {
+		view.getLoadColorCheckerButton().setActionCommand(LOAD_COLOR_CHECKER);
+		view.getLoadColorCheckerButton().addActionListener(this);
+		view.getLoadSizeCalibrationButton().setActionCommand(LOAD_SIZE_CALIBRATION);
+		view.getLoadSizeCalibrationButton().addActionListener(this);
+		view.getProcessButton().setActionCommand(PROCESS);
+		view.getProcessButton().addActionListener(this);
+		view.getResultsButton().setActionCommand(RESULTS);
+		view.getResultsButton().addActionListener(this);
 	}
 
 	@Override
@@ -69,7 +68,8 @@ public class CalibrationController implements Initializable, ActionListener {
 
 		case PROCESS:
 			try {
-				model.calibrate(Double.valueOf(view.getSizeCalibrationMeasure().getText()));
+				File matrix = (File) view.getMatrixComboBox().getItemAt(view.getMatrixComboBox().getSelectedIndex());
+				model.calibrate(matrix, Double.valueOf(view.getSizeCalibrationMeasure().getText()));
 				view.getResultsButton().setEnabled(true);
 			} catch (NumberFormatException nfe) {
 				view.showMessage("Escriba el tamaño de la cuadricula en cm para calibrar las distancias.");

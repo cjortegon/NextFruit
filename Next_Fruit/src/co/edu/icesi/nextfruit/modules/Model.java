@@ -1,5 +1,6 @@
 package co.edu.icesi.nextfruit.modules;
 
+import java.io.File;
 import java.util.LinkedList;
 
 import org.opencv.core.Core;
@@ -54,9 +55,9 @@ public class Model implements Attachable {
 		updateAll();
 	}
 
-	public void calibrate(double gridSize) {
+	public void calibrate(File conversionMatrix, double gridSize) {
 		if(colorChecker != null) {
-			colorChecker.process();
+			colorChecker.process(conversionMatrix);
 		}
 		if(sizeCalibrator != null) {
 			sizeCalibrator.process(gridSize);

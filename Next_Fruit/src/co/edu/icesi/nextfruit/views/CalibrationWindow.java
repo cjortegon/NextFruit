@@ -7,6 +7,7 @@ import java.awt.Image;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
@@ -19,6 +20,8 @@ import co.edu.icesi.nextfruit.modules.callibrator.ColorBox;
 import co.edu.icesi.nextfruit.mvc.interfaces.Attachable;
 import co.edu.icesi.nextfruit.mvc.interfaces.Initializable;
 import co.edu.icesi.nextfruit.mvc.interfaces.Updateable;
+import co.edu.icesi.nextfruit.util.File;
+import co.edu.icesi.nextfruit.util.FilesUtility;
 import co.edu.icesi.nextfruit.util.ImageUtility;
 import visualkey.KFrame;
 import visualkey.KPanel;
@@ -26,18 +29,22 @@ import visualkey.KPanel;
 public class CalibrationWindow extends KFrame implements Initializable, Updateable {
 
 	private static final Dimension CANVAS_SIZE = new Dimension(300, 200);
+	private static final String MATRIX_FOLDER = "./Matrices";
 	private static final int BOX_SIZE = 3;
 
 	private Model model;
 	private JButton loadColorCheckerButton, loadSizeCalibrationButton, processButton, resultsButton;
+	private JComboBox matrixComboBox;
 	private JTextField sizeCalibrationMeasure;
 	private JLabel colorCheckerStatus, sizeCalibrationStatus;
 	private ColorCheckerCanvas colorCheckerCanvas;
 	private SizeCalibrationCanvas sizeCalibrationCanvas;
 	private Mat colorCheckerMat, sizeCalibrationMat;
 	private Image colorCheckerImage, sizeCalibrationImage;
+	private File matrixFiles[];
 
 	public CalibrationWindow() {
+		matrixFiles = FilesUtility.listFiles(MATRIX_FOLDER, "csv");
 	}
 
 	@Override
@@ -50,12 +57,12 @@ public class CalibrationWindow extends KFrame implements Initializable, Updateab
 		processButton.setEnabled(false);
 		resultsButton = new JButton("Ver resultados");
 		resultsButton.setEnabled(false);
+		matrixComboBox = new JComboBox<>(matrixFiles);
 		sizeCalibrationMeasure = new JTextField();
 		colorCheckerStatus = new JLabel("-o-");
 		sizeCalibrationStatus = new JLabel("-o-");
 		colorCheckerCanvas = new ColorCheckerCanvas(CANVAS_SIZE);
 		sizeCalibrationCanvas = new SizeCalibrationCanvas(CANVAS_SIZE);
-		sizeCalibrationMeasure = new JTextField();
 
 		// Adding objects to window
 		addComponent(loadColorCheckerButton, 0, 0, 1, 1, false);
@@ -64,10 +71,12 @@ public class CalibrationWindow extends KFrame implements Initializable, Updateab
 		addComponent(sizeCalibrationCanvas, 1, 1, 1, 1, false);
 		addComponent(colorCheckerStatus, 2, 0, 1, 1, false);
 		addComponent(sizeCalibrationStatus, 2, 1, 1, 1, false);
-		addLabel("Digite el tamaño de un lado de los recuadros:", 3, 0, 1, 1, false);
-		addComponent(sizeCalibrationMeasure, 3, 1, 1, 1, false);
-		addComponent(processButton, 4, 0, 1, 1, true);
-		addComponent(resultsButton, 4, 1, 1, 1, true);
+		addLabel("Seleccione la matriz de transformacion:", 3, 0, 1, 1, false);
+		addLabel("Digite el tamaño de un lado de los recuadros:", 3, 1, 1, 1, false);
+		addComponent(matrixComboBox, 4, 0, 1, 1, false);
+		addComponent(sizeCalibrationMeasure, 4, 1, 1, 1, false);
+		addComponent(processButton, 5, 0, 1, 1, true);
+		addComponent(resultsButton, 5, 1, 1, 1, true);
 
 		// Attaching to model
 		this.model = (Model) model;
@@ -163,6 +172,10 @@ public class CalibrationWindow extends KFrame implements Initializable, Updateab
 
 	public JTextField getSizeCalibrationMeasure() {
 		return sizeCalibrationMeasure;
+	}
+
+	public JComboBox getMatrixComboBox() {
+		return matrixComboBox;
 	}
 
 	@Override

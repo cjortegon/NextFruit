@@ -1,5 +1,6 @@
 package co.edu.icesi.nextfruit.modules.callibrator;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -29,7 +30,7 @@ public class ColorChecker {
 		this.BGR = Imgcodecs.imread(imagePath);
 	}
 
-	public void process() {
+	public void process(File conversionMatrix) {
 
 		// Setting parameters
 		grid = new ColorBox[originalsRGB.length][originalsRGB[0].length];
