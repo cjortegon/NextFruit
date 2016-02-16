@@ -10,6 +10,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
+import org.opencv.core.Mat;
 import org.opencv.core.Point;
 
 import co.edu.icesi.nextfruit.controller.CalibrationController;
@@ -33,6 +34,7 @@ public class CalibrationWindow extends KFrame implements Initializable, Updateab
 	private JLabel colorCheckerStatus, sizeCalibrationStatus;
 	private ColorCheckerCanvas colorCheckerCanvas;
 	private SizeCalibrationCanvas sizeCalibrationCanvas;
+	private Mat colorCheckerMat, sizeCalibrationMat;
 	private Image colorCheckerImage, sizeCalibrationImage;
 
 	public CalibrationWindow() {
@@ -169,10 +171,16 @@ public class CalibrationWindow extends KFrame implements Initializable, Updateab
 
 			// Converting mat to images to show in canvas
 			try {
-				colorCheckerImage = ImageUtility.mat2Image(model.getColorChecker().getBGR());
+				if(colorCheckerMat != model.getColorChecker().getBGR()) {
+					colorCheckerMat = model.getColorChecker().getBGR();
+					colorCheckerImage = ImageUtility.mat2Image(colorCheckerMat);
+				}
 			} catch(NullPointerException npe) {}
 			try {
-				sizeCalibrationImage = ImageUtility.mat2Image(model.getSizeCalibrator().getImage());
+				if(sizeCalibrationMat != model.getSizeCalibrator().getImage()) {
+					sizeCalibrationMat = model.getSizeCalibrator().getImage();
+					sizeCalibrationImage = ImageUtility.mat2Image(sizeCalibrationMat);
+				}
 			} catch(NullPointerException npe) {}
 
 			// Color checker status message
