@@ -55,7 +55,7 @@ public class CalibrationWindow extends KFrame implements Initializable, Updateab
 		loadSizeCalibrationButton = new JButton("Load grid image");
 		processButton = new JButton("Process");
 		processButton.setEnabled(false);
-		resultsButton = new JButton("Ver resultados");
+		resultsButton = new JButton("View Results");
 		resultsButton.setEnabled(false);
 		matrixComboBox = new JComboBox<>(matrixFiles);
 		sizeCalibrationMeasure = new JTextField();
