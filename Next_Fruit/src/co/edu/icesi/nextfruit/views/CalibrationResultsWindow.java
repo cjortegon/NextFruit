@@ -1,11 +1,16 @@
 package co.edu.icesi.nextfruit.views;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
 
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.LineBorder;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
@@ -28,19 +33,26 @@ public class CalibrationResultsWindow extends KFrame implements Initializable, U
 	private JTable colorSpacesGrid;
 	private JLabel lbPixelsXCm;
 	private JLabel lbColorCal;
+	private JLabel lbPixelsXCmValue;
+	private JButton btSaveSettings;
 
+	
 	
 	@Override
 	public void init(Attachable model, Updateable view) {
 
 		// Initializing objects
 		lbPixelsXCm = new JLabel("", SwingConstants.CENTER);
-		lbColorCal = new JLabel("Resultados de la Calibración de color", SwingConstants.CENTER);
-		lbPixelsXCm.setPreferredSize(new Dimension(500, 60));
-		lbColorCal.setPreferredSize(new Dimension(500, 60));
+		lbColorCal = new JLabel(" Color Calibration ", SwingConstants.CENTER);
+		lbPixelsXCmValue = new JLabel("");
+		lbPixelsXCm.setPreferredSize(new Dimension(500, 30));
+		lbColorCal.setPreferredSize(new Dimension(500, 30));
+		lbPixelsXCmValue.setPreferredSize(new Dimension(500, 30));
+		btSaveSettings = new JButton(" Save This Camera Settings ");
 
-		
-		// Adding objects to window
+		lbPixelsXCm.setBorder(new EtchedBorder(EtchedBorder.LOWERED));
+		lbColorCal.setBorder(new EtchedBorder(EtchedBorder.LOWERED));
+
 		
 		// Attaching to model
 		this.model = (Model) model;
@@ -48,9 +60,12 @@ public class CalibrationResultsWindow extends KFrame implements Initializable, U
 
 		
 		//Label
-		String pixelsXCm = (int)this.model.getSizeCalibrator().getPixelsForCentimeter() + "";
-		lbPixelsXCm.setText("Calibación espacial: " + "hay " + pixelsXCm + " pixeles por centímetro.");
+		String pixelsXCm = this.model.getSizeCalibrator().getPixelsForCentimeter() + "";
+		lbPixelsXCm.setText(" Simple Spatial Calibration ");
+		lbPixelsXCmValue.setText(" There are " + pixelsXCm + " pixels per centimeter. ");
 
+		lbPixelsXCmValue.setFont(lbPixelsXCmValue.getFont().deriveFont(Font.PLAIN));
+		
 		
 		//Grid
 		ColorChecker cC = this.model.getColorChecker();
@@ -63,17 +78,35 @@ public class CalibrationResultsWindow extends KFrame implements Initializable, U
 		for(int i = 0; i < 4; i++){
 			for(int j = 0; j< 6; j++){
 				rowData[i][j] = cB[i][j].spaceColorsToString();
+				
 			}
-		}
+		}	
+
 		
 		colorSpacesGrid = new JTable(rowData, columnNames);	
 		
 		colorSpacesGrid.setRowHeight(60);
+		colorSpacesGrid.setBorder(new LineBorder(Color.BLACK));
+		colorSpacesGrid.setGridColor(Color.BLACK);
+		
+		colorSpacesGrid.getColumnModel().getColumn(0).setCellRenderer(new CustomRenderer());
+		colorSpacesGrid.getColumnModel().getColumn(1).setCellRenderer(new CustomRenderer());
+		colorSpacesGrid.getColumnModel().getColumn(2).setCellRenderer(new CustomRenderer());
+		colorSpacesGrid.getColumnModel().getColumn(3).setCellRenderer(new CustomRenderer());
+		colorSpacesGrid.getColumnModel().getColumn(4).setCellRenderer(new CustomRenderer());
+		colorSpacesGrid.getColumnModel().getColumn(5).setCellRenderer(new CustomRenderer());
+		
 		setTableWidth();
-				
-		addComponent(lbColorCal, 0, 0, 1, 1, false);
-		addComponent(colorSpacesGrid, 1, 0, 1, 1, true);
-		addComponent(lbPixelsXCm, 2, 0, 1, 1, false);
+		
+
+
+		//Adding objects to window
+		addComponent(lbPixelsXCm, 1, 0, 1, 1, false);
+		addComponent(lbPixelsXCmValue, 2, 0, 1, 1, false);
+		addComponent(lbColorCal, 3, 0, 1, 1, false);
+		addComponent(colorSpacesGrid, 4, 0, 1, 1, true);
+		addComponent(btSaveSettings, 5, 0, 1, 1, true);
+		
 
 		
 		// Starting controller
@@ -111,7 +144,7 @@ public class CalibrationResultsWindow extends KFrame implements Initializable, U
 
 		int rowCount = data.getRowCount();
 
-		int totalWidth = 0;
+		//int totalWidth = 0;
 
 		for (int i = columns.getColumnCount() - 1; i >= 0; --i) {
 			TableColumn column = columns.getColumn(i);
@@ -122,8 +155,9 @@ public class CalibrationResultsWindow extends KFrame implements Initializable, U
 
 			TableCellRenderer h = column.getHeaderRenderer();
 
-			if (h == null)
+			if (h == null){
 				h = defaultHeaderRenderer;
+			}
 
 			if (h != null) // Not explicitly impossible
 			{
@@ -142,14 +176,24 @@ public class CalibrationResultsWindow extends KFrame implements Initializable, U
 				width = Math.max(width, c.getPreferredSize().width);
 			}
 
-			if (width >= 0)
-				column.setPreferredWidth(width + margin); // <1.3: without
-															// margin
+			if (width >= 0){
+				column.setPreferredWidth(width + margin); // <1.3: without margin
+			}
 
-			totalWidth += column.getPreferredWidth();
+			//totalWidth += column.getPreferredWidth();
 
 		}
 
+	}
+
+
+	public JButton getBtSaveSettings() {
+		return btSaveSettings;
+	}
+
+
+	public void setBtSaveSettings(JButton btSaveSettings) {
+		this.btSaveSettings = btSaveSettings;
 	}
 
 }

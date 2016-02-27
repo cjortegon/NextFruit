@@ -176,9 +176,14 @@ public class ColorBox implements Comparable<ColorBox> {
 		LabColor = labColor;
 	}
 	
+	/**
+	 * ToString() method that returns the rgb and lab values of a given cell's colour
+	 * as an string with html tags.
+	 * @return string with html tags.
+	 */
 	public String spaceColorsToString(){
-		return " (RGB: " + RGBColor[0] + "," + RGBColor[1] + "," + RGBColor[2] +
-				") / (" + "Lab: " + LabColor[0] + "," + LabColor[1] + "," + LabColor[2] + ") ";
+		return "<html><b><center>" + "RGB: " + RGBColor[0] + ", " + RGBColor[1] + ", " + RGBColor[2] +
+				"<br>" + " Lab: " + LabColor[0] + ", " + LabColor[1] + ", " + LabColor[2] + "</center></b></html>";
 	}
 
 }
