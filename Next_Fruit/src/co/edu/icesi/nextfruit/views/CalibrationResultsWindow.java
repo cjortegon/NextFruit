@@ -19,7 +19,6 @@ import javax.swing.table.TableModel;
 
 import co.edu.icesi.nextfruit.controller.CalibrationResultsController;
 import co.edu.icesi.nextfruit.modules.Model;
-import co.edu.icesi.nextfruit.modules.callibrator.ColorBox;
 import co.edu.icesi.nextfruit.modules.callibrator.ColorChecker;
 import co.edu.icesi.nextfruit.mvc.interfaces.Attachable;
 import co.edu.icesi.nextfruit.mvc.interfaces.Initializable;
@@ -69,18 +68,24 @@ public class CalibrationResultsWindow extends KFrame implements Initializable, U
 		
 		//Grid
 		ColorChecker cC = this.model.getColorChecker();
-		ColorBox[][] cB = cC.getGrid();
 
 		Object[] columnNames = {"", "", "", "", "", ""};
 		Object[][] rowData = new Object[4][6];
 		
+		double[][][] rgbValues = cC.getReadRGB();
+		double[][][] labValues = cC.getReadLAB();
+		
+		
+		for (int i = 0; i < 4; i++){
+			for (int j = 0; j < 6; j++){
 				
-		for(int i = 0; i < 4; i++){
-			for(int j = 0; j< 6; j++){
-				rowData[i][j] = cB[i][j].spaceColorsToString();
+				rowData[i][j] = "<html><b><center>" + "RGB: " + (int)rgbValues[i][j][0] +
+						", " + (int)rgbValues[i][j][1] + ", " + (int)rgbValues[i][j][2] + "<br>" +
+						"Lab: " + (int)labValues[i][j][0] + ", " + (int)labValues[i][j][1] + ", " +
+						(int)labValues[i][j][2] + "</center></b></html>";
 				
 			}
-		}	
+		}
 
 		
 		colorSpacesGrid = new JTable(rowData, columnNames);	
