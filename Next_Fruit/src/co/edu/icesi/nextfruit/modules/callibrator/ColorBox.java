@@ -13,18 +13,7 @@ public class ColorBox implements Comparable<ColorBox> {
 	private Point[] box;
 	private Point center;
 	private double perimeter, area;
-	
-	//Square Color coordinates
-	private int[] RGBColor;
-	private int[] LabColor;
 
-	
-	public ColorBox(int[] rgb, int[] lab){
-		this.RGBColor = rgb;
-		this.LabColor = lab;
-	}
-	
-	
 	public ColorBox(Point[] box) {
 		this.box = box;
 		reduceToSquare();
@@ -157,33 +146,6 @@ public class ColorBox implements Comparable<ColorBox> {
 		} else {
 			return -1;
 		}
-	}
-	
-	
-	public int[] getRGBColor() {
-		return RGBColor;
-	}
-
-	public void setRGBColor(int[] rGBColor) {
-		RGBColor = rGBColor;
-	}
-
-	public int[] getLabColor() {
-		return LabColor;
-	}
-
-	public void setLabColor(int[] labColor) {
-		LabColor = labColor;
-	}
-	
-	/**
-	 * ToString() method that returns the rgb and lab values of a given cell's colour
-	 * as an string with html tags.
-	 * @return string with html tags.
-	 */
-	public String spaceColorsToString(){
-		return "<html><b><center>" + "RGB: " + RGBColor[0] + ", " + RGBColor[1] + ", " + RGBColor[2] +
-				"<br>" + " Lab: " + LabColor[0] + ", " + LabColor[1] + ", " + LabColor[2] + "</center></b></html>";
 	}
 
 }

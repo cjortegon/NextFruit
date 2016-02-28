@@ -23,11 +23,6 @@ public class ColorChecker {
 	private ArrayList<ColorBox> boxes;
 	private double averageBoxArea, averageBoxDistance, distanceDeviation;
 	private int sensibility;
-	
-	//Color spaces coordinates Arrays
-	private int[][][] rgbs;
-	private int[][][] labs;
-	
 
 	public ColorChecker(String imagePath, int sensibility, double[][][] originalsRGB) {
 		this.originalsRGB = originalsRGB;
@@ -37,10 +32,6 @@ public class ColorChecker {
 
 	public void process(File conversionMatrix) {
 
-		//Initialize color space coordinates arrays
-		rgbs = new int[4][6][3];
-		labs = new int [4][6][3];
-		
 		// Setting parameters
 		grid = new ColorBox[originalsRGB.length][originalsRGB[0].length];
 		readLAB = new double[grid.length][grid[0].length][3];
@@ -50,22 +41,10 @@ public class ColorChecker {
 		originalsLAB = new double[originalsRGB.length][originalsRGB[0].length][3];
 		for (int i = 0; i < originalsLAB.length; i++) {
 			for (int j = 0; j < originalsLAB[0].length; j++) {
-				
-				//Fill RGB values per color box
-				int[] rgb = {(int) originalsRGB[i][j][0], (int) originalsRGB[i][j][1], (int) originalsRGB[i][j][2]};
-				rgbs[i][j] = rgb;
-				
-				
 				for (int k = 0; k < 3; k++)
 					originalsLAB[i][j][k] = originalsRGB[i][j][k]/255;
 				originalsLAB[i][j] = ColorConverter.rgb2xyz(originalsLAB[i][j]);
 				originalsLAB[i][j] = ColorConverter.xyz2lab(originalsLAB[i][j]);
-				
-				//Fill Lab values per color box
-				int[] lab = {(int) originalsLAB[i][j][0], (int) originalsLAB[i][j][1], (int) originalsLAB[i][j][2]};
-				labs[i][j] = lab;
-				
-				
 			}
 		}
 
@@ -89,7 +68,6 @@ public class ColorChecker {
 		filterBoxes();
 		obtainColors();
 		defineGrid();
-
 	}
 
 	private void obtainBoxes(int sensibility, Mat mat) {
@@ -198,13 +176,7 @@ public class ColorChecker {
 					boxes.add(box);
 				}
 				grid[i][j] = box;
-				
-				
-				//Setting RGB and Lab color coordinates of the color box
-				grid[i][j].setRGBColor(rgbs[i][j]);
-				grid[i][j].setLabColor(labs[i][j]);
-				
-				
+
 				readRGB[i][j] = box.getAverageRGB(BGR);
 				double rgb[] = new double[] {readRGB[i][j][0]/255, readRGB[i][j][1]/255, readRGB[i][j][2]/255};
 				readLAB[i][j] = ColorConverter.rgb2xyz(rgb);
@@ -241,10 +213,16 @@ public class ColorChecker {
 	public Mat getMedianBlurred() {
 		return MBlurred;
 	}
-	
-	
+
 	public ColorBox[][] getGrid() {
 		return grid;
 	}
 
+	public double[][][] getReadRGB() {
+		return readRGB;
+	}
+
+	public double[][][] getReadLAB() {
+		return readLAB;
+	}
 }

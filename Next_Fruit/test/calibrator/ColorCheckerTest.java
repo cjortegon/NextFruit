@@ -35,7 +35,7 @@ public class ColorCheckerTest extends KCanvas {
 		// Starting OpenCV
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 		colorChecker = new ColorChecker(PHOTO_PATH, 150, Constants.ORIGINALS);
-		colorChecker.process();
+		colorChecker.process(null);
 
 		// Draw original image
 		image = ImageUtility.mat2Image(colorChecker.getBGR());
