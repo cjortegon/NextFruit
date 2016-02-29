@@ -12,7 +12,7 @@ import visualkey.KCanvas;
 
 public class Test extends KCanvas {
 
-	private static final String PHOTO_PATH = "resources/imagen3.bmp";
+	private static final String PHOTO_PATH = "resources/survey.png";
 	private static final Dimension WINDOW = new Dimension(768, 500);
 
 	private Histogram histogram;
@@ -36,11 +36,13 @@ public class Test extends KCanvas {
 		histogram.smoothFillHistogram();
 		
 		// Convert color format
-		histogram.convertToCromaticScale();
+//		histogram.applyWhitePatch();
+//		histogram.convertToCromaticScale();
 		
 		// Removing one part of the image
-//		histogram.removeGrayRegion(30, 800, new double[]{255, 255, 255});
-		histogram.filterFigureByColorProfile(new double[]{117.5, 66, 38.5}, new double[]{113, 80, 77}, new double[]{255, 255, 255}, null);
+//		histogram.filterFigureByColorProfile(new double[]{117.5, 66, 38.5}, new double[]{113, 80, 77}, new double[]{255, 255, 255}, new double[]{0, 0, 0});
+		histogram.filterFigureByColorProfile(new double[]{68, 68, 64}, new double[]{10, 10, 10}, new double[]{0, 0, 0}, null);
+		histogram.removeGrayRegion(0, 10, new double[]{255, 255, 255});
 
 		// Draw original image
 		image = ImageUtility.mat2Image(histogram.getImage());
@@ -52,6 +54,7 @@ public class Test extends KCanvas {
 		}.setVisible(true);
 
 		// Draw histogram
+		histogram.save("saved.png");
 		repaint();
 	}
 

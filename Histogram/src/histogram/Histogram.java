@@ -2,6 +2,7 @@ package histogram;
 
 import org.opencv.core.Mat;
 import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.imgproc.Imgproc;
 
 import co.edu.icesi.frutificator.util.Statistics;
 
@@ -14,7 +15,7 @@ public class Histogram {
 	public Histogram(String imagePath) {
 		mat = Imgcodecs.imread(imagePath);
 		histogram = new int[768];
-		rgbHistogram = new int[3][255];
+		rgbHistogram = new int[3][256];
 	}
 	
 	public void convertToCromaticScale() {
@@ -32,9 +33,36 @@ public class Histogram {
 		}
 	}
 	
+	public void applyWhitePatch() {
+		double Rmax = 0, Gmax = 0, Bmax = 0;
+		for (int i = 0; i < mat.height(); i++) {
+			for (int j = 0; j < mat.width(); j++) {
+				double d[] = mat.get(i, j);
+				if(d[2] > Rmax)
+					Rmax = d[2];
+				if(d[1] > Gmax)
+					Gmax = d[1];
+				if(d[0] > Bmax)
+					Bmax = d[0];
+			}
+		}
+		Rmax = 255/Rmax;
+		Gmax = 255/Gmax;
+		Bmax = 255/Bmax;
+		for (int i = 0; i < mat.height(); i++) {
+			for (int j = 0; j < mat.width(); j++) {
+				double d[] = mat.get(i, j);
+				d[0] *= Bmax;
+				d[1] *= Gmax;
+				d[2] *= Rmax;
+				mat.put(i, j, d);
+			}
+		}
+	}
+	
 	public void readHistogram(boolean useAutoFill) {
 		histogram = new int[768];
-		rgbHistogram = new int[3][255];
+		rgbHistogram = new int[3][256];
 		for (int i = 0; i < mat.height(); i++) {
 			for (int j = 0; j < mat.width(); j++) {
 				double d[] = mat.get(i, j);
@@ -89,7 +117,7 @@ public class Histogram {
 			for (int j = 0; j < mat.width(); j++) {
 				double d[] = mat.get(i, j);
 				int pos = (int) (d[0]+d[1]+d[2]);
-				if(pos > start && pos < end) {
+				if(pos >= start && pos <= end) {
 					mat.put(i, j, fill);
 				}
 			}
@@ -203,6 +231,10 @@ public class Histogram {
 
 	public int[] getBlueHistogram() {
 		return rgbHistogram[2];
+	}
+	
+	public void save(String filename) {
+		Imgcodecs.imwrite(filename, mat);
 	}
 
 }
