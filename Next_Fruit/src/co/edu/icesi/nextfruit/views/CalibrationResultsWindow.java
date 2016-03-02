@@ -34,7 +34,8 @@ public class CalibrationResultsWindow extends KFrame implements Initializable, U
 	private JLabel lbColorCal;
 	private JLabel lbPixelsXCmValue;
 	private JButton btSaveSettings;
-
+	private int[][][] rgbs;
+	private double pixelsxCm;
 	
 	
 	@Override
@@ -75,14 +76,25 @@ public class CalibrationResultsWindow extends KFrame implements Initializable, U
 		double[][][] rgbValues = cC.getReadRGB();
 		double[][][] labValues = cC.getReadLAB();
 		
+		rgbs = new int[4][6][3];
+		pixelsxCm = Double.parseDouble(pixelsXCm);
+		
 		
 		for (int i = 0; i < 4; i++){
 			for (int j = 0; j < 6; j++){
 				
-				rowData[i][j] = "<html><b><center>" + "RGB: " + (int)rgbValues[i][j][0] +
-						", " + (int)rgbValues[i][j][1] + ", " + (int)rgbValues[i][j][2] + "<br>" +
+				int r = (int)rgbValues[i][j][0];
+				int g = (int)rgbValues[i][j][1];
+				int b = (int)rgbValues[i][j][2];
+				
+				rowData[i][j] = "<html><b><center>" + "RGB: " + r +
+						", " + g + ", " + b + "<br>" +
 						"Lab: " + (int)labValues[i][j][0] + ", " + (int)labValues[i][j][1] + ", " +
 						(int)labValues[i][j][2] + "</center></b></html>";
+				
+				rgbs[i][j][0] = r;
+				rgbs[i][j][1] = g;
+				rgbs[i][j][2] = b;
 				
 			}
 		}
@@ -199,6 +211,16 @@ public class CalibrationResultsWindow extends KFrame implements Initializable, U
 
 	public void setBtSaveSettings(JButton btSaveSettings) {
 		this.btSaveSettings = btSaveSettings;
+	}
+
+
+	public int[][][] getRgbs() {
+		return rgbs;
+	}
+
+
+	public double getPixelsxCm() {
+		return pixelsxCm;
 	}
 
 }

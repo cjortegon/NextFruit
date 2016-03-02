@@ -42,7 +42,10 @@ public class CalibrationWindow extends KFrame implements Initializable, Updateab
 	private Mat colorCheckerMat, sizeCalibrationMat;
 	private Image colorCheckerImage, sizeCalibrationImage;
 	private File matrixFiles[];
+	
+	private JButton btLoadCalData;
 
+	
 	public CalibrationWindow() {
 		matrixFiles = FilesUtility.listFiles(MATRIX_FOLDER, "csv");
 	}
@@ -63,6 +66,8 @@ public class CalibrationWindow extends KFrame implements Initializable, Updateab
 		sizeCalibrationStatus = new JLabel("-o-");
 		colorCheckerCanvas = new ColorCheckerCanvas(CANVAS_SIZE);
 		sizeCalibrationCanvas = new SizeCalibrationCanvas(CANVAS_SIZE);
+		
+		btLoadCalData = new JButton("Load Calibration Data From an XML File");
 
 		// Adding objects to window
 		addComponent(loadColorCheckerButton, 0, 0, 1, 1, false);
@@ -71,12 +76,14 @@ public class CalibrationWindow extends KFrame implements Initializable, Updateab
 		addComponent(sizeCalibrationCanvas, 1, 1, 1, 1, false);
 		addComponent(colorCheckerStatus, 2, 0, 1, 1, false);
 		addComponent(sizeCalibrationStatus, 2, 1, 1, 1, false);
-		addLabel("Seleccione la matriz de transformacion:", 3, 0, 1, 1, false);
-		addLabel("Digite el tamaño de un lado de los recuadros:", 3, 1, 1, 1, false);
+		addLabel("Select an RGB working space matrix:", 3, 0, 1, 1, false);
+		addLabel("width of a square (in cm):", 3, 1, 1, 1, false);
 		addComponent(matrixComboBox, 4, 0, 1, 1, false);
 		addComponent(sizeCalibrationMeasure, 4, 1, 1, 1, false);
 		addComponent(processButton, 5, 0, 1, 1, true);
 		addComponent(resultsButton, 5, 1, 1, 1, true);
+		addComponent(btLoadCalData, 6, 0, 2, 1, true);
+
 
 		// Attaching to model
 		this.model = (Model) model;
@@ -217,6 +224,10 @@ public class CalibrationWindow extends KFrame implements Initializable, Updateab
 			// Repainting components
 			repaint();
 		}
+	}
+
+	public JButton getBtLoadCalData() {
+		return btLoadCalData;
 	}
 
 }

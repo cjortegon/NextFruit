@@ -3,8 +3,11 @@ package co.edu.icesi.nextfruit.modules;
 import java.io.File;
 import java.util.LinkedList;
 
+import javax.xml.bind.JAXBException;
+
 import org.opencv.core.Core;
 
+import co.edu.icesi.nextfruit.modules.callibrator.Calibration_Data_Handler;
 import co.edu.icesi.nextfruit.modules.callibrator.ColorChecker;
 import co.edu.icesi.nextfruit.modules.callibrator.SizeCalibrator;
 import co.edu.icesi.nextfruit.mvc.interfaces.Attachable;
@@ -16,6 +19,8 @@ public class Model implements Attachable {
 	private LinkedList<Updateable> updateables;
 	private ColorChecker colorChecker;
 	private SizeCalibrator sizeCalibrator;
+	private Calibration_Data_Handler calibrationDataHandler;
+	
 
 	public Model() {
 		this.updateables = new LinkedList<>();
@@ -55,6 +60,11 @@ public class Model implements Attachable {
 		updateAll();
 	}
 
+	public void startCalDataHandler(){
+		calibrationDataHandler = new Calibration_Data_Handler();
+		updateAll();
+	}
+	
 	public void calibrate(File conversionMatrix, double gridSize) {
 		if(colorChecker != null) {
 			colorChecker.process(conversionMatrix);
@@ -65,6 +75,55 @@ public class Model implements Attachable {
 		updateAll();
 	}
 
+	
+	/**
+	 * 
+	 * @param file
+	 * @param rgbs
+	 * @return
+	 */
+	public boolean saveCalibrationData(File file, int[][][] rgbs, double pixelsxCm){
+		
+		try {
+			
+			System.out.println(file + ", " + rgbs[0][0][0] + ", " + pixelsxCm);
+			
+			calibrationDataHandler.saveCalibrationData(file, rgbs, pixelsxCm);
+			return true;
+			
+		} catch (JAXBException e) {
+			
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
+	
+	/**
+	 * 
+	 * @param file
+	 * @return
+	 */
+	public boolean loadCalibrationData(File file){
+		
+		try {
+			
+			calibrationDataHandler.loadCalibrationData(file);
+			return true;
+			
+		} catch (JAXBException e) {
+
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
+	
+	
+	//
+	//	Data Access Methods
+	//
+	
 	public ColorChecker getColorChecker() {
 		return colorChecker;
 	}

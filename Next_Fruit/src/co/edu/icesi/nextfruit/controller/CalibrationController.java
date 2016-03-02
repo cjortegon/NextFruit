@@ -5,6 +5,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 
 import co.edu.icesi.nextfruit.modules.Model;
 import co.edu.icesi.nextfruit.mvc.interfaces.Attachable;
@@ -19,6 +20,7 @@ public class CalibrationController implements Initializable, ActionListener {
 	private static final String LOAD_SIZE_CALIBRATION = "SizeCalibrator";
 	private static final String PROCESS = "Process";
 	private static final String RESULTS = "Results";
+	private static final String LOAD_SETTINGS = "LoadSettings"; 
 
 	private Model model;
 	private CalibrationWindow view;
@@ -41,6 +43,9 @@ public class CalibrationController implements Initializable, ActionListener {
 		view.getProcessButton().addActionListener(this);
 		view.getResultsButton().setActionCommand(RESULTS);
 		view.getResultsButton().addActionListener(this);
+		
+		view.getBtLoadCalData().setActionCommand(LOAD_SETTINGS);
+		view.getBtLoadCalData().addActionListener(this);
 	}
 
 	@Override
@@ -82,6 +87,19 @@ public class CalibrationController implements Initializable, ActionListener {
 				results.init(model, null);
 			}
 			results.setVisible(true);
+			break;
+			
+		case LOAD_SETTINGS: 
+			
+			this.model.startCalDataHandler();
+			File file = loadFile("");
+			boolean result = this.model.loadCalibrationData(file);
+			
+			if(!result){
+				JOptionPane.showMessageDialog(this.view,
+						"Couldn't load the chosen file! Make sure it's a valid file.");
+			}
+			
 			break;
 		}
 
