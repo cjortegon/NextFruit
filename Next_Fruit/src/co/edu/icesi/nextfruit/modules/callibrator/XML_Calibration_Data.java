@@ -41,6 +41,12 @@ public class XML_Calibration_Data {
 	//Access methods
 	//
 	
+	/**
+	 * Adds a Colour which represents a square of a color checker
+	 * @param colour XML_Colour object
+	 * @param posHor index i
+	 * @param posVer index j
+	 */
 	public void addColour(XML_Colour colour, int posHor, int posVer){
 		this.colours[posHor][posVer] = colour;
 	}

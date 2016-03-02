@@ -15,7 +15,7 @@ import co.edu.icesi.nextfruit.views.CalibrationResultsWindow;
 
 
 /**
- * 
+ * Controller class.
  * @author JuanD
  *
  */
@@ -90,24 +90,6 @@ public class CalibrationResultsController implements Initializable, ActionListen
 		}
 
 	}
-	/**
-	 * 
-	 * @return
-	 */
-	private File chooseDir2(){
-		
-		JFileChooser fc = new JFileChooser();
-		fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-		fc.setAcceptAllFileFilterUsed(false);
-		int retorno = fc.showOpenDialog(this.view);
-		
-		if(retorno == JFileChooser.APPROVE_OPTION){
-			
-			return fc.getSelectedFile();
-		}else{
-			
-			return null;
-		}
-	}
+	
 
 }

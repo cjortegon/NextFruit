@@ -77,17 +77,15 @@ public class Model implements Attachable {
 
 	
 	/**
-	 * 
-	 * @param file
-	 * @param rgbs
-	 * @return
+	 * This method saves the particular calibration data, of a given camera, as an XML file in disk.
+	 * @param file File object with the information about the XML file to save.
+	 * @param rgbs array containing the information about the rgb colors of each box in a colorchecker.
+	 * @return boolean, represents if file was saved correctly or not.
 	 */
 	public boolean saveCalibrationData(File file, int[][][] rgbs, double pixelsxCm){
 		
 		try {
-			
-			System.out.println(file + ", " + rgbs[0][0][0] + ", " + pixelsxCm);
-			
+						
 			calibrationDataHandler.saveCalibrationData(file, rgbs, pixelsxCm);
 			return true;
 			
@@ -100,9 +98,10 @@ public class Model implements Attachable {
 	
 	
 	/**
-	 * 
-	 * @param file
-	 * @return
+	 * This method loads, to the application, the calibration data of a particular camera,
+	 * saved as an XML file in disk.
+	 * @param file File object with the information about the XML file to read.
+	 * @return boolean, represents if the file was added successfully or not.
 	 */
 	public boolean loadCalibrationData(File file){
 		
