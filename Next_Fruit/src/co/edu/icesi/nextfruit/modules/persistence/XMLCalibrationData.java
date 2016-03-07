@@ -1,4 +1,4 @@
-package co.edu.icesi.nextfruit.modules.callibrator;
+package co.edu.icesi.nextfruit.modules.persistence;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -12,7 +12,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement(name = "CALIBRATION_DATA")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class XML_Calibration_Data {
+public class XMLCalibrationData {
 
 	
 	//
@@ -23,7 +23,7 @@ public class XML_Calibration_Data {
 	private double pixelsxCm;
 	
 	@XmlElement(name = "COLOURS_ROW")
-	private XML_Colour[][] colours;
+	private XMLColour[][] colours;
 	
 	
 	
@@ -31,8 +31,8 @@ public class XML_Calibration_Data {
 	//	Constructor
 	//
 	
-	public XML_Calibration_Data(){
-		this.colours = new XML_Colour[4][6];
+	public XMLCalibrationData(){
+		this.colours = new XMLColour[4][6];
 	}
 	
 	
@@ -47,7 +47,7 @@ public class XML_Calibration_Data {
 	 * @param posHor index i
 	 * @param posVer index j
 	 */
-	public void addColour(XML_Colour colour, int posHor, int posVer){
+	public void addColour(XMLColour colour, int posHor, int posVer){
 		this.colours[posHor][posVer] = colour;
 	}
 	
@@ -56,7 +56,7 @@ public class XML_Calibration_Data {
 		return pixelsxCm;
 	}
 	
-	public XML_Colour[][] getColours(){
+	public XMLColour[][] getColours(){
 		return colours;
 	}
 

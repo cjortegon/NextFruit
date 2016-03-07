@@ -7,9 +7,9 @@ import javax.xml.bind.JAXBException;
 
 import org.opencv.core.Core;
 
-import co.edu.icesi.nextfruit.modules.callibrator.Calibration_Data_Handler;
 import co.edu.icesi.nextfruit.modules.callibrator.ColorChecker;
 import co.edu.icesi.nextfruit.modules.callibrator.SizeCalibrator;
+import co.edu.icesi.nextfruit.modules.persistence.CalibrationDataHandler;
 import co.edu.icesi.nextfruit.mvc.interfaces.Attachable;
 import co.edu.icesi.nextfruit.mvc.interfaces.Updateable;
 
@@ -19,7 +19,7 @@ public class Model implements Attachable {
 	private LinkedList<Updateable> updateables;
 	private ColorChecker colorChecker;
 	private SizeCalibrator sizeCalibrator;
-	private Calibration_Data_Handler calibrationDataHandler;
+	private CalibrationDataHandler calibrationDataHandler;
 	
 
 	public Model() {
@@ -61,7 +61,7 @@ public class Model implements Attachable {
 	}
 
 	public void startCalDataHandler(){
-		calibrationDataHandler = new Calibration_Data_Handler();
+		calibrationDataHandler = new CalibrationDataHandler();
 		updateAll();
 	}
 	

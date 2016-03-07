@@ -1,4 +1,4 @@
-package co.edu.icesi.nextfruit.modules.callibrator;
+package co.edu.icesi.nextfruit.modules.persistence;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -12,7 +12,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement(name = "COLOUR")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class XML_Colour {
+public class XMLColour {
 
 	
 	//
@@ -37,14 +37,14 @@ public class XML_Colour {
 	//	Constructors
 	//
 	
-	public XML_Colour() {
+	public XMLColour() {
 		this.position = "Error";
 		this.red = 0;
 		this.green = 0;
 		this.blue = 0;
 	}
 	
-	public XML_Colour(String position, int red, int green, int blue) {
+	public XMLColour(String position, int red, int green, int blue) {
 		this.position = position;
 		this.red = red;
 		this.green = green;

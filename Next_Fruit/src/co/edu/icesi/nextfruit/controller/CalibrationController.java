@@ -43,7 +43,7 @@ public class CalibrationController implements Initializable, ActionListener {
 		view.getProcessButton().addActionListener(this);
 		view.getResultsButton().setActionCommand(RESULTS);
 		view.getResultsButton().addActionListener(this);
-		
+
 		view.getBtLoadCalData().setActionCommand(LOAD_SETTINGS);
 		view.getBtLoadCalData().addActionListener(this);
 	}
@@ -88,18 +88,18 @@ public class CalibrationController implements Initializable, ActionListener {
 			}
 			results.setVisible(true);
 			break;
-			
-		case LOAD_SETTINGS: 
-			
+
+		case LOAD_SETTINGS:
 			this.model.startCalDataHandler();
 			File file = loadFile("");
-			boolean result = this.model.loadCalibrationData(file);
-			
-			if(!result){
-				JOptionPane.showMessageDialog(this.view,
-						"Couldn't load the chosen file! Make sure it's a valid file.");
+			if(file != null) {
+				boolean result = this.model.loadCalibrationData(file);
+				if(!result){
+					JOptionPane.showMessageDialog(this.view,
+							"Couldn't load the chosen file! Make sure it's a valid file.");
+				}
 			}
-			
+
 			break;
 		}
 
