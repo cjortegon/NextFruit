@@ -3,6 +3,7 @@ package co.edu.icesi.nextfruit.controller;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.IOException;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -74,8 +75,12 @@ public class CalibrationController implements Initializable, ActionListener {
 		case PROCESS:
 			try {
 				File matrix = (File) view.getMatrixComboBox().getItemAt(view.getMatrixComboBox().getSelectedIndex());
-				model.calibrate(matrix, Double.valueOf(view.getSizeCalibrationMeasure().getText()));
-				view.getResultsButton().setEnabled(true);
+				try {
+					model.calibrate(matrix, Double.valueOf(view.getSizeCalibrationMeasure().getText()));
+					view.getResultsButton().setEnabled(true);
+				} catch (IOException e1) {
+					view.showMessage("Matrix file not found");
+				}
 			} catch (NumberFormatException nfe) {
 				view.showMessage("Escriba el tamaño de la cuadricula en cm para calibrar las distancias.");
 			}

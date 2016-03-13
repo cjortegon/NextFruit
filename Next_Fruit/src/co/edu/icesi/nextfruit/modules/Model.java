@@ -1,6 +1,7 @@
 package co.edu.icesi.nextfruit.modules;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.LinkedList;
 
 import javax.xml.bind.JAXBException;
@@ -9,9 +10,11 @@ import org.opencv.core.Core;
 
 import co.edu.icesi.nextfruit.modules.callibrator.ColorChecker;
 import co.edu.icesi.nextfruit.modules.callibrator.SizeCalibrator;
+import co.edu.icesi.nextfruit.modules.model.CameraSettings;
 import co.edu.icesi.nextfruit.modules.persistence.CalibrationDataHandler;
 import co.edu.icesi.nextfruit.mvc.interfaces.Attachable;
 import co.edu.icesi.nextfruit.mvc.interfaces.Updateable;
+import co.edu.icesi.nextfruit.util.MatrixReader;
 
 public class Model implements Attachable {
 
@@ -65,9 +68,9 @@ public class Model implements Attachable {
 		updateAll();
 	}
 	
-	public void calibrate(File conversionMatrix, double gridSize) {
+	public void calibrate(File conversionCsv, double gridSize) throws IOException {
 		if(colorChecker != null) {
-			colorChecker.process(conversionMatrix);
+			colorChecker.process(MatrixReader.readCameraSettings(conversionCsv.getAbsolutePath()));
 		}
 		if(sizeCalibrator != null) {
 			sizeCalibrator.process(gridSize);
@@ -129,6 +132,10 @@ public class Model implements Attachable {
 
 	public SizeCalibrator getSizeCalibrator() {
 		return sizeCalibrator;
+	}
+	
+	public CameraSettings getCameraSettings() {
+		return colorChecker.getCameraSettings();
 	}
 
 	// ********************** CALIBRATION MODULE **********************

@@ -11,6 +11,7 @@ import org.opencv.core.Point;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
+import co.edu.icesi.nextfruit.modules.model.CameraSettings;
 import co.edu.icesi.nextfruit.util.ColorConverter;
 import co.edu.icesi.nextfruit.util.Geometry;
 import co.edu.icesi.nextfruit.util.Statistics;
@@ -23,6 +24,7 @@ public class ColorChecker {
 	private ArrayList<ColorBox> boxes;
 	private double averageBoxArea, averageBoxDistance, distanceDeviation;
 	private int sensibility;
+	private CameraSettings cameraSettings;
 
 	public ColorChecker(String imagePath, int sensibility, double[][][] originalsRGB) {
 		this.originalsRGB = originalsRGB;
@@ -30,7 +32,8 @@ public class ColorChecker {
 		this.BGR = Imgcodecs.imread(imagePath);
 	}
 
-	public void process(File conversionMatrix) {
+	public void process(CameraSettings settings) {
+		this.cameraSettings = settings;
 
 		// Setting parameters
 		grid = new ColorBox[originalsRGB.length][originalsRGB[0].length];
@@ -43,8 +46,8 @@ public class ColorChecker {
 			for (int j = 0; j < originalsLAB[0].length; j++) {
 				for (int k = 0; k < 3; k++)
 					originalsLAB[i][j][k] = originalsRGB[i][j][k]/255;
-				originalsLAB[i][j] = ColorConverter.rgb2xyz(originalsLAB[i][j]); // To be changed ---> Include matrix of conversion
-				originalsLAB[i][j] = ColorConverter.xyz2lab(originalsLAB[i][j], "D65"); // To be changed ---> Use the real iluminant value
+				originalsLAB[i][j] = ColorConverter.rgb2xyz(originalsLAB[i][j], cameraSettings.getMatrix());
+				originalsLAB[i][j] = ColorConverter.xyz2lab(originalsLAB[i][j], cameraSettings.getIluminant());
 			}
 		}
 
@@ -179,8 +182,8 @@ public class ColorChecker {
 
 				readRGB[i][j] = box.getAverageRGB(BGR);
 				double rgb[] = new double[] {readRGB[i][j][0]/255, readRGB[i][j][1]/255, readRGB[i][j][2]/255};
-				readLAB[i][j] = ColorConverter.rgb2xyz(rgb); // To be changed ---> Include matrix of conversion
-				readLAB[i][j] = ColorConverter.xyz2lab(readLAB[i][j], "D65"); // To be changed ---> Use the real iluminant value
+				readLAB[i][j] = ColorConverter.rgb2xyz(rgb, cameraSettings.getMatrix());
+				readLAB[i][j] = ColorConverter.xyz2lab(readLAB[i][j], cameraSettings.getIluminant());
 			}
 		}
 		Collections.sort(boxes);
@@ -224,5 +227,9 @@ public class ColorChecker {
 
 	public double[][][] getReadLAB() {
 		return readLAB;
+	}
+
+	public CameraSettings getCameraSettings() {
+		return cameraSettings;
 	}
 }
