@@ -43,8 +43,8 @@ public class ColorChecker {
 			for (int j = 0; j < originalsLAB[0].length; j++) {
 				for (int k = 0; k < 3; k++)
 					originalsLAB[i][j][k] = originalsRGB[i][j][k]/255;
-				originalsLAB[i][j] = ColorConverter.rgb2xyz(originalsLAB[i][j]);
-				originalsLAB[i][j] = ColorConverter.xyz2lab(originalsLAB[i][j]);
+				originalsLAB[i][j] = ColorConverter.rgb2xyz(originalsLAB[i][j]); // To be changed ---> Include matrix of conversion
+				originalsLAB[i][j] = ColorConverter.xyz2lab(originalsLAB[i][j], "D65"); // To be changed ---> Use the real iluminant value
 			}
 		}
 
@@ -179,8 +179,8 @@ public class ColorChecker {
 
 				readRGB[i][j] = box.getAverageRGB(BGR);
 				double rgb[] = new double[] {readRGB[i][j][0]/255, readRGB[i][j][1]/255, readRGB[i][j][2]/255};
-				readLAB[i][j] = ColorConverter.rgb2xyz(rgb);
-				readLAB[i][j] = ColorConverter.xyz2lab(readLAB[i][j]);
+				readLAB[i][j] = ColorConverter.rgb2xyz(rgb); // To be changed ---> Include matrix of conversion
+				readLAB[i][j] = ColorConverter.xyz2lab(readLAB[i][j], "D65"); // To be changed ---> Use the real iluminant value
 			}
 		}
 		Collections.sort(boxes);

@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
+import co.edu.icesi.nextfruit.modules.model.CameraSettings;
+
 
 /**
  * This static class reads values from a csv file and load a double matrix with those values.
@@ -35,6 +37,16 @@ public class MatrixReader {
 		}
 
 		return matrixM;
+	}
+	
+	/**
+	 * Not implemented yet
+	 * @param path
+	 * @return
+	 * @throws IOException
+	 */
+	public static CameraSettings readCameraSettings(String path) throws IOException {
+		return new CameraSettings(null, "");
 	}
 	
 }
