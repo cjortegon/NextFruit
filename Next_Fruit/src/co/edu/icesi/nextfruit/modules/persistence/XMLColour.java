@@ -13,7 +13,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "COLOUR")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class XMLColour {
-
 	
 	//
 	//	Attributes
@@ -31,12 +30,9 @@ public class XMLColour {
 	@XmlElement(name = "BLUE")
 	private int blue;
 	
-	
-	
 	//
 	//	Constructors
 	//
-	
 	public XMLColour() {
 		this.position = "Error";
 		this.red = 0;
@@ -51,8 +47,6 @@ public class XMLColour {
 		this.blue = blue;
 	}
 
-	
-	
 	//
 	//Access methods
 	//
@@ -72,6 +66,5 @@ public class XMLColour {
 	public int getBlue() {
 		return blue;
 	}
-	
 	
 }

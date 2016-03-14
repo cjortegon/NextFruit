@@ -102,6 +102,9 @@ public class CalibrationController implements Initializable, ActionListener {
 				if(!result){
 					JOptionPane.showMessageDialog(this.view,
 							"Couldn't load the chosen file! Make sure it's a valid file.");
+				}else{
+					JOptionPane.showMessageDialog(this.view,
+							"Settings loaded successfully!");
 				}
 			}
 

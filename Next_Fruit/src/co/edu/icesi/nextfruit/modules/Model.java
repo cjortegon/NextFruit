@@ -85,15 +85,13 @@ public class Model implements Attachable {
 	 * @param rgbs array containing the information about the rgb colors of each box in a colorchecker.
 	 * @return boolean, represents if file was saved correctly or not.
 	 */
-	public boolean saveCalibrationData(File file, int[][][] rgbs, double pixelsxCm){
-		
+	public boolean saveCalibrationData(File file, int[][][] rgbs, double pixelsxCm){			
+		CameraSettings cS = getCameraSettings();
 		try {
-						
-			calibrationDataHandler.saveCalibrationData(file, rgbs, pixelsxCm);
+			calibrationDataHandler.saveCalibrationData(file, rgbs, pixelsxCm, cS.getIlluminant(),
+					cS.getWorkingSpaceMatrix(), cS.getWhiteX(), cS.getWhiteY(), cS.getWhiteZ());
 			return true;
-			
 		} catch (JAXBException e) {
-			
 			e.printStackTrace();
 			return false;
 		}

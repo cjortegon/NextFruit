@@ -6,13 +6,14 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
+import co.edu.icesi.nextfruit.modules.model.CameraCalibration;
+
 /**
  * This class handles persistence for the camera calibration data.
  * @author juadavcu
  *
  */
 public class CalibrationDataHandler {
-
 	
 	//
 	//	Attributes
@@ -22,13 +23,15 @@ public class CalibrationDataHandler {
 	private Unmarshaller unmarshaller;
 	private double pixelsxCm;
 	private XMLColour[][] colours;
-	
-	
+	private double[][] workingSpaceMatrix;
+	private String illuminant;
+	private double whiteX;
+	private double whiteY;
+	private double whiteZ;
 	
 	//
 	//	Constructors
 	//
-	
 	public CalibrationDataHandler(){
 		
 		this.context = null;
@@ -38,8 +41,6 @@ public class CalibrationDataHandler {
 		this.colours = null;
 		
 	}
-	
-	
 	
 	//
 	//	Methods
@@ -51,7 +52,9 @@ public class CalibrationDataHandler {
 	 * @param rgbs array containing the information about the rgb colors of each box in a colorchecker.
 	 * @throws JAXBException
 	 */
-	public void saveCalibrationData(File file, int[][][] rgbs, double pixxCm) throws JAXBException{
+	public void saveCalibrationData(File file, int[][][] rgbs, double pixxCm, 
+			String illuminant, double[][] workingSpaceMatrix, double whiteX,
+			double whiteY, double whiteZ) throws JAXBException{
 	
 		context = JAXBContext.newInstance(XMLCalibrationData.class, XMLColour.class);
 		marshaller = context.createMarshaller();
@@ -59,6 +62,11 @@ public class CalibrationDataHandler {
 		XMLCalibrationData calibrationDataXML = new XMLCalibrationData();
 		
 		calibrationDataXML.setPixelsxCm(pixxCm);
+		calibrationDataXML.setIlluminant(illuminant);
+		calibrationDataXML.setWhiteX(whiteX);
+		calibrationDataXML.setWhiteY(whiteY);
+		calibrationDataXML.setWhiteZ(whiteZ);
+		calibrationDataXML.setWorkingSpaceMatrix(workingSpaceMatrix);
 		
 		for(int i = 0; i < 4; i++){
 			for(int j = 0; j < 6; j++){
@@ -69,12 +77,8 @@ public class CalibrationDataHandler {
 			}
 		}
 		
-		
 		marshaller.marshal(calibrationDataXML, file);
-		
 	}
-	
-	
 	
 	/**
 	 * This method loads, to the application, the calibration data of a particular camera,
@@ -82,7 +86,7 @@ public class CalibrationDataHandler {
 	 * @param file File object with the information about the XML file to read.
 	 * @throws JAXBException
 	 */
-	public void loadCalibrationData(File file) throws JAXBException{
+	public CameraCalibration loadCalibrationData(File file) throws JAXBException{
 		
 		context = JAXBContext.newInstance(XMLCalibrationData.class, XMLColour.class);
 		unmarshaller = context.createUnmarshaller();
@@ -91,29 +95,18 @@ public class CalibrationDataHandler {
 		
 		pixelsxCm = calibrationDataXML.getPixels();
 		colours = calibrationDataXML.getColours();
+		illuminant = calibrationDataXML.getIlluminant();
+		whiteX = calibrationDataXML.getWhiteX();
+		whiteY = calibrationDataXML.getWhiteY();
+		whiteZ = calibrationDataXML.getWhiteZ();
+		workingSpaceMatrix = calibrationDataXML.getWorkingSpaceMatrix();
 		
-		this.showTest();
+		CameraCalibration cC = new CameraCalibration(colours, pixelsxCm, workingSpaceMatrix, whiteX, whiteY, whiteZ, illuminant);
 		
+		//Test
+		cC.imprimirPrueba();
+		
+		return cC;
 	}
-
-
-	/**
-	 * Print the matrix using the console
-	 */
-	public void showTest(){
-		
-		System.out.println(pixelsxCm);
-		
-		for (XMLColour[] row : colours) {
-			
-			for (XMLColour colour : row) {
-				System.out.print("r:" + colour.getRed() + ", g:" + colour.getGreen() + ", b:" + colour.getBlue() + " -- ");
-			}
-			
-			System.out.println("");
-			
-		}
-	}
-	
 	
 }

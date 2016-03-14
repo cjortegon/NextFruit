@@ -46,8 +46,9 @@ public class ColorChecker {
 			for (int j = 0; j < originalsLAB[0].length; j++) {
 				for (int k = 0; k < 3; k++)
 					originalsLAB[i][j][k] = originalsRGB[i][j][k]/255;
-				originalsLAB[i][j] = ColorConverter.rgb2xyz(originalsLAB[i][j], cameraSettings.getMatrix());
-				originalsLAB[i][j] = ColorConverter.xyz2lab(originalsLAB[i][j], cameraSettings.getIluminant());
+				originalsLAB[i][j] = ColorConverter.rgb2xyz(originalsLAB[i][j], cameraSettings.getWorkingSpaceMatrix());
+				originalsLAB[i][j] = ColorConverter.xyz2lab(originalsLAB[i][j], cameraSettings.getWhiteX(), cameraSettings.getWhiteY(),
+						cameraSettings.getWhiteZ());
 			}
 		}
 
@@ -182,8 +183,9 @@ public class ColorChecker {
 
 				readRGB[i][j] = box.getAverageRGB(BGR);
 				double rgb[] = new double[] {readRGB[i][j][0]/255, readRGB[i][j][1]/255, readRGB[i][j][2]/255};
-				readLAB[i][j] = ColorConverter.rgb2xyz(rgb, cameraSettings.getMatrix());
-				readLAB[i][j] = ColorConverter.xyz2lab(readLAB[i][j], cameraSettings.getIluminant());
+				readLAB[i][j] = ColorConverter.rgb2xyz(rgb, cameraSettings.getWorkingSpaceMatrix());
+				readLAB[i][j] = ColorConverter.xyz2lab(readLAB[i][j], cameraSettings.getWhiteX(), cameraSettings.getWhiteY(),
+						cameraSettings.getWhiteZ());
 			}
 		}
 		Collections.sort(boxes);

@@ -55,6 +55,9 @@ public class CalibrationResultsController implements Initializable, ActionListen
 				if(!result){
 					JOptionPane.showMessageDialog(this.view,
 							"The calibration data couldn't be saved!");
+				}else{
+					JOptionPane.showMessageDialog(this.view,
+							"Settings saved successfully!");
 				}
 			}
 			break;

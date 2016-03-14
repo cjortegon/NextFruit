@@ -97,77 +97,13 @@ public class ColorConverter {
 	 * @param illuminant, string
 	 * @return lab, Array with the Lab equivalent value of the xyz received as a parameter.
 	 */
-	public static double[] xyz2lab(double[] xyz, String illuminant) {
+	public static double[] xyz2lab(double[] xyz, double whiteX, double whiteY, double whiteZ) {
 		double[] Lab = new double[3];
 
 		//White Reference by defalut
-		double XOfR = 1.0;
-		double YOfR = 1.0;
-		double ZOfR = 1.0;
-
-		switch (illuminant) {
-
-		case "A":
-			XOfR = 1.09850;
-			ZOfR = 0.35585;
-			break;
-
-		case "B":
-			XOfR = 0.99072;
-			ZOfR = 0.85223;
-			break;
-
-		case "C":
-			XOfR = 0.98074;
-			ZOfR = 1.18232;
-			break;
-
-		case "D50":
-			XOfR = 0.96422;
-			ZOfR = 0.82521;
-			break;
-
-		case "D55":
-			XOfR = 0.95682;
-			ZOfR = 0.92149;
-			break;
-
-		case "D65":
-			XOfR = 0.95047;
-			ZOfR = 1.08883;
-			break;
-
-		case "D75":
-			XOfR = 0.94972;
-			ZOfR = 1.22638;
-			break;
-
-		case "E":
-			XOfR = 1.00000;
-			ZOfR = 1.00000;
-			break;
-
-		case "F2":
-			XOfR = 0.99186;
-			ZOfR = 0.67393;
-			break;
-
-		case "F7":
-			XOfR = 0.95041;
-			ZOfR = 1.08747;
-			break;
-
-		case "F11":
-			XOfR = 1.00962;
-			ZOfR = 0.64350;
-			break;
-
-		default:
-			XOfR = 0.95047;
-			ZOfR = 1.08883;
-			break;
-
-		}
+		double XOfR = whiteX;
+		double YOfR = whiteY;
+		double ZOfR = whiteZ;
 
 		double x = xyz[0]/XOfR;
 		double y = xyz[1]/YOfR;
@@ -213,7 +149,7 @@ public class ColorConverter {
 	 * @param XYZ, array representing a color.
 	 * @return xyY, Array with the Lab equivalent value of the xyY received as a parameter.
 	 */
-	public static double[] XYZ2xyY(double[] XYZ){
+	public static double[] XYZ2xyY(double[] XYZ, double whiteX){
 		double denominator = XYZ[0] + XYZ[1] + XYZ[2];
 
 		double x;
@@ -223,8 +159,8 @@ public class ColorConverter {
 			x = XYZ[0] / denominator;
 			y = XYZ [1] / denominator;
 		}else{
-			x = 1.0;
-			y = 1.0;
+			x = whiteX;
+			y = 1.00000;
 		}
 
 		double[] xyY = new double[3];

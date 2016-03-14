@@ -40,13 +40,32 @@ public class MatrixReader {
 	}
 	
 	/**
-	 * Not implemented yet
-	 * @param path
-	 * @return
+	 * Load a common matrix from the csv files.
+	 * @param path, the path of the csv file containing the matrix to use.
+	 * @return CameraSettings object containing the loaded matrix and illuminant.
 	 * @throws IOException
 	 */
 	public static CameraSettings readCameraSettings(String path) throws IOException {
-		return new CameraSettings(null, "");
+		double[][] matrixM = new double[3][3];
+		String[] numbers = new String[3];
+		String line = "";
+		
+		FileReader fR = new FileReader(path);
+		BufferedReader bR = new BufferedReader(fR);
+		
+		String[] first = bR.readLine().split(";");
+		String illuminant = first[0];
+		
+		for(int i = 0; (line=bR.readLine()) != null; i++){	
+			numbers = line.split(";");
+			
+			for(int j = 0; j < numbers.length; j++){
+				matrixM[i][j] = Double.parseDouble(numbers[j].toString());
+			}
+		}
+		
+		CameraSettings retorno = new CameraSettings(matrixM, illuminant);
+		return retorno;
 	}
 	
 }

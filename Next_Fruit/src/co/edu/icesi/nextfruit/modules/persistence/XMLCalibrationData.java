@@ -13,7 +13,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "CALIBRATION_DATA")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class XMLCalibrationData {
-
 	
 	//
 	//	Attributes
@@ -22,20 +21,31 @@ public class XMLCalibrationData {
 	@XmlElement(name = "PIXELSXCM")
 	private double pixelsxCm;
 	
+	@XmlElement(name = "ILLUMINANT")
+	private String illuminant;
+	
+	@XmlElement(name = "WHITE_X")
+	private double whiteX;
+	
+	@XmlElement(name = "WHITE_Y")
+	private double whiteY;
+	
+	@XmlElement(name = "WHITE_Z")
+	private double whiteZ;
+	
+	@XmlElement(name = "M_MATRIZ_ROW")
+	private double[][] workingSpaceMatrix;
+	
 	@XmlElement(name = "COLOURS_ROW")
 	private XMLColour[][] colours;
-	
-	
 	
 	//
 	//	Constructor
 	//
-	
 	public XMLCalibrationData(){
 		this.colours = new XMLColour[4][6];
+		this.workingSpaceMatrix = new double[3][3];
 	}
-	
-	
 	
 	//
 	//Access methods
@@ -51,7 +61,6 @@ public class XMLCalibrationData {
 		this.colours[posHor][posVer] = colour;
 	}
 	
-	
 	public double getPixels(){
 		return pixelsxCm;
 	}
@@ -63,6 +72,45 @@ public class XMLCalibrationData {
 	public void setPixelsxCm(double pixelsxCm) {
 		this.pixelsxCm = pixelsxCm;
 	}
-	
+
+	public String getIlluminant() {
+		return illuminant;
+	}
+
+	public double[][] getWorkingSpaceMatrix() {
+		return workingSpaceMatrix;
+	}
+
+	public void setIlluminant(String illuminant) {
+		this.illuminant = illuminant;
+	}
+
+	public void setWorkingSpaceMatrix(double[][] workingSpaceMatrix) {
+		this.workingSpaceMatrix = workingSpaceMatrix;
+	}
+
+	public void setWhiteX(double whiteX) {
+		this.whiteX = whiteX;
+	}
+
+	public void setWhiteY(double whiteY) {
+		this.whiteY = whiteY;
+	}
+
+	public void setWhiteZ(double whiteZ) {
+		this.whiteZ = whiteZ;
+	}
+
+	public double getWhiteX() {
+		return whiteX;
+	}
+
+	public double getWhiteY() {
+		return whiteY;
+	}
+
+	public double getWhiteZ() {
+		return whiteZ;
+	}	
 	
 }
