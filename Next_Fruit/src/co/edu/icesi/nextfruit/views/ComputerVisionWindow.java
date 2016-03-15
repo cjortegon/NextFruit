@@ -8,6 +8,7 @@ import java.util.ArrayList;
 
 import javax.swing.JButton;
 
+import org.opencv.core.Mat;
 import org.opencv.core.Point;
 
 import co.edu.icesi.nextfruit.controller.CalibrationResultsController;
@@ -27,6 +28,7 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 	private static final Dimension CANVAS_SIZE = new Dimension(300, 200);
 
 	private Model model;
+	private Mat mat;
 	private Image loadedImage;
 	private ImageCanvas canvas;
 	private ColorDistribution colors;
@@ -65,6 +67,9 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 	public void update() {
 		if(isVisible()) {
 			// Repainting components
+			if(model.getFeaturesExtract() != null && mat != model.getFeaturesExtract().getMat()) {
+				loadedImage = ImageUtility.mat2Image(model.getFeaturesExtract().getMat());
+			}
 			repaint();
 		}
 	}
@@ -81,7 +86,7 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 			if(loadedImage != null) {
 				try {
 					double size[] = ImageUtility.drawImage(loadedImage, CANVAS_SIZE, g);
-					PolygonWrapper border = null;
+					PolygonWrapper border = model.getFeaturesExtract().getPolygon();
 					int[] xs = new int[border.getPolygon().length];
 					int[] ys = new int[border.getPolygon().length];
 					int i = 0;
