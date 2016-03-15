@@ -7,12 +7,14 @@ import org.opencv.core.Mat;
 import org.opencv.core.Point;
 
 import co.edu.icesi.nextfruit.util.Geometry;
+import co.edu.icesi.nextfruit.util.PolygonIterator;
 
 public class PolygonWrapper implements Comparable<PolygonWrapper> {
 
 	private Point[] box;
 	private Point center;
 	private double perimeter, area;
+	private double top, bottom, left, right;
 
 	public PolygonWrapper(Point[] box, boolean reduceToSquare) {
 		this.box = box;
@@ -40,6 +42,7 @@ public class PolygonWrapper implements Comparable<PolygonWrapper> {
 		double centerX = (cordX[0]+cordX[box.length-1])/2;
 		double centerY = (cordY[0]+cordY[box.length-1])/2;
 		center = new Point(centerX, centerY);
+		getBoundaries();
 	}
 
 	public void reduceToSquare() {
@@ -130,6 +133,53 @@ public class PolygonWrapper implements Comparable<PolygonWrapper> {
 
 	public int getNumberOfSides() {
 		return box.length;
+	}
+
+	private void getBoundaries() {
+		top = Double.MAX_VALUE;
+		bottom = Double.MIN_VALUE;
+		left = Double.MAX_VALUE;
+		right = Double.MIN_VALUE;
+		for (int i = 0; i < box.length; i++) {
+			if(box[i].y < top)
+				top = box[i].y;
+			if(box[i].y > bottom)
+				bottom = box[i].y;
+			if(box[i].x < left)
+				left = box[i].x;
+			if(box[i].x > right)
+				right = box[i].x;
+		}
+	}
+
+	public PolygonIterator getIterator() {
+		return new PolygonIterator(this);
+	}
+
+	public boolean contains(Point point) {
+		boolean c = false;
+		for (int i = 0, j = box.length-1; i < box.length; j = i++) {
+			if ( ((box[i].y > point.y) != (box[j].y > point.y)) &&
+					(point.x < (box[j].x-box[i].x) * (point.y-box[i].y) / (box[j].y-box[i].y) + box[i].x))
+				c = !c;
+		}
+		return c;
+	}
+
+	public double getTop() {
+		return top;
+	}
+
+	public double getBottom() {
+		return bottom;
+	}
+
+	public double getLeft() {
+		return left;
+	}
+
+	public double getRight() {
+		return right;
 	}
 
 	@Override

@@ -44,7 +44,6 @@ public class ComputerVisionController implements Initializable, ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		System.out.println("actionPerformed: "+e.getActionCommand());
 		switch (e.getActionCommand()) {
 
 		case LOAD_IMAGE:

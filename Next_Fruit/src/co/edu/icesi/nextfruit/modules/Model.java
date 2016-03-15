@@ -94,7 +94,7 @@ public class Model implements Attachable {
 	 * @return boolean, represents if file was saved correctly or not.
 	 */
 	public boolean saveCalibrationData(File file, int[][][] rgbs, double pixelsxCm){			
-		CameraSettings cS = getCameraSettings();
+		CameraSettings cS = colorChecker.getCameraSettings();
 		try {
 			calibrationDataHandler.saveCalibrationData(file, rgbs, pixelsxCm, cS.getIlluminant(),
 					cS.getWorkingSpaceMatrix(), cS.getWhiteX(), cS.getWhiteY(), cS.getWhiteZ());
@@ -157,8 +157,8 @@ public class Model implements Attachable {
 		return sizeCalibrator;
 	}
 
-	public CameraSettings getCameraSettings() {
-		return colorChecker.getCameraSettings();
+	public CameraCalibration getCameraCalibration() {
+		return calibrationDataHandler.getCameraCalibration();
 	}
 
 	public FeaturesExtract getFeaturesExtract() {

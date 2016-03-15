@@ -62,4 +62,18 @@ public class ImageUtility {
 		graphics.drawImage(image, 0, 0, (int)size[0], (int)size[1], null);
 		return size;
 	}
+
+	public static int bgr2rgb(double[] bgr) {
+		int r = ((int)bgr[2]);
+		int g = ((int)bgr[1]);
+		int b = ((int)bgr[0]);
+		return (r << 16) | (g << 8) | b;
+	}
+	
+	public static double[] rgb2bgr(int rgb) {
+		int b = rgb & 255;
+		int g = (rgb & (255 << 8)) >> 8;
+		int r = (rgb & (255 << 16)) >> 16;
+		return new double[]{b, g, r};
+	}
 }

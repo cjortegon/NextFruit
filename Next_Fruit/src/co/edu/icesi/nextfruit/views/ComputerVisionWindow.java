@@ -5,6 +5,8 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Map;
 
 import javax.swing.JButton;
 
@@ -18,6 +20,7 @@ import co.edu.icesi.nextfruit.modules.model.PolygonWrapper;
 import co.edu.icesi.nextfruit.mvc.interfaces.Attachable;
 import co.edu.icesi.nextfruit.mvc.interfaces.Initializable;
 import co.edu.icesi.nextfruit.mvc.interfaces.Updateable;
+import co.edu.icesi.nextfruit.util.GraphPainter;
 import co.edu.icesi.nextfruit.util.ImageUtility;
 import co.edu.icesi.nextfruit.views.CalibrationWindow.ColorCheckerCanvas;
 import visualkey.KFrame;
@@ -53,7 +56,7 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 		addComponent(loadSettingsFileButton, 0, 1, 1, 1, false);
 		addComponent(canvas, 1, 0, 1, 1, false);
 		addComponent(colors, 1, 1, 1, 1, false);
-		addComponent(processButton, 2, 0, 2, 1, false);
+		addComponent(processButton, 2, 0, 2, 1, true);
 
 		// Starting controller
 		new ComputerVisionController().init(model, this);
@@ -67,9 +70,13 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 	public void update() {
 		if(isVisible()) {
 			// Repainting components
-			if(model.getFeaturesExtract() != null && mat != model.getFeaturesExtract().getMat()) {
-				loadedImage = ImageUtility.mat2Image(model.getFeaturesExtract().getMat());
-			}
+			try {
+				//				if(model.getFeaturesExtract() != null && mat != model.getFeaturesExtract().getMat()) {
+				if(model.getFeaturesExtract() != null) {
+					mat = model.getFeaturesExtract().getMat();
+					loadedImage = ImageUtility.mat2Image(mat);
+				}
+			} catch(NullPointerException npe){}
 			repaint();
 		}
 	}
@@ -87,16 +94,37 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 				try {
 					double size[] = ImageUtility.drawImage(loadedImage, CANVAS_SIZE, g);
 					PolygonWrapper border = model.getFeaturesExtract().getPolygon();
-					int[] xs = new int[border.getPolygon().length];
-					int[] ys = new int[border.getPolygon().length];
-					int i = 0;
-					for (Point p : border.getPolygon()) {
-						xs[i] = (int)(p.x*size[2]);
-						ys[i] = (int)(p.y*size[2]);
-						i ++;
+					if(border != null) {
+
+						// Fill with real colors
+						//						g.setColor(Color.white);
+						//						g.fillRect(2, 2, CANVAS_SIZE.width-2, CANVAS_SIZE.height-2);
+						//						Iterator<Point> iterator = border.getIterator();
+						//						while(iterator.hasNext()) {
+						//							Point p = iterator.next();
+						//							g.setColor(new Color(ImageUtility.bgr2Rgb(mat.get((int)p.y, (int)p.x))));
+						//							g.drawRect((int)(p.x*size[2]), (int)(p.y*size[2]), 1, 1);
+						//						}
+
+						int[] xs = new int[border.getPolygon().length];
+						int[] ys = new int[border.getPolygon().length];
+						int i = 0;
+						for (Point p : border.getPolygon()) {
+							xs[i] = (int)(p.x*size[2]);
+							ys[i] = (int)(p.y*size[2]);
+							i ++;
+						}
+						g.setColor(Color.green);
+						g.drawPolygon(xs, ys, xs.length);
+
+						// Fill
+						//					Iterator<Point> iterator = border.getIterator();
+						//					while(iterator.hasNext()) {
+						//						Point p = iterator.next();
+						//						g.drawRect((int)(p.x*size[2]), (int)(p.y*size[2]), 1, 1);
+						//					}
 					}
-					g.setColor(Color.green);
-					g.drawPolygon(xs, ys, xs.length);
+
 				} catch(NullPointerException npe) {}
 			} else {
 				g.setColor(Color.white);
@@ -113,7 +141,9 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 
 		public void paintComponent(Graphics g) {
 			if(loadedImage != null) {
-
+				try {
+				GraphPainter.paintXYrepresentation(model.getFeaturesExtract().getColorStatistics().keySet(), CANVAS_SIZE, model.getCameraCalibration(), g);
+				} catch(NullPointerException npe) {}
 			} else {
 				g.setColor(Color.white);
 				g.fillRect(2, 2, CANVAS_SIZE.width-2, CANVAS_SIZE.height-2);

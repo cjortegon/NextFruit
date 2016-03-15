@@ -1,9 +1,16 @@
 package co.edu.icesi.nextfruit.modules.computervision;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
 import org.opencv.core.Mat;
+import org.opencv.core.Point;
 import org.opencv.imgcodecs.Imgcodecs;
 
+import co.edu.icesi.nextfruit.modules.model.PolygonWrapper;
 import co.edu.icesi.nextfruit.util.CumulativeStatistics;
+import co.edu.icesi.nextfruit.util.ImageUtility;
 import co.edu.icesi.nextfruit.util.Statistics;
 
 public class Histogram {
@@ -159,18 +166,19 @@ public class Histogram {
 			for (int i = 0; i < mat.height(); i++) {
 				for (int j = 0; j < mat.width(); j++) {
 					double[] d = mat.get(i, j);
-					boolean match = d[0] > minB && d[0] < maxB
-							&& d[1] > minG && d[1] < maxG
-							&& d[2] > minR && d[2] < maxR;
-							if(match) {
-								if(matchColor != null) {
-									mat.put(i, j, matchColor);
-								}
-							} else {
-								if(notMatchColor != null) {
-									mat.put(i, j, notMatchColor);
-								}
-							}
+					boolean match = (d[0] > minB && d[0] < maxB &&
+							d[1] > minG && d[1] < maxG &&
+							d[2] > minR && d[2] < maxR
+							);
+					if(match) {
+						if(matchColor != null) {
+							mat.put(i, j, matchColor);
+						}
+					} else {
+						if(notMatchColor != null) {
+							mat.put(i, j, notMatchColor);
+						}
+					}
 				}
 			}
 		}
@@ -226,6 +234,24 @@ public class Histogram {
 				smooth[i] = (int) mean;
 		}
 		histogram = smooth;
+	}
+
+	public Map<Integer, Integer> getStatisticalColors(PolygonWrapper polygon) {
+		HashMap<Integer, Integer> map = new HashMap<>();
+		Iterator<Point> iterator = polygon.getIterator();
+		while(iterator.hasNext()) {
+			Point p = iterator.next();
+			double[] color = mat.get((int)p.y, (int)p.x);
+			int c = ImageUtility.bgr2rgb(color);
+			Integer stat = map.get(c);
+			if(stat == null) {
+				stat = 1;
+			} else {
+				stat ++;
+			}
+			map.put(c, stat);
+		}
+		return map;
 	}
 
 	public Mat getImage() {
