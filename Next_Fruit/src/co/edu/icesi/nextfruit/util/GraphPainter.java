@@ -3,7 +3,6 @@ package co.edu.icesi.nextfruit.util;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.util.Random;
 import java.util.Set;
 
 import co.edu.icesi.nextfruit.modules.model.CameraCalibration;
@@ -18,10 +17,6 @@ public class GraphPainter {
 			double[] xyY = ColorConverter.XYZ2xyY(xyz, calibration.getWhiteX());
 			//			System.out.println("("+((int)xyY[0])+","+((int)xyY[1])+","+((int)xyY[2])+")");
 			g.setColor(new Color(color));
-
-			//			Random ale = new Random();
-			//			xyY[0] = ale.nextDouble();
-			//			xyY[1] = ale.nextDouble();
 			g.drawRect((int)(xyY[0]*windowSize.getWidth()), (int)((1-xyY[1])*windowSize.getHeight()), 1, 1);
 		}
 	}

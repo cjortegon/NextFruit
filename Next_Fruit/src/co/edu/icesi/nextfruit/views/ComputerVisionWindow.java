@@ -140,13 +140,36 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 		}
 
 		public void paintComponent(Graphics g) {
+
+			// White background
+			g.setColor(Color.white);
+			g.fillRect(2, 2, CANVAS_SIZE.width-2, CANVAS_SIZE.height-2);
+
+			// Grid
+			double verticalSpace = CANVAS_SIZE.getHeight()/10;
+			for (int i = 0; i < 10; i ++) {
+				int y = (int)(i*verticalSpace);
+				g.setColor(Color.LIGHT_GRAY);
+				g.drawLine(0, y, (int) CANVAS_SIZE.getWidth(), y);
+				g.setColor(Color.BLACK);
+				g.drawString("0."+(10-i), 5, y);
+			}
+			double horizontalSpace = CANVAS_SIZE.getWidth()/10;
+			for (int j = 0; j < 9; j++) {
+				int x = (int)((j+1)*horizontalSpace);
+				g.setColor(Color.LIGHT_GRAY);
+				g.drawLine(x, 0, x, (int) CANVAS_SIZE.getWidth());
+				g.setColor(Color.BLACK);
+				g.drawString("0."+(j+1), x, (int)CANVAS_SIZE.getHeight()-5);
+			}
+			g.setColor(Color.LIGHT_GRAY);
+			g.drawRect(0, 0, (int)CANVAS_SIZE.getWidth()-1, (int)CANVAS_SIZE.getHeight()-1);
+
+			// Color distribution
 			if(loadedImage != null) {
 				try {
-				GraphPainter.paintXYrepresentation(model.getFeaturesExtract().getColorStatistics().keySet(), CANVAS_SIZE, model.getCameraCalibration(), g);
+					GraphPainter.paintXYrepresentation(model.getFeaturesExtract().getColorStatistics().keySet(), CANVAS_SIZE, model.getCameraCalibration(), g);
 				} catch(NullPointerException npe) {}
-			} else {
-				g.setColor(Color.white);
-				g.fillRect(2, 2, CANVAS_SIZE.width-2, CANVAS_SIZE.height-2);
 			}
 		}
 	}
