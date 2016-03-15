@@ -3,7 +3,7 @@ package co.edu.icesi.nextfruit.modules.model;
 import co.edu.icesi.nextfruit.modules.persistence.XMLColour;
 
 public class CameraCalibration {
-	
+
 	/**
 	 * Matrix that represents the RGB values of every ColorBox in a color checker.
 	 */
@@ -26,11 +26,9 @@ public class CameraCalibration {
 	private double whiteX;
 	private double whiteY;
 	private double whiteZ;
-	
-	
+
 	public CameraCalibration(XMLColour[][] rGBValues, double pixelsXCm, double[][] workingSpaceMatrix, double whiteX,
 			double whiteY, double whiteZ, String illuminant) {
-
 		this.RGBValues = rGBValues;
 		this.pixelsXCm = pixelsXCm;
 		this.workingSpaceMatrix = workingSpaceMatrix;
@@ -41,39 +39,30 @@ public class CameraCalibration {
 	}
 
 	public void imprimirPrueba(){
-		
+
 		System.out.println("pixelsxcm -> " + pixelsXCm);
 		System.out.println("illuminant -> " + illuminant);
 		System.out.println("whiteX -> " + whiteX);
 		System.out.println("whiteY -> " + whiteY);
 		System.out.println("whiteZ -> " + whiteZ);
-		
+
 		System.out.println("Matriz M: ");
-		
 		for (double[] row : workingSpaceMatrix) {
-			
 			for (double colour : row) {
 				System.out.print("(" + colour + ") ");
 			}
-			
 			System.out.println("");
-			
 		}
-		
+
 		System.out.println("Matriz ColorChecker RGB: ");
-		
 		for (XMLColour[] row : RGBValues) {
-			
 			for (XMLColour colour : row) {
 				System.out.print("(r:" + colour.getRed() + ", g:" + colour.getGreen() + ", b:" + colour.getBlue() + ")  ");
 			}
-			
 			System.out.println("");
-			
 		}
 	}
-	
-	
+
 	public XMLColour[][] getRGBValues() {
 		return RGBValues;
 	}
@@ -93,9 +82,9 @@ public class CameraCalibration {
 	public double getWhiteY() {
 		return whiteY;
 	}
-	
+
 	public double getWhiteZ() {
 		return whiteZ;
 	}	
-	
+
 }

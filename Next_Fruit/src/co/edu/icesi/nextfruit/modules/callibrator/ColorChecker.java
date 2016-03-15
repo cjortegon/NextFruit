@@ -1,6 +1,5 @@
 package co.edu.icesi.nextfruit.modules.callibrator;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -12,6 +11,7 @@ import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 import co.edu.icesi.nextfruit.modules.model.CameraSettings;
+import co.edu.icesi.nextfruit.modules.model.PolygonWrapper;
 import co.edu.icesi.nextfruit.util.ColorConverter;
 import co.edu.icesi.nextfruit.util.Geometry;
 import co.edu.icesi.nextfruit.util.Statistics;
@@ -19,9 +19,9 @@ import co.edu.icesi.nextfruit.util.Statistics;
 public class ColorChecker {
 
 	private Mat BGR, LAB, gray, MBlurred, silhouette;
-	private ColorBox[][] grid;
+	private PolygonWrapper[][] grid;
 	private double[][][] originalsRGB, originalsLAB, readRGB, readLAB;
-	private ArrayList<ColorBox> boxes;
+	private ArrayList<PolygonWrapper> boxes;
 	private double averageBoxArea, averageBoxDistance, distanceDeviation;
 	private int sensibility;
 	private CameraSettings cameraSettings;
@@ -36,7 +36,7 @@ public class ColorChecker {
 		this.cameraSettings = settings;
 
 		// Setting parameters
-		grid = new ColorBox[originalsRGB.length][originalsRGB[0].length];
+		grid = new PolygonWrapper[originalsRGB.length][originalsRGB[0].length];
 		readLAB = new double[grid.length][grid[0].length][3];
 		readRGB = new double[grid.length][grid[0].length][3];
 
@@ -80,10 +80,10 @@ public class ColorChecker {
 		List<MatOfPoint> contours = new ArrayList<>();
 		Imgproc.findContours(thresh, contours, mat, 1, 2);
 
-		boxes = new ArrayList<ColorBox>();
+		boxes = new ArrayList<PolygonWrapper>();
 		int i = 0;
 		for (MatOfPoint cnt : contours) {
-			boxes.add(new ColorBox(cnt.toArray()));
+			boxes.add(new PolygonWrapper(cnt.toArray(), true));
 		}
 	}
 
@@ -105,7 +105,7 @@ public class ColorChecker {
 		groupManager.makeGroups();
 
 		// Filtering by the distance relation between figures
-		ArrayList<ColorBox>[] groups = new ArrayList[groupManager.getNumberOfGroups()];
+		ArrayList<PolygonWrapper>[] groups = new ArrayList[groupManager.getNumberOfGroups()];
 		double[][] deviations = new double[groups.length][2];
 		for (int i = 0; i < groups.length; i++) {
 			groups[i] = groupManager.getGroups(i+1);
@@ -146,7 +146,7 @@ public class ColorChecker {
 		// Getting average area
 		Statistics boxStat = new Statistics();
 		double xStart = Double.MAX_VALUE, xEnd = Double.MIN_VALUE, yStart = Double.MAX_VALUE, yEnd = Double.MIN_VALUE;
-		for (ColorBox box : boxes) {
+		for (PolygonWrapper box : boxes) {
 			boxStat.addValue(box.getArea());
 			Point center = box.getCenter();
 			if(center.x < xStart)
@@ -164,7 +164,7 @@ public class ColorChecker {
 		boolean[] used = new boolean[boxes.size()];
 		for (int i = 0; i < grid.length; i++) {
 			for (int j = 0; j < grid[0].length; j++) {
-				ColorBox box = null;
+				PolygonWrapper box = null;
 				double x = xStart + j*averageBoxDistance;
 				double y = yStart + i*averageBoxDistance;
 				for (int k = 0; k < used.length; k++) {
@@ -175,8 +175,8 @@ public class ColorChecker {
 					}
 				}
 				if(box == null) {
-					box = new ColorBox(new Point[]{new Point(x-diff, y-diff), new Point(x+diff, y-diff),
-							new Point(x+diff, y+diff), new Point(x-diff, y+diff)});
+					box = new PolygonWrapper(new Point[]{new Point(x-diff, y-diff), new Point(x+diff, y-diff),
+							new Point(x+diff, y+diff), new Point(x-diff, y+diff)}, true);
 					boxes.add(box);
 				}
 				grid[i][j] = box;
@@ -193,13 +193,13 @@ public class ColorChecker {
 
 	private void obtainColors() {
 		ArrayList<double[]> colorsTmp = new ArrayList<>();
-		for (ColorBox box : boxes) {
+		for (PolygonWrapper box : boxes) {
 			double d[] = BGR.get((int)box.getCenter().y, (int)box.getCenter().x);
 			colorsTmp.add(d);
 		}
 	}
 
-	public ArrayList<ColorBox> getColorBoxes() {
+	public ArrayList<PolygonWrapper> getColorBoxes() {
 		return boxes;
 	}
 
@@ -219,7 +219,7 @@ public class ColorChecker {
 		return MBlurred;
 	}
 
-	public ColorBox[][] getGrid() {
+	public PolygonWrapper[][] getGrid() {
 		return grid;
 	}
 

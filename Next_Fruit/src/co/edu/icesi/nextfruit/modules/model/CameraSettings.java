@@ -17,7 +17,7 @@ public class CameraSettings {
 	private double whiteY;
 	private double whiteZ;
 
-	
+
 	public CameraSettings(double[][] matrix, String illuminant) {
 		this.WorkingSpaceMatrix = matrix;
 		this.illuminant = illuminant;
@@ -27,9 +27,9 @@ public class CameraSettings {
 	/**
 	 * Initialize the white point reference values x, y and z.
 	 */
-	private void initializeWhitePoints(){	
+	private void initializeWhitePoints(){
 		this.whiteY = 1.00000;
-		
+
 		switch (illuminant) {
 
 		case "A":
@@ -93,12 +93,11 @@ public class CameraSettings {
 			break;
 
 		}
-		
+
 	}
+
+	//	****************** Access methods ******************
 	
-	//
-	//	Access methods.
-	//
 	public double[][] getWorkingSpaceMatrix() {
 		return WorkingSpaceMatrix;
 	}

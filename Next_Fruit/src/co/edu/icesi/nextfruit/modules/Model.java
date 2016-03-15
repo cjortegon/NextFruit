@@ -10,6 +10,8 @@ import org.opencv.core.Core;
 
 import co.edu.icesi.nextfruit.modules.callibrator.ColorChecker;
 import co.edu.icesi.nextfruit.modules.callibrator.SizeCalibrator;
+import co.edu.icesi.nextfruit.modules.computervision.FeaturesExtract;
+import co.edu.icesi.nextfruit.modules.model.CameraCalibration;
 import co.edu.icesi.nextfruit.modules.model.CameraSettings;
 import co.edu.icesi.nextfruit.modules.persistence.CalibrationDataHandler;
 import co.edu.icesi.nextfruit.mvc.interfaces.Attachable;
@@ -23,7 +25,7 @@ public class Model implements Attachable {
 	private ColorChecker colorChecker;
 	private SizeCalibrator sizeCalibrator;
 	private CalibrationDataHandler calibrationDataHandler;
-	
+	private FeaturesExtract featuresExtract;
 
 	public Model() {
 		this.updateables = new LinkedList<>();
@@ -49,6 +51,13 @@ public class Model implements Attachable {
 		}
 	}
 
+	private void clearMemory() {
+		colorChecker = null;
+		sizeCalibrator = null;
+		calibrationDataHandler = null;
+		featuresExtract = null;
+	}
+
 	// ************************** LIFE CYCLE **************************
 
 	// ********************** CALIBRATION MODULE **********************
@@ -67,7 +76,7 @@ public class Model implements Attachable {
 		calibrationDataHandler = new CalibrationDataHandler();
 		updateAll();
 	}
-	
+
 	public void calibrate(File conversionCsv, double gridSize) throws IOException {
 		if(colorChecker != null) {
 			colorChecker.process(MatrixReader.readCameraSettings(conversionCsv.getAbsolutePath()));
@@ -78,7 +87,6 @@ public class Model implements Attachable {
 		updateAll();
 	}
 
-	
 	/**
 	 * This method saves the particular calibration data, of a given camera, as an XML file in disk.
 	 * @param file File object with the information about the XML file to save.
@@ -96,8 +104,8 @@ public class Model implements Attachable {
 			return false;
 		}
 	}
-	
-	
+
+
 	/**
 	 * This method loads, to the application, the calibration data of a particular camera,
 	 * saved as an XML file in disk.
@@ -105,25 +113,42 @@ public class Model implements Attachable {
 	 * @return boolean, represents if the file was added successfully or not.
 	 */
 	public boolean loadCalibrationData(File file){
-		
+
 		try {
-			
+
 			calibrationDataHandler.loadCalibrationData(file);
 			return true;
-			
+
 		} catch (JAXBException e) {
 
 			e.printStackTrace();
 			return false;
 		}
 	}
-	
-	
-	
-	//
-	//	Data Access Methods
-	//
-	
+
+	// ********************** CALIBRATION MODULE **********************
+
+	// ******************* CHARACTERIZATION MODULE ********************
+
+	public void startFeaturesExtract(String path) {
+		clearMemory();
+		featuresExtract = new FeaturesExtract(path);
+		updateAll();
+	}
+
+	public boolean extractFeatures() {
+		if(featuresExtract != null && calibrationDataHandler != null) {
+			featuresExtract.extractFeatures(calibrationDataHandler.getCameraCalibration());
+			updateAll();
+			return true;
+		}
+		return false;
+	}
+
+	// ******************* CHARACTERIZATION MODULE ********************
+
+	// ************************ ACCESS METHODS ************************
+
 	public ColorChecker getColorChecker() {
 		return colorChecker;
 	}
@@ -131,11 +156,15 @@ public class Model implements Attachable {
 	public SizeCalibrator getSizeCalibrator() {
 		return sizeCalibrator;
 	}
-	
+
 	public CameraSettings getCameraSettings() {
 		return colorChecker.getCameraSettings();
 	}
 
-	// ********************** CALIBRATION MODULE **********************
+	public FeaturesExtract getFeaturesExtract() {
+		return featuresExtract;
+	}
+
+	// ************************ ACCESS METHODS ************************
 
 }

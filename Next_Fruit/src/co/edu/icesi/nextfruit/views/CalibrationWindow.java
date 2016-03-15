@@ -16,7 +16,7 @@ import org.opencv.core.Point;
 
 import co.edu.icesi.nextfruit.controller.CalibrationController;
 import co.edu.icesi.nextfruit.modules.Model;
-import co.edu.icesi.nextfruit.modules.callibrator.ColorBox;
+import co.edu.icesi.nextfruit.modules.model.PolygonWrapper;
 import co.edu.icesi.nextfruit.mvc.interfaces.Attachable;
 import co.edu.icesi.nextfruit.mvc.interfaces.Initializable;
 import co.edu.icesi.nextfruit.mvc.interfaces.Updateable;
@@ -34,7 +34,7 @@ public class CalibrationWindow extends KFrame implements Initializable, Updateab
 
 	private Model model;
 	private JButton loadColorCheckerButton, loadSizeCalibrationButton, processButton, resultsButton;
-	private JComboBox matrixComboBox;
+	private JComboBox<File> matrixComboBox;
 	private JTextField sizeCalibrationMeasure;
 	private JLabel colorCheckerStatus, sizeCalibrationStatus;
 	private ColorCheckerCanvas colorCheckerCanvas;
@@ -113,16 +113,16 @@ public class CalibrationWindow extends KFrame implements Initializable, Updateab
 			if(colorCheckerImage != null) {
 				try {
 					double size[] = ImageUtility.drawImage(colorCheckerImage, CANVAS_SIZE, g);
-					ArrayList<ColorBox> boxes = model.getColorChecker().getColorBoxes();
-					for (ColorBox box : boxes) {
+					ArrayList<PolygonWrapper> boxes = model.getColorChecker().getColorBoxes();
+					for (PolygonWrapper box : boxes) {
 						g.setColor(Color.black);
 						g.drawRect((int)(box.getCenter().x*size[2])-BOX_SIZE, (int)(box.getCenter().y*size[2])-BOX_SIZE, BOX_SIZE*2, BOX_SIZE*2);
 						g.setColor(Color.white);
 						g.fillRect((int)(box.getCenter().x*size[2])-BOX_SIZE+1, (int)(box.getCenter().y*size[2])-BOX_SIZE+1, BOX_SIZE*2-1, BOX_SIZE*2-1);
-						int[] xs = new int[box.getBox().length];
-						int[] ys = new int[box.getBox().length];
+						int[] xs = new int[box.getPolygon().length];
+						int[] ys = new int[box.getPolygon().length];
 						int i = 0;
-						for (Point p : box.getBox()) {
+						for (Point p : box.getPolygon()) {
 							xs[i] = (int)(p.x*size[2]);
 							ys[i] = (int)(p.y*size[2]);
 							i ++;

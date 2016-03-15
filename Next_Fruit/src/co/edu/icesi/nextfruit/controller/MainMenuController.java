@@ -8,6 +8,7 @@ import co.edu.icesi.nextfruit.mvc.interfaces.Attachable;
 import co.edu.icesi.nextfruit.mvc.interfaces.Initializable;
 import co.edu.icesi.nextfruit.mvc.interfaces.Updateable;
 import co.edu.icesi.nextfruit.views.CalibrationWindow;
+import co.edu.icesi.nextfruit.views.ComputerVisionWindow;
 import co.edu.icesi.nextfruit.views.MainMenuWindow;
 
 public class MainMenuController implements Initializable, ActionListener {
@@ -17,6 +18,7 @@ public class MainMenuController implements Initializable, ActionListener {
 	private static final String CLASIFICATION = "Clasificator";
 	
 	private CalibrationWindow calibration;
+	private ComputerVisionWindow charaterization;
 
 	private Model model;
 	private Updateable view;
@@ -50,12 +52,16 @@ public class MainMenuController implements Initializable, ActionListener {
 			break;
 
 		case CHARACTERIZATION:
+			if(charaterization == null) {
+				charaterization = new ComputerVisionWindow();
+				charaterization.init(model, null);
+			}
+			charaterization.setVisible(true);
 			break;
 
 		case CLASIFICATION:
 			break;
 		}
-		System.out.println("actionPerformed: "+e.getActionCommand());
 	}
 
 }

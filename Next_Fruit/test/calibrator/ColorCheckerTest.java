@@ -10,8 +10,8 @@ import org.opencv.core.Core;
 import org.opencv.core.Point;
 
 import co.edu.icesi.nextfruit.modules.Constants;
-import co.edu.icesi.nextfruit.modules.callibrator.ColorBox;
 import co.edu.icesi.nextfruit.modules.callibrator.ColorChecker;
+import co.edu.icesi.nextfruit.modules.model.PolygonWrapper;
 import co.edu.icesi.nextfruit.util.ImageUtility;
 import visualkey.KCanvas;
 
@@ -46,16 +46,16 @@ public class ColorCheckerTest extends KCanvas {
 	protected void paintCanvas(Graphics g) {
 		try {
 			double size[] = ImageUtility.drawImage(image, WINDOW, g);
-			ArrayList<ColorBox> boxes = colorChecker.getColorBoxes();
-			for (ColorBox box : boxes) {
+			ArrayList<PolygonWrapper> boxes = colorChecker.getColorBoxes();
+			for (PolygonWrapper box : boxes) {
 				g.setColor(Color.black);
 				g.drawRect((int)(box.getCenter().x*size[2])-5, (int)(box.getCenter().y*size[2])-5, 10, 10);
 				g.setColor(Color.white);
 				g.fillRect((int)(box.getCenter().x*size[2])-4, (int)(box.getCenter().y*size[2])-4, 9, 9);
-				int[] xs = new int[box.getBox().length];
-				int[] ys = new int[box.getBox().length];
+				int[] xs = new int[box.getPolygon().length];
+				int[] ys = new int[box.getPolygon().length];
 				int i = 0;
-				for (Point p : box.getBox()) {
+				for (Point p : box.getPolygon()) {
 					xs[i] = (int)(p.x*size[2]);
 					ys[i] = (int)(p.y*size[2]);
 					i ++;

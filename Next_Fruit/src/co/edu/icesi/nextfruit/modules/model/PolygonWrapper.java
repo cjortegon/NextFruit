@@ -1,4 +1,4 @@
-package co.edu.icesi.nextfruit.modules.callibrator;
+package co.edu.icesi.nextfruit.modules.model;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8,15 +8,16 @@ import org.opencv.core.Point;
 
 import co.edu.icesi.nextfruit.util.Geometry;
 
-public class ColorBox implements Comparable<ColorBox> {
+public class PolygonWrapper implements Comparable<PolygonWrapper> {
 
 	private Point[] box;
 	private Point center;
 	private double perimeter, area;
 
-	public ColorBox(Point[] box) {
+	public PolygonWrapper(Point[] box, boolean reduceToSquare) {
 		this.box = box;
-		reduceToSquare();
+		if(reduceToSquare)
+			reduceToSquare();
 		Point last = null;
 		double cordX[] = new double[box.length];
 		double cordY[] = new double[box.length];
@@ -107,7 +108,7 @@ public class ColorBox implements Comparable<ColorBox> {
 		return new double[]{r/pixels, g/pixels, b/pixels};
 	}
 
-	public Point[] getBox() {
+	public Point[] getPolygon() {
 		return box;
 	}
 
@@ -132,7 +133,7 @@ public class ColorBox implements Comparable<ColorBox> {
 	}
 
 	@Override
-	public int compareTo(ColorBox o) {
+	public int compareTo(PolygonWrapper o) {
 		Point oc = o.getCenter();
 		double w = center.x - oc.x;
 		double h = center.y - oc.y;
