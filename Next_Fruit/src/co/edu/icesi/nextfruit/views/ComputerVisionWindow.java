@@ -4,9 +4,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.Collection;
 import java.util.Set;
 
 import javax.swing.JButton;
@@ -14,9 +12,9 @@ import javax.swing.JButton;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 
-import co.edu.icesi.nextfruit.controller.CalibrationResultsController;
 import co.edu.icesi.nextfruit.controller.ComputerVisionController;
 import co.edu.icesi.nextfruit.modules.Model;
+import co.edu.icesi.nextfruit.modules.model.ColorDistribution;
 import co.edu.icesi.nextfruit.modules.model.PolygonWrapper;
 import co.edu.icesi.nextfruit.mvc.interfaces.Attachable;
 import co.edu.icesi.nextfruit.mvc.interfaces.Initializable;
@@ -34,7 +32,7 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 	private Mat mat;
 	private Image loadedImage;
 	private ImageCanvas canvas;
-	private ColorDistribution colors;
+	private ColorsPanel colors;
 	private JButton loadButton, loadSettingsFileButton, processButton;
 
 	@Override
@@ -42,7 +40,7 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 
 		// Initializing objects
 		canvas = new ImageCanvas(CANVAS_SIZE);
-		colors = new ColorDistribution(CANVAS_SIZE);
+		colors = new ColorsPanel(CANVAS_SIZE);
 		loadButton = new JButton("Load image");
 		loadSettingsFileButton = new JButton("Load Calibration Data From an XML File");
 		processButton = new JButton("Process image");
@@ -71,8 +69,7 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 		if(isVisible()) {
 			// Repainting components
 			try {
-				//				if(model.getFeaturesExtract() != null && mat != model.getFeaturesExtract().getMat()) {
-				if(model.getFeaturesExtract() != null) {
+				if(model.getFeaturesExtract() != null && mat != model.getFeaturesExtract().getMat()) {
 					mat = model.getFeaturesExtract().getMat();
 					loadedImage = ImageUtility.mat2Image(mat);
 				}
@@ -95,17 +92,6 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 					double size[] = ImageUtility.drawImage(loadedImage, CANVAS_SIZE, g);
 					PolygonWrapper border = model.getFeaturesExtract().getPolygon();
 					if(border != null) {
-
-						// Fill with real colors
-						//						g.setColor(Color.white);
-						//						g.fillRect(2, 2, CANVAS_SIZE.width-2, CANVAS_SIZE.height-2);
-						//						Iterator<Point> iterator = border.getIterator();
-						//						while(iterator.hasNext()) {
-						//							Point p = iterator.next();
-						//							g.setColor(new Color(ImageUtility.bgr2Rgb(mat.get((int)p.y, (int)p.x))));
-						//							g.drawRect((int)(p.x*size[2]), (int)(p.y*size[2]), 1, 1);
-						//						}
-
 						int[] xs = new int[border.getPolygon().length];
 						int[] ys = new int[border.getPolygon().length];
 						int i = 0;
@@ -116,13 +102,6 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 						}
 						g.setColor(Color.green);
 						g.drawPolygon(xs, ys, xs.length);
-
-						// Fill
-						//					Iterator<Point> iterator = border.getIterator();
-						//					while(iterator.hasNext()) {
-						//						Point p = iterator.next();
-						//						g.drawRect((int)(p.x*size[2]), (int)(p.y*size[2]), 1, 1);
-						//					}
 					}
 
 				} catch(NullPointerException npe) {}
@@ -133,9 +112,9 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 		}
 	}
 
-	public class ColorDistribution extends KPanel {
+	public class ColorsPanel extends KPanel {
 
-		public ColorDistribution(Dimension canvasSize) {
+		public ColorsPanel(Dimension canvasSize) {
 			super(canvasSize);
 		}
 
@@ -168,10 +147,12 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 			// Color distribution
 			if(loadedImage != null) {
 				try {
-					Set<Integer> colors = model.getFeaturesExtract().getColorStatistics().keySet();
-					for (Integer color : colors) {
-						double[] xyY = ColorConverter.XYZ2xyY(ColorConverter.rgb2xyz(ColorConverter.reverseColor(ColorConverter.rgb2bgr(color))), model.getCameraCalibration().getWhiteX());
-						g.setColor(new Color(color));
+					Collection<ColorDistribution> colors = model.getFeaturesExtract().getColorStatistics();
+					for (ColorDistribution color : colors) {
+						double[] xyY = ColorConverter.rgb2xyY(color.getRGB(),
+								model.getCameraCalibration().getWorkingSpaceMatrix(),
+								model.getCameraCalibration().getWhiteX());
+						g.setColor(color);
 						g.drawRect((int)(xyY[0]*CANVAS_SIZE.getWidth()), (int)((1-xyY[1])*CANVAS_SIZE.getHeight()), 1, 1);
 					}
 				} catch(NullPointerException npe) {}

@@ -1,6 +1,8 @@
 package co.edu.icesi.nextfruit.modules.computervision;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -8,6 +10,7 @@ import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.imgcodecs.Imgcodecs;
 
+import co.edu.icesi.nextfruit.modules.model.ColorDistribution;
 import co.edu.icesi.nextfruit.modules.model.PolygonWrapper;
 import co.edu.icesi.nextfruit.util.ColorConverter;
 import co.edu.icesi.nextfruit.util.CumulativeStatistics;
@@ -237,22 +240,22 @@ public class Histogram {
 		histogram = smooth;
 	}
 
-	public Map<Integer, Integer> getStatisticalColors(PolygonWrapper polygon) {
-		HashMap<Integer, Integer> map = new HashMap<>();
+	public Collection<ColorDistribution> getStatisticalColors(PolygonWrapper polygon) {
+		HashMap<Integer, ColorDistribution> map = new HashMap<>();
 		Iterator<Point> iterator = polygon.getIterator();
 		while(iterator.hasNext()) {
 			Point p = iterator.next();
 			double[] color = mat.get((int)p.y, (int)p.x);
 			int c = ColorConverter.bgr2rgb(color);
-			Integer stat = map.get(c);
-			if(stat == null) {
-				stat = 1;
+			ColorDistribution colorDistribution = map.get(c);
+			if(colorDistribution == null) {
+				colorDistribution = new ColorDistribution(c);
+				map.put(c, colorDistribution);
 			} else {
-				stat ++;
+				colorDistribution.repeat();
 			}
-			map.put(c, stat);
 		}
-		return map;
+		return map.values();
 	}
 
 	public Mat getImage() {

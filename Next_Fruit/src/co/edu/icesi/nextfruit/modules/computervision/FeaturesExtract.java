@@ -1,8 +1,8 @@
 package co.edu.icesi.nextfruit.modules.computervision;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -11,6 +11,7 @@ import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 import co.edu.icesi.nextfruit.modules.model.CameraCalibration;
+import co.edu.icesi.nextfruit.modules.model.ColorDistribution;
 import co.edu.icesi.nextfruit.modules.model.PolygonWrapper;
 
 public class FeaturesExtract {
@@ -18,11 +19,14 @@ public class FeaturesExtract {
 	private Mat mat;
 	private PolygonWrapper polygon;
 	private Histogram histogram;
-	private Map<Integer, Integer> colorStatistics;
+	private Collection<ColorDistribution> colorStatistics;
+	private List<ColorDistribution> matchingColors;
 
 	public FeaturesExtract(String imagePath) {
 		mat = Imgcodecs.imread(imagePath);
 	}
+
+	// ***************** PUBLIC METHODS *****************
 
 	public void extractFeatures(CameraCalibration calibration) {
 		mat = bilateralFilter(mat);
@@ -30,10 +34,17 @@ public class FeaturesExtract {
 		histogram = new Histogram(mat);
 		histogram.applyWhitePatch();
 		colorStatistics = histogram.getStatisticalColors(polygon);
-		System.out.println(colorStatistics.keySet().size()+" colors in this fruit!");
+		System.out.println(colorStatistics.size()+" colors in this fruit!");
 	}
 
-	// ******************** METHODS *********************
+	public void analizeData(CameraCalibration calibration, List<ColorDistribution> colors, double sensibility) {
+		matchingColors = colorMatching(colors, calibration, sensibility);
+
+	}
+
+	// ***************** PUBLIC METHODS *****************
+
+	// ******************** FILTERS *********************
 
 	private Mat bilateralFilter(Mat src) {
 		Mat dst = Mat.zeros(src.width(), src.height(), CvType.CV_32F);
@@ -61,6 +72,10 @@ public class FeaturesExtract {
 		return dst;
 	}
 
+	// ******************** FILTERS *********************
+
+	// **************** PRIVATE METHODS *****************
+
 	private PolygonWrapper getContours(Mat mat, int sensibility) {
 
 		Mat gray = mat.clone();
@@ -82,11 +97,23 @@ public class FeaturesExtract {
 				biggestArea = polygon.getArea();
 			}
 		}
-
 		return biggest;
 	}
 
-	// ******************** METHODS *********************
+	private List<ColorDistribution> colorMatching(List<ColorDistribution> colors, CameraCalibration calibration, double sensibility) {
+		for (ColorDistribution color : colors) {
+			color.transform2xyY(calibration);
+			double[] xyY = color.getxyY();
+			for (ColorDistribution c : colorStatistics) {
+				c.transform2xyY(calibration);
+				if(c.isCloseToXY(xyY, sensibility))
+					color.repeat();
+			}
+		}
+		return colors;
+	}
+
+	// **************** PRIVATE METHODS *****************
 
 	// ******************** GETTERS *********************
 
@@ -98,12 +125,12 @@ public class FeaturesExtract {
 		return polygon;
 	}
 
-	public Histogram getHistogram() {
-		return histogram;
+	public Collection<ColorDistribution> getColorStatistics() {
+		return colorStatistics;
 	}
 
-	public Map<Integer, Integer> getColorStatistics() {
-		return colorStatistics;
+	public List<ColorDistribution> getMatchingColors() {
+		return matchingColors;
 	}
 
 	// ******************** GETTERS *********************
