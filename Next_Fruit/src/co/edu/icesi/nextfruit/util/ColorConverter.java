@@ -172,4 +172,27 @@ public class ColorConverter {
 		return xyY;
 	}
 
+	/**
+	 * Changes the order of RGB to BGR and vice versa according to different implementations
+	 * @param color
+	 * @return
+	 */
+	public static double[] reverseColor(double[] color) {
+		return new double[]{color[2], color[1], color[0]};
+	}
+
+	public static int bgr2rgb(double[] bgr) {
+		int r = ((int)bgr[2]);
+		int g = ((int)bgr[1]);
+		int b = ((int)bgr[0]);
+		return (r << 16) | (g << 8) | b;
+	}
+
+	public static double[] rgb2bgr(int rgb) {
+		int b = rgb & 255;
+		int g = (rgb & (255 << 8)) >> 8;
+		int r = (rgb & (255 << 16)) >> 16;
+		return new double[]{b, g, r};
+	}
+
 }

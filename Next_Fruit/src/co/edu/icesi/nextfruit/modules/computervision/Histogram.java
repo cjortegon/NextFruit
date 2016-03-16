@@ -9,6 +9,7 @@ import org.opencv.core.Point;
 import org.opencv.imgcodecs.Imgcodecs;
 
 import co.edu.icesi.nextfruit.modules.model.PolygonWrapper;
+import co.edu.icesi.nextfruit.util.ColorConverter;
 import co.edu.icesi.nextfruit.util.CumulativeStatistics;
 import co.edu.icesi.nextfruit.util.ImageUtility;
 import co.edu.icesi.nextfruit.util.Statistics;
@@ -242,7 +243,7 @@ public class Histogram {
 		while(iterator.hasNext()) {
 			Point p = iterator.next();
 			double[] color = mat.get((int)p.y, (int)p.x);
-			int c = ImageUtility.bgr2rgb(color);
+			int c = ColorConverter.bgr2rgb(color);
 			Integer stat = map.get(c);
 			if(stat == null) {
 				stat = 1;

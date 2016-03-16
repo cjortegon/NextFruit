@@ -7,6 +7,7 @@ import java.awt.Image;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.JButton;
 
@@ -20,9 +21,8 @@ import co.edu.icesi.nextfruit.modules.model.PolygonWrapper;
 import co.edu.icesi.nextfruit.mvc.interfaces.Attachable;
 import co.edu.icesi.nextfruit.mvc.interfaces.Initializable;
 import co.edu.icesi.nextfruit.mvc.interfaces.Updateable;
-import co.edu.icesi.nextfruit.util.GraphPainter;
+import co.edu.icesi.nextfruit.util.ColorConverter;
 import co.edu.icesi.nextfruit.util.ImageUtility;
-import co.edu.icesi.nextfruit.views.CalibrationWindow.ColorCheckerCanvas;
 import visualkey.KFrame;
 import visualkey.KPanel;
 
@@ -168,7 +168,12 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 			// Color distribution
 			if(loadedImage != null) {
 				try {
-					GraphPainter.paintXYrepresentation(model.getFeaturesExtract().getColorStatistics().keySet(), CANVAS_SIZE, model.getCameraCalibration(), g);
+					Set<Integer> colors = model.getFeaturesExtract().getColorStatistics().keySet();
+					for (Integer color : colors) {
+						double[] xyY = ColorConverter.XYZ2xyY(ColorConverter.rgb2xyz(ColorConverter.reverseColor(ColorConverter.rgb2bgr(color))), model.getCameraCalibration().getWhiteX());
+						g.setColor(new Color(color));
+						g.drawRect((int)(xyY[0]*CANVAS_SIZE.getWidth()), (int)((1-xyY[1])*CANVAS_SIZE.getHeight()), 1, 1);
+					}
 				} catch(NullPointerException npe) {}
 			}
 		}

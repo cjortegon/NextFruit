@@ -15,27 +15,6 @@ import co.edu.icesi.nextfruit.modules.model.PolygonWrapper;
 
 public class FeaturesExtract {
 
-	//	private double[][] threshold;
-
-	//	public FeaturesExtract(String backgroundPath) {
-	//		Histogram bgHistogram = new Histogram(backgroundPath);
-	//		bgHistogram.convertToCromaticScale();
-	//		bgHistogram.applyWhitePatch();
-	//		threshold = bgHistogram.obtainThreshold();
-	//		System.out.println("Background: ("+threshold[0][0]+","+threshold[0][1]+","+threshold[0][2]+")");
-	//		System.out.println("Range: ("+threshold[1][0]+","+threshold[1][1]+","+threshold[1][2]+")");
-	//	}
-	//	
-	//	public Mat removeBackground(Mat mat) {
-	//		
-	//		Histogram histogram = new Histogram(mat);
-	//		histogram.convertToCromaticScale();
-	//		histogram.applyWhitePatch();
-	//		histogram.filterFigureByColorProfile(threshold[0], threshold[1], new double[]{255, 255, 255}, null);
-	//		
-	//		return histogram.getImage();
-	//	}
-
 	private Mat mat;
 	private PolygonWrapper polygon;
 	private Histogram histogram;
@@ -49,38 +28,23 @@ public class FeaturesExtract {
 		mat = bilateralFilter(mat);
 		polygon = getContours(mat.clone(), 150);
 		histogram = new Histogram(mat);
-		//		long time = System.currentTimeMillis();
-		//		System.out.println("Start getStatisticalColors()");
+		histogram.applyWhitePatch();
 		colorStatistics = histogram.getStatisticalColors(polygon);
-		//		System.out.println("Number of colors: "+map.keySet().size());
-		//		System.out.println("Time to get all colors: "+(System.currentTimeMillis() - time));
-
-		// Printing all colors
-		//		for (Integer color : colorStatistics.keySet()) {
-		//			int b = color & (255);
-		//			int g = (color & (255 << 8)) >> 8;
-		//			int r = (color & (255 << 16)) >> 16;
-		//			System.out.println(color+" -> ("+r+","+g+","+b+")");
-		//		}
 		System.out.println(colorStatistics.keySet().size()+" colors in this fruit!");
 	}
 
-	// ******************** FILTERS *********************
+	// ******************** METHODS *********************
 
 	private Mat bilateralFilter(Mat src) {
 		Mat dst = Mat.zeros(src.width(), src.height(), CvType.CV_32F);
 		double sigmaColor = Math.sqrt(src.width()*src.height())/100;
-		//		System.out.println("Using sigmaColor = "+sigmaColor);
-		//		long time = System.currentTimeMillis();
 		Imgproc.bilateralFilter(src, dst, -1, sigmaColor, 3);
-		//		System.out.println("Processing time: "+(System.currentTimeMillis() - time));
 		return dst;
 	}
 
 	private Mat medianBlur(Mat mat) {
 		Mat MBlurred = new Mat();
 		int ksize = (int) (Math.sqrt(mat.width()*mat.height())/60);
-		//		System.out.println("ksize = "+ksize);
 		if(ksize %2 == 0)
 			ksize ++;
 		Imgproc.medianBlur(mat, MBlurred, ksize);
@@ -122,9 +86,9 @@ public class FeaturesExtract {
 		return biggest;
 	}
 
-	// ******************** FILTERS *********************
+	// ******************** METHODS *********************
 
-	// ***************** ACCESS METHODS *****************
+	// ******************** GETTERS *********************
 
 	public Mat getMat() {
 		return mat;
@@ -142,6 +106,6 @@ public class FeaturesExtract {
 		return colorStatistics;
 	}
 
-	// ***************** ACCESS METHODS *****************
+	// ******************** GETTERS *********************
 
 }
