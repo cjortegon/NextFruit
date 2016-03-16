@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JTextArea;
 
 import org.opencv.core.Mat;
@@ -29,7 +30,7 @@ import visualkey.KPanel;
 public class ComputerVisionWindow extends KFrame implements Initializable, Updateable {
 
 	private static final Dimension CANVAS_SIZE_SMALL = new Dimension(300, 200);
-	private static final Dimension CANVAS_SIZE_BIG = new Dimension(450, 300);
+	private static final Dimension CANVAS_SIZE_BIG = new Dimension(300, 300);
 
 	private Model model;
 	private Mat mat;
@@ -38,8 +39,10 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 	private ColorsPanel colorsCanvas;
 	private BarDiagramCanvas barsCanvas;
 	private HistogramCanvas histogramCanvas;
-	private JButton loadButton, loadSettingsFileButton, processButton, updateMatchingColorsButton, analizeDataButton;
+	private JButton loadButton, loadSettingsFileButton, processButton, updateMatchingColorsButton, analizeDataButton, displayImageButton, displayXYYButton;
 	private JTextArea matchingColors, luminantStatistics;
+	private JLabel calibrationFile;
+	private boolean displayColorSpace;
 
 	@Override
 	public void init(Attachable model, Updateable view) {
@@ -50,15 +53,17 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 		barsCanvas = new BarDiagramCanvas(CANVAS_SIZE_SMALL);
 		histogramCanvas = new HistogramCanvas(new Dimension(CANVAS_SIZE_BIG.width, CANVAS_SIZE_SMALL.height));
 		matchingColors = new JTextArea();
-		Dimension taDimension = new Dimension(CANVAS_SIZE_SMALL.width/2, CANVAS_SIZE_SMALL.height);
-		matchingColors.setPreferredSize(taDimension);
+		matchingColors.setPreferredSize(CANVAS_SIZE_SMALL);
 		luminantStatistics = new JTextArea("Luminant statistics:");
-		luminantStatistics.setPreferredSize(taDimension);
+		luminantStatistics.setPreferredSize(CANVAS_SIZE_SMALL);
 		luminantStatistics.setEditable(false);
 		loadButton = new JButton("Load image");
 		loadSettingsFileButton = new JButton("Load Calibration Data From an XML File");
+		calibrationFile = new JLabel("(No calibration file loaded)");
 		updateMatchingColorsButton = new JButton("Update matching colors");
 		processButton = new JButton("Process image");
+		displayImageButton = new JButton("Image distribution");
+		displayXYYButton = new JButton("xyY distribution");
 		analizeDataButton = new JButton("Analize data");
 
 		// Attaching to model
@@ -68,15 +73,19 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 		//Adding objects to window
 		addComponent(loadButton, 0, 0, 1, 1, false);
 		addComponent(loadSettingsFileButton, 1, 0, 1, 1, false);
-		addComponent(imageCanvas, 2, 0, 1, 1, false);
-		addComponent(processButton, 3, 0, 1, 1, false);
-		addComponent(colorsCanvas, 0, 1, 1, 4, false);
-		addComponent(updateMatchingColorsButton, 0, 2, 1, 1, false);
-		addComponent(matchingColors, 1, 2, 1, 2, false);
-		addComponent(analizeDataButton, 3, 2, 1, 1, false);
-		addComponent(barsCanvas, 4, 0, 1, 1, false);
-		addComponent(histogramCanvas, 4, 1, 1, 1, false);
-		addComponent(luminantStatistics, 4, 2, 1, 1, false);
+		addComponent(calibrationFile, 2, 0, 1, 1, true);
+		addComponent(imageCanvas, 3, 0, 1, 1, false);
+		addComponent(processButton, 4, 0, 1, 1, false);
+		addComponent(colorsCanvas, 0, 1, 1, 5, false);
+		addComponent(displayImageButton, 0, 2, 1, 1, false);
+		addComponent(displayXYYButton, 0, 3, 1, 1, false);
+		addComponent(updateMatchingColorsButton, 1, 2, 2, 1, false);
+		addLabel("List of matching colors", 2, 2, 2, 1, true);
+		addComponent(matchingColors, 3, 2, 2, 1, false);
+		addComponent(analizeDataButton, 4, 2, 2, 1, false);
+		addComponent(barsCanvas, 5, 0, 1, 1, false);
+		addComponent(histogramCanvas, 5, 1, 1, 1, false);
+		addComponent(luminantStatistics, 5, 2, 2, 1, false);
 
 		// Starting controller
 		new ComputerVisionController().init(model, this);
@@ -84,6 +93,18 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 		// Ending initialization
 		pack();
 		setResizable(false);
+	}
+
+	public double[] getPercentOnColorsCanvas(int x, int y) {
+		return new double[] {x/CANVAS_SIZE_BIG.getWidth(), 1-(y/CANVAS_SIZE_BIG.getHeight())};
+	}
+
+	public void displayColorSpace() {
+		displayColorSpace = true;
+	}
+
+	public void displayImageDistribution() {
+		displayColorSpace = false;
 	}
 
 	@Override
@@ -131,8 +152,7 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 				g.setColor(Color.white);
 				g.fillRect(2, 2, CANVAS_SIZE_SMALL.width-4, CANVAS_SIZE_SMALL.height-4);
 				g.setColor(Color.LIGHT_GRAY);
-				g.drawRect(2, CANVAS_SIZE_SMALL.height-2, CANVAS_SIZE_SMALL.width/2 - 10, CANVAS_SIZE_SMALL.height/2);
-				g.drawRect(CANVAS_SIZE_SMALL.width/2 - 10, CANVAS_SIZE_SMALL.height/2, CANVAS_SIZE_SMALL.width-12, CANVAS_SIZE_SMALL.height-2);
+				g.drawString("No image to display...", 5, 15);
 			}
 		}
 	}
@@ -170,29 +190,51 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 			g.drawRect(0, 0, (int)CANVAS_SIZE_BIG.getWidth()-1, (int)CANVAS_SIZE_BIG.getHeight()-1);
 
 			// Color distribution
-			if(loadedImage != null) {
-				try {
-					Collection<ColorDistribution> colors = model.getFeaturesExtract().getColorStatistics();
-					for (ColorDistribution color : colors) {
-						double[] xyY = ColorConverter.rgb2xyY(color.getRGB(),
-								model.getCameraCalibration().getWorkingSpaceMatrix(),
-								model.getCameraCalibration().getWhiteX());
-						g.setColor(color);
-						g.drawRect((int)(xyY[0]*CANVAS_SIZE_BIG.getWidth()), (int)((1-xyY[1])*CANVAS_SIZE_BIG.getHeight()), 1, 1);
+			if(displayColorSpace) {
+				int startX = CANVAS_SIZE_BIG.width/10;
+				int startY = CANVAS_SIZE_BIG.height/10;
+				for(int x = startX; x < CANVAS_SIZE_BIG.width-startX; x ++) {
+					for (int y = startY; y < CANVAS_SIZE_BIG.height-startY; y++) {
+						double[] xyY = getPercentOnColorsCanvas(x, y);
+						g.setColor(new Color(ColorConverter.bgr2rgb(ColorConverter.xyY2bgr(new double[]{xyY[0], xyY[1], 0.75}))));
+						g.drawRect(x, y, 1, 1);
 					}
-				} catch(NullPointerException npe) {}
+				}
+			} else {
+				if(loadedImage != null) {
+					try {
+						Collection<ColorDistribution> colors = model.getFeaturesExtract().getColorStatistics();
+						for (ColorDistribution color : colors) {
+							double[] xyY = ColorConverter.rgb2xyY(color.getRGB(),
+									model.getCameraCalibration().getWorkingSpaceMatrix(),
+									model.getCameraCalibration().getWhiteX());
+							g.setColor(color);
+							g.drawRect((int)(xyY[0]*CANVAS_SIZE_BIG.getWidth()), (int)((1-xyY[1])*CANVAS_SIZE_BIG.getHeight()), 1, 1);
+						}
+					} catch(NullPointerException npe) {}
+				}
 			}
-			
+
+			// Ruler
+			g.setColor(Color.BLACK);
+			for (double i = 1; i < 20; i++) {
+				g.drawLine((int)((i/20.0)*CANVAS_SIZE_BIG.getWidth()), (int)(CANVAS_SIZE_BIG.getHeight()/2)-5, (int)((i/20.0)*CANVAS_SIZE_BIG.getWidth()), (int)(CANVAS_SIZE_BIG.getHeight()/2)+5);
+			}
+			for (double i = 1; i < 20; i++) {
+				g.drawLine((int)(CANVAS_SIZE_BIG.getWidth()/2)-5, (int)((i/20.0)*CANVAS_SIZE_BIG.getHeight()), (int)(CANVAS_SIZE_BIG.getWidth()/2)+5, (int)((i/20.0)*CANVAS_SIZE_BIG.getHeight()));
+			}
+
 			// Matching colors
 			List<MatchingColor> matching = model.getMatchingColors();
 			if(matching != null) {
 				g.setColor(Color.BLACK);
 				for (MatchingColor matchingColor : matching) {
 					double[] descriptor = matchingColor.getDescriptor();
-					g.drawOval((int)(descriptor[0]*CANVAS_SIZE_BIG.getWidth()),
-							(int)((1-descriptor[1])*CANVAS_SIZE_BIG.getHeight()),
-							(int)(descriptor[2]*2*CANVAS_SIZE_BIG.getWidth()),
-							(int)(descriptor[2]*2*CANVAS_SIZE_BIG.getHeight()));
+					double w = descriptor[2]*CANVAS_SIZE_BIG.getWidth();
+					double h = descriptor[2]*CANVAS_SIZE_BIG.getHeight();
+					g.drawOval((int)(descriptor[0]*CANVAS_SIZE_BIG.getWidth() - w),
+							(int)((1-descriptor[1])*CANVAS_SIZE_BIG.getHeight() - h),
+							(int)(w*2), (int)(h*2));
 				}
 			}
 		}
@@ -207,6 +249,25 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 		public void paintComponent(Graphics g) {
 			g.setColor(Color.white);
 			g.fillRect(2, 2, CANVAS_SIZE_SMALL.width-4, CANVAS_SIZE_SMALL.height-4);
+			g.setColor(Color.BLACK);
+			g.drawString("Color distribution:", 5, 15);
+			try {
+				Collection<ColorDistribution> matchingColors = model.getFeaturesExtract().getMatchingColors();
+				int width = CANVAS_SIZE_SMALL.width/(matchingColors.size()*2 + 1);
+				int topMargin = 30;
+				int height = CANVAS_SIZE_SMALL.height - topMargin;
+				int x = width;
+				for (ColorDistribution color : matchingColors) {
+					g.setColor(color);
+					double percent = color.getRepeat()/(double)model.getFeaturesExtract().getNumberOfPixels();
+					int y = (int)(height*(1-percent));
+					g.drawRect(x, y+topMargin, width, height);
+					g.setColor(Color.BLACK);
+					g.drawString(((int)(percent*100))+"%", x+2, y-5+topMargin);
+					x += width*2;
+				}
+			} catch(NullPointerException npe) {
+			}
 		}
 	}
 
@@ -219,6 +280,8 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 		public void paintComponent(Graphics g) {
 			g.setColor(Color.white);
 			g.fillRect(2, 2, CANVAS_SIZE_BIG.width-4, CANVAS_SIZE_SMALL.height-4);
+			g.setColor(Color.BLACK);
+			g.drawString("Luminant histogram:", 5, 15);
 		}
 	}
 
@@ -248,6 +311,22 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 
 	public JTextArea getMatchingColors() {
 		return matchingColors;
+	}
+
+	public JLabel getCalibrationFile() {
+		return calibrationFile;
+	}
+
+	public ColorsPanel getColorsCanvas() {
+		return colorsCanvas;
+	}
+
+	public JButton getDisplayImageButton() {
+		return displayImageButton;
+	}
+
+	public JButton getDisplayXYYButton() {
+		return displayXYYButton;
 	}
 
 	// ****************** GETTERS ******************

@@ -20,8 +20,9 @@ public class FeaturesExtract {
 	private Mat mat;
 	private PolygonWrapper polygon;
 	private Histogram histogram;
+	private int numberOfPixels;
 	private Collection<ColorDistribution> colorStatistics;
-	private List<ColorDistribution> matchingColors;
+	private Collection<ColorDistribution> matchingColors;
 
 	public FeaturesExtract(String imagePath) {
 		mat = Imgcodecs.imread(imagePath);
@@ -35,12 +36,17 @@ public class FeaturesExtract {
 		histogram = new Histogram(mat);
 		histogram.applyWhitePatch();
 		colorStatistics = histogram.getStatisticalColors(polygon);
-		System.out.println(colorStatistics.size()+" colors in this fruit!");
+		for (ColorDistribution color : colorStatistics)
+			numberOfPixels += color.getRepeat();
+		System.out.println(colorStatistics.size()+" colors in this fruit for "+numberOfPixels+" pixels.");
 	}
 
-	public void analizeData(CameraCalibration calibration, List<MatchingColor> colors, double sensibility) {
-		matchingColors = colorMatching(colors, calibration, sensibility);
+	public boolean hasExtractedFeatures() {
+		return colorStatistics != null;
+	}
 
+	public void analizeData(CameraCalibration calibration, List<MatchingColor> colors) {
+		matchingColors = colorMatching(colors, calibration);
 	}
 
 	// ***************** PUBLIC METHODS *****************
@@ -101,12 +107,13 @@ public class FeaturesExtract {
 		return biggest;
 	}
 
-	private List<ColorDistribution> colorMatching(List<MatchingColor> colors, CameraCalibration calibration, double sensibility) {
+	private List<ColorDistribution> colorMatching(List<MatchingColor> colors, CameraCalibration calibration) {
 		ArrayList<ColorDistribution> newColors = new ArrayList<>();
 		for (MatchingColor color : colors) {
+			color.restartRepeatCount();
 			for (ColorDistribution c : colorStatistics) {
 				c.transform2xyY(calibration);
-				color.increaseIfClose(c.getxyY());
+				color.increaseIfClose(c.getxyY(), c.getRepeat());
 			}
 			newColors.add(color);
 		}
@@ -129,8 +136,12 @@ public class FeaturesExtract {
 		return colorStatistics;
 	}
 
-	public List<ColorDistribution> getMatchingColors() {
+	public Collection<ColorDistribution> getMatchingColors() {
 		return matchingColors;
+	}
+
+	public int getNumberOfPixels() {
+		return numberOfPixels;
 	}
 
 	// ******************** GETTERS *********************

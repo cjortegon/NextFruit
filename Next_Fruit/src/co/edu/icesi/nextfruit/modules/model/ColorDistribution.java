@@ -7,8 +7,8 @@ import co.edu.icesi.nextfruit.util.Geometry;
 
 public class ColorDistribution extends Color implements Comparable<ColorDistribution> {
 
-	protected int repeat;
-	protected double[] xyY;
+	private int repeat;
+	private double[] xyY;
 
 	public ColorDistribution(int color) {
 		super(color);
@@ -20,12 +20,24 @@ public class ColorDistribution extends Color implements Comparable<ColorDistribu
 		this.repeat = 1;
 	}
 
+	protected void setXYY(double[] xyY) {
+		this.xyY = xyY;
+	}
+
+	public void restartRepeatCount() {
+		repeat = 0;
+	}
+
 	public void repeat() {
 		repeat ++;
 	}
 
 	public void repeat(int times) {
 		repeat += times;
+	}
+
+	public int getRepeat() {
+		return repeat;
 	}
 
 	public void transform2xyY(CameraCalibration calibration) {

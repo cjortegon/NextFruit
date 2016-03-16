@@ -8,18 +8,18 @@ public class MatchingColor extends ColorDistribution {
 
 	public MatchingColor(double[] xyY, double sensibility) {
 		super(ColorConverter.xyY2bgr(xyY));
-		this.xyY = xyY;
-		this.repeat = 0;
+		setXYY(xyY);
+		restartRepeatCount();
 		this.sensibility = sensibility;
 	}
 
-	public void increaseIfClose(double[] xyY) {
+	public void increaseIfClose(double[] xyY, int increment) {
 		if(this.isCloseToXY(xyY, sensibility))
-			repeat();
+			repeat(increment);
 	}
-	
+
 	public double[] getDescriptor() {
-		return new double[] {xyY[0], xyY[1], sensibility};
+		return new double[] {getxyY()[0], getxyY()[1], sensibility};
 	}
 
 }

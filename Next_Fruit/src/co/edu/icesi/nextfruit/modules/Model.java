@@ -23,6 +23,9 @@ import co.edu.icesi.nextfruit.util.MatrixReader;
 
 public class Model implements Attachable {
 
+	private static final int CALIBRATE = 0;
+	private static final int EXTRACT = 1;
+
 	// Private attributes
 	private LinkedList<Updateable> updateables;
 	private ColorChecker colorChecker;
@@ -55,11 +58,19 @@ public class Model implements Attachable {
 		}
 	}
 
-	private void clearMemory() {
-		colorChecker = null;
-		sizeCalibrator = null;
-		calibrationDataHandler = null;
-		featuresExtract = null;
+	private void clearMemory(int process) {
+		switch (process) {
+		case CALIBRATE:
+			calibrationDataHandler = null;
+			featuresExtract = null;
+			matchingColors = null;
+			break;
+
+		case EXTRACT:
+			colorChecker = null;
+			sizeCalibrator = null;
+			break;
+		}
 	}
 
 	// ************************** LIFE CYCLE **************************
@@ -76,10 +87,10 @@ public class Model implements Attachable {
 		updateAll();
 	}
 
-	public void startCalDataHandler(){
-		calibrationDataHandler = new CalibrationDataHandler();
-		updateAll();
-	}
+	//	public void startCalDataHandler(){
+	//		calibrationDataHandler = new CalibrationDataHandler();
+	//		updateAll();
+	//	}
 
 	public void calibrate(File conversionCsv, double gridSize) throws IOException {
 		if(colorChecker != null) {
@@ -117,15 +128,12 @@ public class Model implements Attachable {
 	 * @return boolean, represents if the file was added successfully or not.
 	 */
 	public boolean loadCalibrationData(File file){
-
 		try {
-
+			calibrationDataHandler = new CalibrationDataHandler();
 			calibrationDataHandler.loadCalibrationData(file);
 			return true;
-
 		} catch (JAXBException e) {
-
-			e.printStackTrace();
+			calibrationDataHandler = null;
 			return false;
 		}
 	}
@@ -135,8 +143,10 @@ public class Model implements Attachable {
 	// ******************* CHARACTERIZATION MODULE ********************
 
 	public void startFeaturesExtract(String path) {
-		clearMemory();
+		clearMemory(EXTRACT);
 		featuresExtract = new FeaturesExtract(path);
+		if(matchingColors == null)
+			matchingColors = new ArrayList<>();
 		updateAll();
 	}
 
@@ -166,6 +176,15 @@ public class Model implements Attachable {
 			}
 		}
 		updateAll();
+	}
+
+	public boolean analizeImage() {
+		if(featuresExtract != null && featuresExtract.hasExtractedFeatures()) {
+			featuresExtract.analizeData(getCameraCalibration(), matchingColors);
+			updateAll();
+			return true;
+		}
+		return false;
 	}
 
 	// ******************* CHARACTERIZATION MODULE ********************

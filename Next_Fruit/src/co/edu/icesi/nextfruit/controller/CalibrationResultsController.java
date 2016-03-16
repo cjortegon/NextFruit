@@ -45,8 +45,6 @@ public class CalibrationResultsController implements Initializable, ActionListen
 		switch (e.getActionCommand()) {
 
 		case SAVE_SETTINGS:
-
-			this.model.startCalDataHandler();
 			File file = chooseFile();
 			if(file != null) {
 				int[][][] rgbs = this.view.getRgbs();

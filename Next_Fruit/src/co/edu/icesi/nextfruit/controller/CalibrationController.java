@@ -95,7 +95,6 @@ public class CalibrationController implements Initializable, ActionListener {
 			break;
 
 		case LOAD_SETTINGS:
-			this.model.startCalDataHandler();
 			File file = loadFile("");
 			if(file != null) {
 				boolean result = this.model.loadCalibrationData(file);
