@@ -7,8 +7,8 @@ import co.edu.icesi.nextfruit.util.Geometry;
 
 public class ColorDistribution extends Color implements Comparable<ColorDistribution> {
 
-	private int repeat;
-	private double[] xyY;
+	protected int repeat;
+	protected double[] xyY;
 
 	public ColorDistribution(int color) {
 		super(color);

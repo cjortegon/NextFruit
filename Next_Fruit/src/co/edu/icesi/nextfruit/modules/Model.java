@@ -2,7 +2,9 @@ package co.edu.icesi.nextfruit.modules;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
 import javax.xml.bind.JAXBException;
 
@@ -13,6 +15,7 @@ import co.edu.icesi.nextfruit.modules.callibrator.SizeCalibrator;
 import co.edu.icesi.nextfruit.modules.computervision.FeaturesExtract;
 import co.edu.icesi.nextfruit.modules.model.CameraCalibration;
 import co.edu.icesi.nextfruit.modules.model.CameraSettings;
+import co.edu.icesi.nextfruit.modules.model.MatchingColor;
 import co.edu.icesi.nextfruit.modules.persistence.CalibrationDataHandler;
 import co.edu.icesi.nextfruit.mvc.interfaces.Attachable;
 import co.edu.icesi.nextfruit.mvc.interfaces.Updateable;
@@ -26,6 +29,7 @@ public class Model implements Attachable {
 	private SizeCalibrator sizeCalibrator;
 	private CalibrationDataHandler calibrationDataHandler;
 	private FeaturesExtract featuresExtract;
+	private List<MatchingColor> matchingColors;
 
 	public Model() {
 		this.updateables = new LinkedList<>();
@@ -145,6 +149,25 @@ public class Model implements Attachable {
 		return false;
 	}
 
+	public void identifyMatchingColors(String text) {
+		matchingColors = new ArrayList<>();
+		String lines[] = text.split("\n");
+		for (String line : lines) {
+			String numbers[] = line.split(",");
+			try {
+				double[] xyY = new double[]{
+						Double.valueOf(numbers[0]),
+						Double.valueOf(numbers[1]),
+						0.75
+				};
+				matchingColors.add(new MatchingColor(xyY, Double.valueOf(numbers[2])));
+			} catch(NumberFormatException nfe) {
+			} catch(ArrayIndexOutOfBoundsException aiobe) {
+			}
+		}
+		updateAll();
+	}
+
 	// ******************* CHARACTERIZATION MODULE ********************
 
 	// ************************ ACCESS METHODS ************************
@@ -163,6 +186,10 @@ public class Model implements Attachable {
 
 	public FeaturesExtract getFeaturesExtract() {
 		return featuresExtract;
+	}
+
+	public List<MatchingColor> getMatchingColors() {
+		return matchingColors;
 	}
 
 	// ************************ ACCESS METHODS ************************

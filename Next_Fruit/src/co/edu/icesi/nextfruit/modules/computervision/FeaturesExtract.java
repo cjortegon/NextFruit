@@ -12,6 +12,7 @@ import org.opencv.imgproc.Imgproc;
 
 import co.edu.icesi.nextfruit.modules.model.CameraCalibration;
 import co.edu.icesi.nextfruit.modules.model.ColorDistribution;
+import co.edu.icesi.nextfruit.modules.model.MatchingColor;
 import co.edu.icesi.nextfruit.modules.model.PolygonWrapper;
 
 public class FeaturesExtract {
@@ -37,7 +38,7 @@ public class FeaturesExtract {
 		System.out.println(colorStatistics.size()+" colors in this fruit!");
 	}
 
-	public void analizeData(CameraCalibration calibration, List<ColorDistribution> colors, double sensibility) {
+	public void analizeData(CameraCalibration calibration, List<MatchingColor> colors, double sensibility) {
 		matchingColors = colorMatching(colors, calibration, sensibility);
 
 	}
@@ -100,17 +101,16 @@ public class FeaturesExtract {
 		return biggest;
 	}
 
-	private List<ColorDistribution> colorMatching(List<ColorDistribution> colors, CameraCalibration calibration, double sensibility) {
-		for (ColorDistribution color : colors) {
-			color.transform2xyY(calibration);
-			double[] xyY = color.getxyY();
+	private List<ColorDistribution> colorMatching(List<MatchingColor> colors, CameraCalibration calibration, double sensibility) {
+		ArrayList<ColorDistribution> newColors = new ArrayList<>();
+		for (MatchingColor color : colors) {
 			for (ColorDistribution c : colorStatistics) {
 				c.transform2xyY(calibration);
-				if(c.isCloseToXY(xyY, sensibility))
-					color.repeat();
+				color.increaseIfClose(c.getxyY());
 			}
+			newColors.add(color);
 		}
-		return colors;
+		return newColors;
 	}
 
 	// **************** PRIVATE METHODS *****************

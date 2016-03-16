@@ -1,5 +1,7 @@
 package co.edu.icesi.nextfruit.util;
 
+import java.util.Random;
+
 /**
  * This static class converts color values from one color space to another.
  * @author JuanD
@@ -54,41 +56,41 @@ public class ColorConverter {
 	 * @param rgb, array representing a color.
 	 * @return xyz, Array with the xyz equivalent value of the rgb received as a parameter.
 	 */
-//	public static double[] rgb2xyz(double[] rgb) {
-//		double red = rgb[0];
-//		double green = rgb[1];
-//		double blue = rgb[2];
-//
-//		if(red > 0.04045){
-//			red = Math.pow(((red + 0.055)/1.055), 2.4);
-//		}else{
-//			red = red/12.92;
-//		}
-//		if(green > 0.04045){
-//			green = Math.pow((green + 0.055)/1.055, 2.4);
-//		}else{
-//			green = green/12.92;
-//		}
-//		if(blue > 0.04045){
-//			blue = Math.pow((blue + 0.055)/1.055, 2.4);
-//		}else{
-//			blue = blue/12.92;
-//		}
-//
-//		double[][] matrixM = new double[][] {
-//			{0.4124564, 0.3575761, 0.1804375},
-//			{0.2126729, 0.7151522, 0.0721750},
-//			{0.0193339, 0.1191920, 0.9503041}
-//		};
-//
-//		double[] xyz = new double[3];
-//
-//		xyz[0] = (((matrixM[0][0])*red)+((matrixM[0][1])*green)+(matrixM[0][2]*blue));
-//		xyz[1] = (((matrixM[1][0])*red)+((matrixM[1][1])*green)+(matrixM[1][2]*blue));
-//		xyz[2] = (((matrixM[2][0])*red)+((matrixM[2][1])*green)+(matrixM[2][2]*blue));
-//
-//		return xyz;
-//	}
+	//	public static double[] rgb2xyz(double[] rgb) {
+	//		double red = rgb[0];
+	//		double green = rgb[1];
+	//		double blue = rgb[2];
+	//
+	//		if(red > 0.04045){
+	//			red = Math.pow(((red + 0.055)/1.055), 2.4);
+	//		}else{
+	//			red = red/12.92;
+	//		}
+	//		if(green > 0.04045){
+	//			green = Math.pow((green + 0.055)/1.055, 2.4);
+	//		}else{
+	//			green = green/12.92;
+	//		}
+	//		if(blue > 0.04045){
+	//			blue = Math.pow((blue + 0.055)/1.055, 2.4);
+	//		}else{
+	//			blue = blue/12.92;
+	//		}
+	//
+	//		double[][] matrixM = new double[][] {
+	//			{0.4124564, 0.3575761, 0.1804375},
+	//			{0.2126729, 0.7151522, 0.0721750},
+	//			{0.0193339, 0.1191920, 0.9503041}
+	//		};
+	//
+	//		double[] xyz = new double[3];
+	//
+	//		xyz[0] = (((matrixM[0][0])*red)+((matrixM[0][1])*green)+(matrixM[0][2]*blue));
+	//		xyz[1] = (((matrixM[1][0])*red)+((matrixM[1][1])*green)+(matrixM[1][2]*blue));
+	//		xyz[2] = (((matrixM[2][0])*red)+((matrixM[2][1])*green)+(matrixM[2][2]*blue));
+	//
+	//		return xyz;
+	//	}
 
 	/**
 	 * Converts from XYZ color space to equivalent Lab color space.
@@ -185,6 +187,11 @@ public class ColorConverter {
 		return new double[]{color[2], color[1], color[0]};
 	}
 
+	/**
+	 * Groups bgr values into rgb integer
+	 * @param bgr: color to be converted
+	 * @return rgb as integer value
+	 */
 	public static int bgr2rgb(double[] bgr) {
 		int r = ((int)bgr[2]);
 		int g = ((int)bgr[1]);
@@ -192,11 +199,25 @@ public class ColorConverter {
 		return (r << 16) | (g << 8) | b;
 	}
 
+	/**
+	 * Splits rgb integer into bgr values
+	 * @param rgb: color to be converted
+	 * @return bgr values
+	 */
 	public static double[] rgb2bgr(int rgb) {
 		int b = rgb & 255;
 		int g = (rgb & (255 << 8)) >> 8;
 		int r = (rgb & (255 << 16)) >> 16;
 		return new double[]{b, g, r};
+	}
+
+	/**
+	 * Not implemented yet
+	 * @return
+	 */
+	public static double[] xyY2bgr(double[] xyY) {
+		Random ale = new Random();
+		return new double[]{ale.nextInt(256), ale.nextInt(256), ale.nextInt(256)};
 	}
 
 }

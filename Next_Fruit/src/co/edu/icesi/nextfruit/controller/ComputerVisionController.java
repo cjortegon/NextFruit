@@ -3,17 +3,15 @@ package co.edu.icesi.nextfruit.controller;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.IOException;
+import java.util.List;
 
 import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
 
 import co.edu.icesi.nextfruit.modules.Model;
+import co.edu.icesi.nextfruit.modules.model.MatchingColor;
 import co.edu.icesi.nextfruit.mvc.interfaces.Attachable;
 import co.edu.icesi.nextfruit.mvc.interfaces.Initializable;
 import co.edu.icesi.nextfruit.mvc.interfaces.Updateable;
-import co.edu.icesi.nextfruit.views.CalibrationResultsWindow;
-import co.edu.icesi.nextfruit.views.CalibrationWindow;
 import co.edu.icesi.nextfruit.views.ComputerVisionWindow;
 
 public class ComputerVisionController implements Initializable, ActionListener {
@@ -21,10 +19,11 @@ public class ComputerVisionController implements Initializable, ActionListener {
 	private static final String LOAD_IMAGE = "LoadImage";
 	private static final String LOAD_SETTINGS = "LoadSettings";
 	private static final String PROCESS = "Process";
+	private static final String MATCHING_COLORS = "Matching";
+	private static final String ANALIZE = "Analize";
 
 	private Model model;
 	private ComputerVisionWindow view;
-	private boolean colorCheckerLoaded, sizeCalibrationLoaded;
 
 	@Override
 	public void init(Attachable model, Updateable view) {
@@ -40,6 +39,10 @@ public class ComputerVisionController implements Initializable, ActionListener {
 		view.getLoadSettingsFileButton().addActionListener(this);
 		view.getProcessButton().setActionCommand(PROCESS);
 		view.getProcessButton().addActionListener(this);
+		view.getUpdateMatchingColorsButton().setActionCommand(MATCHING_COLORS);
+		view.getUpdateMatchingColorsButton().addActionListener(this);
+		view.getAnalizeDataButton().setActionCommand(ANALIZE);
+		view.getAnalizeDataButton().addActionListener(this);
 	}
 
 	@Override
@@ -67,6 +70,13 @@ public class ComputerVisionController implements Initializable, ActionListener {
 
 		case PROCESS:
 			model.extractFeatures();
+			break;
+
+		case MATCHING_COLORS:
+			model.identifyMatchingColors(view.getMatchingColors().getText());
+			break;
+
+		case ANALIZE:
 			break;
 		}
 	}
