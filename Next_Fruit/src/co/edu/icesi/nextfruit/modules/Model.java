@@ -162,6 +162,7 @@ public class Model implements Attachable {
 	public void identifyMatchingColors(String text) {
 		matchingColors = new ArrayList<>();
 		String lines[] = text.split("\n");
+		double[][] inverseMatrixM = getCameraCalibration().getInverseWorkingSpaceMatrix();
 		for (String line : lines) {
 			String numbers[] = line.split(",");
 			try {
@@ -170,7 +171,7 @@ public class Model implements Attachable {
 						Double.valueOf(numbers[1]),
 						0.75
 				};
-				matchingColors.add(new MatchingColor(xyY, Double.valueOf(numbers[2])));
+				matchingColors.add(new MatchingColor(xyY, Double.valueOf(numbers[2]), inverseMatrixM));
 			} catch(NumberFormatException nfe) {
 			} catch(ArrayIndexOutOfBoundsException aiobe) {
 			}

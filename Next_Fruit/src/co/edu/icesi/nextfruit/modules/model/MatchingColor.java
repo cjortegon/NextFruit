@@ -6,8 +6,8 @@ public class MatchingColor extends ColorDistribution {
 
 	private double sensibility;
 
-	public MatchingColor(double[] xyY, double sensibility) {
-		super(ColorConverter.xyY2bgr(xyY));
+	public MatchingColor(double[] xyY, double sensibility, double[][] inverseMatrixM) {
+		super(ColorConverter.xyY2bgr(xyY, inverseMatrixM));
 		setXYY(xyY);
 		restartRepeatCount();
 		this.sensibility = sensibility;

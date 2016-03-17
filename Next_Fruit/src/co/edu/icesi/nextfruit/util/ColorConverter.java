@@ -1,6 +1,5 @@
 package co.edu.icesi.nextfruit.util;
 
-import java.util.Random;
 
 /**
  * This static class converts color values from one color space to another.
@@ -12,6 +11,8 @@ public class ColorConverter {
 	private static final double EPSILON = 216/24389;
 	private static final double KAPPA = 24389/27;
 
+	
+	
 	/**
 	 * Converts from RGB color space to equivalent XYZ color space.
 	 * Color must be arranged in [R,G,B] order.
@@ -149,7 +150,7 @@ public class ColorConverter {
 	/**
 	 * Converts from XYZ color space to equivalent xyY color space.
 	 * @param XYZ, array representing a color.
-	 * @return xyY, Array with the Lab equivalent value of the xyY received as a parameter.
+	 * @return xyY, Array with the xyY equivalent value of the XYZ received as a parameter.
 	 */
 	public static double[] XYZ2xyY(double[] XYZ, double whiteX){
 		double denominator = XYZ[0] + XYZ[1] + XYZ[2];
@@ -212,12 +213,92 @@ public class ColorConverter {
 	}
 
 	/**
-	 * Not implemented yet
-	 * @return
+	 * Converts from xyY color space to equivalent RGB color space.
+	 * @param xyY, array representing a color.
+	 * @param inverseM, the inverse M matrix to use in the conversion.
+	 * @return RGB, Array with the RGB equivalent value of the XYZ received as
+	 * a parameter. 
+	 *  where: 	BGR[0] = blue component.
+	 * 			BGR[1] = green component.
+	 * 			BGR[2] = red component.
 	 */
-	public static double[] xyY2bgr(double[] xyY) {
-		Random ale = new Random();
-		return new double[]{ale.nextInt(256), ale.nextInt(256), ale.nextInt(256)};
+	public static double[] xyY2bgr(double[] xyY, double[][] inverseM) {
+		double[] xyz = xyY2XYZ(xyY);
+		double[] bgr = xyz2bgr(xyz, inverseM);
+		return bgr;
+	}
+	
+	/**
+	 * Converts from xyY color space to equivalent XYZ color space.
+	 * @param xyY, array representing a color.
+	 * @return XYZ, Array with the XYZ equivalent value of the xyY received as a parameter.
+	 */
+	public static double[] xyY2XYZ(double[] xyY){
+		double X;
+		double Z;
+		
+		double x = xyY[0];
+		double y = xyY[1];
+		double Y = xyY[2];
+		
+		X = (x*Y) / y;
+		Z = ((1-x-y)*Y) / y;
+		
+		if(y == 0){
+			X = 0;
+			Y = 0;
+			Z = 0;
+		}
+		
+		double[] returnValue = {X, Y, Z};
+		return returnValue;
+	}
+	
+	
+	/**
+	 * Converts from xyz color space to equivalent RGB color space. 
+	 * @param xyz, XYZ, array representing a color.
+	 * @param inverseM, the inverse M matrix to use in the conversion.
+	 * @return RGB, Array with the RGB equivalent value of the XYZ received as
+	 * a parameter. 
+	 *  where: 	BGR[0] = blue component.
+	 * 			BGR[1] = green component.
+	 * 			BGR[2] = red component.
+	 */
+	public static double[] xyz2bgr(double[] xyz, double[][] inverseM){
+		double X = xyz[0];
+		double Y = xyz[1];
+		double Z = xyz[2];
+		
+		double[] RGB = new double[3];
+
+		RGB[0] = (((inverseM[0][0])*X)+((inverseM[0][1])*Y)+(inverseM[0][2]*Z));
+		RGB[1] = (((inverseM[1][0])*X)+((inverseM[1][1])*Y)+(inverseM[1][2]*Z));
+		RGB[2] = (((inverseM[2][0])*X)+((inverseM[2][1])*Y)+(inverseM[2][2]*Z));
+
+		//	Red
+		if(RGB[0] > 0.04045){
+			RGB[0] = (1.055 * Math.pow(RGB[0], 1 / 2.4)) - 0.055;
+		}else{
+			RGB[0] = 12.92 * RGB[0];
+		}
+		
+		//	Green
+		if(RGB[1] > 0.04045){
+			RGB[1] = (1.055 * Math.pow(RGB[1], 1 / 2.4)) - 0.055;
+		}else{
+			RGB[1] = 12.92 * RGB[1];
+		}
+		
+		//	Blue
+		if(RGB[2] > 0.04045){
+			RGB[2] = (1.055 * Math.pow(RGB[2], 1 / 2.4)) - 0.055;
+		}else{
+			RGB[2] = 12.92 * RGB[2];
+		}
+		
+		double[] BGR = {RGB[2], RGB[1], RGB[0]};
+		return BGR;
 	}
 
 }

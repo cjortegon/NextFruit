@@ -196,7 +196,8 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 				for(int x = startX; x < CANVAS_SIZE_BIG.width-startX; x ++) {
 					for (int y = startY; y < CANVAS_SIZE_BIG.height-startY; y++) {
 						double[] xyY = getPercentOnColorsCanvas(x, y);
-						g.setColor(new Color(ColorConverter.bgr2rgb(ColorConverter.xyY2bgr(new double[]{xyY[0], xyY[1], 0.75}))));
+						double[][] inverseMatrixM = model.getCameraCalibration().getInverseWorkingSpaceMatrix();
+						g.setColor(new Color(ColorConverter.bgr2rgb(ColorConverter.xyY2bgr(new double[]{xyY[0], xyY[1], 0.75}, inverseMatrixM))));
 						g.drawRect(x, y, 1, 1);
 					}
 				}
