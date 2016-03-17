@@ -225,6 +225,13 @@ public class ColorConverter {
 	public static double[] xyY2bgr(double[] xyY, double[][] inverseM) {
 		double[] xyz = xyY2XYZ(xyY);
 		double[] bgr = xyz2bgr(xyz, inverseM);
+		return driveToComputerScale(bgr);
+	}
+	
+	public static double[] driveToComputerScale(double bgr[]) {
+		for (int i = 0; i < bgr.length; i++) {
+			bgr[i] = bgr[i] < 0 ? 0 : bgr[i] > 1 ? 255 : bgr[i]*255;
+		}
 		return bgr;
 	}
 	

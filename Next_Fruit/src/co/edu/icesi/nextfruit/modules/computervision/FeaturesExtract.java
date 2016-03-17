@@ -14,6 +14,7 @@ import co.edu.icesi.nextfruit.modules.model.CameraCalibration;
 import co.edu.icesi.nextfruit.modules.model.ColorDistribution;
 import co.edu.icesi.nextfruit.modules.model.MatchingColor;
 import co.edu.icesi.nextfruit.modules.model.PolygonWrapper;
+import co.edu.icesi.nextfruit.util.Statistics;
 
 public class FeaturesExtract {
 
@@ -23,6 +24,7 @@ public class FeaturesExtract {
 	private int numberOfPixels;
 	private Collection<ColorDistribution> colorStatistics;
 	private Collection<ColorDistribution> matchingColors;
+	private Statistics luminanceStatistics;
 
 	public FeaturesExtract(String imagePath) {
 		mat = Imgcodecs.imread(imagePath);
@@ -47,6 +49,7 @@ public class FeaturesExtract {
 
 	public void analizeData(CameraCalibration calibration, List<MatchingColor> colors) {
 		matchingColors = colorMatching(colors, calibration);
+		luminanceStatistics = luminanceAnalysis();
 	}
 
 	// ***************** PUBLIC METHODS *****************
@@ -120,6 +123,17 @@ public class FeaturesExtract {
 		return newColors;
 	}
 
+	private Statistics luminanceAnalysis() {
+		Statistics stat = new Statistics();
+		histogram.generateEmptyLuminanceHistogram(256);
+		for (ColorDistribution c : colorStatistics) {
+			double luminance = Math.max(0, Math.min(c.getxyY()[2], 1));
+			histogram.increaseLuminancePosition(luminance, true);
+			stat.addValue(c.getxyY()[2]);
+		}
+		return stat;
+	}
+
 	// **************** PRIVATE METHODS *****************
 
 	// ******************** GETTERS *********************
@@ -142,6 +156,14 @@ public class FeaturesExtract {
 
 	public int getNumberOfPixels() {
 		return numberOfPixels;
+	}
+
+	public Histogram getHistogram() {
+		return histogram;
+	}
+
+	public Statistics getLuminanceStatistics() {
+		return luminanceStatistics;
 	}
 
 	// ******************** GETTERS *********************

@@ -91,6 +91,17 @@ public class Histogram {
 			{r.getStandardDeviation()*6, g.getStandardDeviation()*6, b.getStandardDeviation()*6}};
 	}
 
+	public void generateEmptyLuminanceHistogram(int size) {
+		histogram = new int[size];
+	}
+
+	public void increaseLuminancePosition(double value, boolean useAutofill) {
+		if(useAutofill)
+			addToHistogram((int)((histogram.length-1)*value), histogram);
+		else
+			histogram[(int)((histogram.length-1)*value)] ++;
+	}
+
 	public void generateAllHistograms(boolean useAutoFill) {
 		generateHistogram(useAutoFill, true, true);
 	}

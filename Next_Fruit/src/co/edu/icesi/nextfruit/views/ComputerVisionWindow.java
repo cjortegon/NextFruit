@@ -6,6 +6,7 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.util.Collection;
 import java.util.List;
+import java.util.Random;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -16,6 +17,7 @@ import org.opencv.core.Point;
 
 import co.edu.icesi.nextfruit.controller.ComputerVisionController;
 import co.edu.icesi.nextfruit.modules.Model;
+import co.edu.icesi.nextfruit.modules.computervision.Histogram;
 import co.edu.icesi.nextfruit.modules.model.ColorDistribution;
 import co.edu.icesi.nextfruit.modules.model.MatchingColor;
 import co.edu.icesi.nextfruit.modules.model.PolygonWrapper;
@@ -40,7 +42,7 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 	private BarDiagramCanvas barsCanvas;
 	private HistogramCanvas histogramCanvas;
 	private JButton loadButton, loadSettingsFileButton, processButton, updateMatchingColorsButton, analizeDataButton, displayImageButton, displayXYYButton;
-	private JTextArea matchingColors, luminantStatistics;
+	private JTextArea matchingColors, luminanceStatistics;
 	private JLabel calibrationFile;
 	private boolean displayColorSpace;
 
@@ -54,9 +56,9 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 		histogramCanvas = new HistogramCanvas(new Dimension(CANVAS_SIZE_BIG.width, CANVAS_SIZE_SMALL.height));
 		matchingColors = new JTextArea();
 		matchingColors.setPreferredSize(CANVAS_SIZE_SMALL);
-		luminantStatistics = new JTextArea("Luminant statistics:");
-		luminantStatistics.setPreferredSize(CANVAS_SIZE_SMALL);
-		luminantStatistics.setEditable(false);
+		luminanceStatistics = new JTextArea("Luminance statistics:");
+		luminanceStatistics.setPreferredSize(CANVAS_SIZE_SMALL);
+		luminanceStatistics.setEditable(false);
 		loadButton = new JButton("Load image");
 		loadSettingsFileButton = new JButton("Load Calibration Data From an XML File");
 		calibrationFile = new JLabel("(No calibration file loaded)");
@@ -85,7 +87,7 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 		addComponent(analizeDataButton, 4, 2, 2, 1, false);
 		addComponent(barsCanvas, 5, 0, 1, 1, false);
 		addComponent(histogramCanvas, 5, 1, 1, 1, false);
-		addComponent(luminantStatistics, 5, 2, 2, 1, false);
+		addComponent(luminanceStatistics, 5, 2, 2, 1, false);
 
 		// Starting controller
 		new ComputerVisionController().init(model, this);
@@ -169,6 +171,20 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 			g.setColor(Color.white);
 			g.fillRect(2, 2, CANVAS_SIZE_BIG.width-4, CANVAS_SIZE_BIG.height-4);
 
+			// Color distribution
+			if(displayColorSpace) {
+				int startX = CANVAS_SIZE_BIG.width/10;
+				int startY = CANVAS_SIZE_BIG.height/10;
+				for(int x = startX; x < CANVAS_SIZE_BIG.width-startX; x ++) {
+					for (int y = startY; y < CANVAS_SIZE_BIG.height-startY; y++) {
+						double[] xyY = getPercentOnColorsCanvas(x, y);
+						double[][] inverseMatrixM = model.getCameraCalibration().getInverseWorkingSpaceMatrix();
+						g.setColor(new Color(ColorConverter.bgr2rgb(ColorConverter.xyY2bgr(new double[]{xyY[0], xyY[1], 0.75}, inverseMatrixM))));
+						g.drawRect(x, y, 1, 1);
+					}
+				}
+			}
+
 			// Grid
 			double verticalSpace = CANVAS_SIZE_BIG.getHeight()/10;
 			for (int i = 0; i < 10; i ++) {
@@ -189,19 +205,8 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 			g.setColor(Color.LIGHT_GRAY);
 			g.drawRect(0, 0, (int)CANVAS_SIZE_BIG.getWidth()-1, (int)CANVAS_SIZE_BIG.getHeight()-1);
 
-			// Color distribution
-			if(displayColorSpace) {
-				int startX = CANVAS_SIZE_BIG.width/10;
-				int startY = CANVAS_SIZE_BIG.height/10;
-				for(int x = startX; x < CANVAS_SIZE_BIG.width-startX; x ++) {
-					for (int y = startY; y < CANVAS_SIZE_BIG.height-startY; y++) {
-						double[] xyY = getPercentOnColorsCanvas(x, y);
-						double[][] inverseMatrixM = model.getCameraCalibration().getInverseWorkingSpaceMatrix();
-						g.setColor(new Color(ColorConverter.bgr2rgb(ColorConverter.xyY2bgr(new double[]{xyY[0], xyY[1], 0.75}, inverseMatrixM))));
-						g.drawRect(x, y, 1, 1);
-					}
-				}
-			} else {
+			// Image distribution
+			if(!displayColorSpace) {
 				if(loadedImage != null) {
 					try {
 						Collection<ColorDistribution> colors = model.getFeaturesExtract().getColorStatistics();
@@ -255,14 +260,20 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 			try {
 				Collection<ColorDistribution> matchingColors = model.getFeaturesExtract().getMatchingColors();
 				int width = CANVAS_SIZE_SMALL.width/(matchingColors.size()*2 + 1);
-				int topMargin = 30;
+				double biggest = 0;
+				for (ColorDistribution color : matchingColors) {
+					double percent = color.getRepeat()/(double)model.getFeaturesExtract().getNumberOfPixels();
+					if(percent > biggest)
+						biggest = percent;
+				}
+				int topMargin = (int)((biggest - 0.8)*150 + 10);
 				int height = CANVAS_SIZE_SMALL.height - topMargin;
 				int x = width;
 				for (ColorDistribution color : matchingColors) {
 					g.setColor(color);
 					double percent = color.getRepeat()/(double)model.getFeaturesExtract().getNumberOfPixels();
 					int y = (int)(height*(1-percent));
-					g.drawRect(x, y+topMargin, width, height);
+					g.fillRect(x, y+topMargin, width, height);
 					g.setColor(Color.BLACK);
 					g.drawString(((int)(percent*100))+"%", x+2, y-5+topMargin);
 					x += width*2;
@@ -282,7 +293,17 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 			g.setColor(Color.white);
 			g.fillRect(2, 2, CANVAS_SIZE_BIG.width-4, CANVAS_SIZE_SMALL.height-4);
 			g.setColor(Color.BLACK);
-			g.drawString("Luminant histogram:", 5, 15);
+			g.drawString("Luminance histogram:", 5, 15);
+			try {
+				Histogram histogram = model.getFeaturesExtract().getHistogram();
+				int[] values = histogram.getHistogram();
+				double max = histogram.getMaxHeight();
+				g.setColor(Color.CYAN);
+				for (int i = 0; i < values.length; i++) {
+					double percent = values[i]/max;
+					g.drawLine(i+25, (int)(CANVAS_SIZE_SMALL.height*(1-percent)), i+25, CANVAS_SIZE_SMALL.height);
+				}
+			} catch(NullPointerException npe){}
 		}
 	}
 
