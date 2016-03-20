@@ -21,9 +21,9 @@ public class ColorConverter {
 	 * @return xyz, the xyz equivalent value of the rgb received as a parameter.
 	 */
 	public static double[] rgb2xyz(double[] rgb, double[][] matrixM) {
-		double red = rgb[0];
-		double green = rgb[1];
-		double blue = rgb[2];
+		double red = rgb[0]/255.0;
+		double green = rgb[1]/255.0;
+		double blue = rgb[2]/255.0;
 
 		if(red > 0.04045){
 			red = Math.pow(((red + 0.055)/1.055), 2.4);

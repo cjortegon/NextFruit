@@ -214,9 +214,9 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 							double[] xyY = ColorConverter.rgb2xyY(color.getRGB(),
 									model.getCameraCalibration().getWorkingSpaceMatrix(),
 									model.getCameraCalibration().getWhiteX());
-//							g.setColor(color);
-							xyY[2] = 0.75;
-							g.setColor(new Color(ColorConverter.bgr2rgb(ColorConverter.xyY2bgr(xyY, model.getCameraCalibration().getInverseWorkingSpaceMatrix()))));
+							g.setColor(color);
+//							xyY[2] = 0.75;
+//							g.setColor(new Color(ColorConverter.bgr2rgb(ColorConverter.xyY2bgr(xyY, model.getCameraCalibration().getInverseWorkingSpaceMatrix()))));
 							g.drawRect((int)(xyY[0]*CANVAS_SIZE_BIG.getWidth()), (int)((1-xyY[1])*CANVAS_SIZE_BIG.getHeight()), 1, 1);
 						}
 					} catch(NullPointerException npe) {}
