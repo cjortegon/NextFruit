@@ -6,6 +6,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.List;
 
 import javax.swing.JFileChooser;
@@ -109,7 +110,9 @@ public class ComputerVisionController implements Initializable, ActionListener, 
 	public void mouseClicked(MouseEvent e) {
 		double[] point = view.getPercentOnColorsCanvas(e.getX(), e.getY());
 		DecimalFormat numberFormat = new DecimalFormat("0.00");
-		view.getMatchingColors().setText(view.getMatchingColors().getText()+"\n"+numberFormat.format(point[0])+","+numberFormat.format(point[1])+",0.05");
+		String newPoint = numberFormat.format(point[0])+";"+numberFormat.format(point[1])+";0.05";
+		newPoint = newPoint.replace(",", ".");
+		view.getMatchingColors().setText(view.getMatchingColors().getText()+"\n"+newPoint);
 		model.identifyMatchingColors(view.getMatchingColors().getText());
 	}
 

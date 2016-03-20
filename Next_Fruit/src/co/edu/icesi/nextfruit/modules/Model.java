@@ -164,7 +164,7 @@ public class Model implements Attachable {
 		String lines[] = text.split("\n");
 		double[][] inverseMatrixM = getCameraCalibration().getInverseWorkingSpaceMatrix();
 		for (String line : lines) {
-			String numbers[] = line.split(",");
+			String numbers[] = line.split(";");
 			try {
 				double[] xyY = new double[]{
 						Double.valueOf(numbers[0]),
