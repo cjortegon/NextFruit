@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.text.DecimalFormat;
 import java.util.Collection;
 import java.util.List;
 import java.util.Random;
@@ -26,6 +27,7 @@ import co.edu.icesi.nextfruit.mvc.interfaces.Initializable;
 import co.edu.icesi.nextfruit.mvc.interfaces.Updateable;
 import co.edu.icesi.nextfruit.util.ColorConverter;
 import co.edu.icesi.nextfruit.util.ImageUtility;
+import co.edu.icesi.nextfruit.util.Statistics;
 import visualkey.KFrame;
 import visualkey.KPanel;
 
@@ -114,9 +116,21 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 		if(isVisible()) {
 			// Repainting components
 			try {
-				if(model.getFeaturesExtract() != null && mat != model.getFeaturesExtract().getMat()) {
-					mat = model.getFeaturesExtract().getMat();
-					loadedImage = ImageUtility.mat2Image(mat);
+				if(model.getFeaturesExtract() != null) {
+					if(mat != model.getFeaturesExtract().getMat()) {
+						mat = model.getFeaturesExtract().getMat();
+						loadedImage = ImageUtility.mat2Image(mat);
+					}
+					// Updating luminance statistics
+					Statistics statistics = model.getFeaturesExtract().getLuminanceStatistics();
+					if(statistics != null) {
+						DecimalFormat numberFormat = new DecimalFormat("0.000");
+						luminanceStatistics.setText("Luminance statistics:\n"
+								+ "Mean: "+numberFormat.format(statistics.getMean())+"\n"
+								+ "Standar deviation: "+numberFormat.format(statistics.getStandardDeviation())+"\n"
+								+ "Skewness: "+numberFormat.format(statistics.getSkewness())+"\n"
+								+ "Kurtosis: "+numberFormat.format(statistics.getKurtosis())+"\n");
+					}
 				}
 			} catch(NullPointerException npe){}
 			repaint();
@@ -134,17 +148,25 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 		public void paintComponent(Graphics g) {
 			if(loadedImage != null) {
 				try {
-					double size[] = ImageUtility.drawImage(loadedImage, CANVAS_SIZE_SMALL, g);
 					PolygonWrapper border = model.getFeaturesExtract().getPolygon();
-					if(border != null) {
+					if(border == null) {
+						ImageUtility.drawImage(loadedImage, CANVAS_SIZE_SMALL, g);
+					} else {
+						double size[] = ImageUtility.drawCenteredImage(loadedImage, CANVAS_SIZE_SMALL, g, border);
 						int[] xs = new int[border.getPolygon().length];
 						int[] ys = new int[border.getPolygon().length];
 						int i = 0;
+//						for (Point p : border.getPolygon()) {
+//							xs[i] = (int)(p.x*size[2]);
+//							ys[i] = (int)(p.y*size[2]);
+//							i ++;
+//						}
 						for (Point p : border.getPolygon()) {
-							xs[i] = (int)(p.x*size[2]);
-							ys[i] = (int)(p.y*size[2]);
+							xs[i] = (int)((p.x-size[0])*size[2]);
+							ys[i] = (int)((p.y-size[1])*size[2]);
 							i ++;
 						}
+						
 						g.setColor(Color.green);
 						g.drawPolygon(xs, ys, xs.length);
 					}
@@ -215,8 +237,6 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 									model.getCameraCalibration().getWorkingSpaceMatrix(),
 									model.getCameraCalibration().getWhiteX());
 							g.setColor(color);
-//							xyY[2] = 0.75;
-//							g.setColor(new Color(ColorConverter.bgr2rgb(ColorConverter.xyY2bgr(xyY, model.getCameraCalibration().getInverseWorkingSpaceMatrix()))));
 							g.drawRect((int)(xyY[0]*CANVAS_SIZE_BIG.getWidth()), (int)((1-xyY[1])*CANVAS_SIZE_BIG.getHeight()), 1, 1);
 						}
 					} catch(NullPointerException npe) {}
@@ -301,7 +321,7 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 			try {
 				Histogram histogram = model.getFeaturesExtract().getHistogram();
 				int[] values = histogram.getHistogram();
-				double max = histogram.getMaxHeight();
+				double max = histogram.getMaxHeight()*1.125;
 				g.setColor(Color.CYAN);
 				for (int i = 0; i < values.length; i++) {
 					double percent = values[i]/max;

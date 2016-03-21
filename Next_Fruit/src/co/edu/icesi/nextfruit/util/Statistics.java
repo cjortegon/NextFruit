@@ -36,5 +36,23 @@ public class Statistics {
 		differences /= set.size();
 		return Math.sqrt(differences);
 	}
+	
+	public double getSkewness() {
+		double differences = 0;
+		double mean = getMean();
+		for (int i = 0; i < set.size(); i++)
+			differences += Math.pow(set.get(i) - mean, 3);
+		differences /= set.size();
+		return Math.sqrt(differences);
+	}
+	
+	public double getKurtosis() {
+		double differences = 0;
+		double mean = getMean();
+		for (int i = 0; i < set.size(); i++)
+			differences += Math.pow(set.get(i) - mean, 4);
+		differences /= set.size();
+		return Math.sqrt(differences);
+	}
 
 }

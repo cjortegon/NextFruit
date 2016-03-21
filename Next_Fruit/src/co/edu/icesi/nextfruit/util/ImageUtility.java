@@ -15,6 +15,8 @@ import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.imgcodecs.Imgcodecs;
 
+import co.edu.icesi.nextfruit.modules.model.PolygonWrapper;
+
 public class ImageUtility {
 
 	public static BufferedImage mat2Image(Mat mat) {
@@ -57,9 +59,49 @@ public class ImageUtility {
 		return new double[]{w, h, 1/f};
 	}
 
+	/**
+	 * Draws image in the desired window size
+	 * @param image to be drawn
+	 * @param windowSize size of the canvas
+	 * @param graphics graphic object to draw
+	 * @return the image size that was drawn
+	 */
 	public static double[] drawImage(Image image, Dimension windowSize, Graphics graphics) {
 		double size[] = getResize(image, windowSize);
 		graphics.drawImage(image, 0, 0, (int)size[0], (int)size[1], null);
 		return size;
 	}
+
+	/**
+	 * Draws an image centered to a specific region
+	 * @param image to be drawn
+	 * @param windowSize size of the canvas
+	 * @param graphics graphic object to draw
+	 * @param polygon region of the image to focus
+	 * @return the start (x,y) point [0] and [1] where the drawing started in the source image and the factor [2] used to achieve the scale the drawing
+	 */
+	public static double[] drawCenteredImage(Image image, Dimension windowSize, Graphics graphics, PolygonWrapper polygon) {
+		double xStart = polygon.getLeft();
+		double yStart = polygon.getTop();
+		double xEnd = polygon.getRight();
+		double yEnd = polygon.getBottom();
+		double w = xEnd - xStart;
+		double h = yEnd - yStart;
+		double factor = Double.min(windowSize.getWidth()/w, windowSize.getHeight()/h);
+		double calculatedW = windowSize.getWidth()/factor;
+		double calculatedH = windowSize.getHeight()/factor;
+		if(w < calculatedW) {
+			double dif = (calculatedW - w)/2;
+			xStart -= dif;
+			xEnd += dif;
+		}
+		if(h < calculatedH) {
+			double dif = (calculatedH - h)/2;
+			yStart -= dif;
+			yEnd += dif;
+		}
+		graphics.drawImage(image, 0, 0, windowSize.width, windowSize.height, (int)xStart, (int)yStart, (int)xEnd, (int)yEnd, null);
+		return new double[]{xStart, yStart, factor};
+	}
+
 }
