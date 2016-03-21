@@ -7,11 +7,11 @@ import java.awt.Image;
 import java.text.DecimalFormat;
 import java.util.Collection;
 import java.util.List;
-import java.util.Random;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
@@ -33,8 +33,8 @@ import visualkey.KPanel;
 
 public class ComputerVisionWindow extends KFrame implements Initializable, Updateable {
 
-	private static final Dimension CANVAS_SIZE_SMALL = new Dimension(300, 200);
-	private static final Dimension CANVAS_SIZE_BIG = new Dimension(300, 300);
+	private static final Dimension CANVAS_SIZE_SMALL = new Dimension(300, 250);
+	private static final Dimension CANVAS_SIZE_BIG = new Dimension(350, 350);
 
 	private Model model;
 	private Mat mat;
@@ -43,9 +43,9 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 	private ColorsPanel colorsCanvas;
 	private BarDiagramCanvas barsCanvas;
 	private HistogramCanvas histogramCanvas;
-	private JButton loadButton, loadSettingsFileButton, processButton, updateMatchingColorsButton, analizeDataButton, displayImageButton, displayXYYButton;
+	private JButton loadButton, loadSettingsFileButton, processButton, updateMatchingColorsButton, analizeDataButton, displayImageButton, displayXYYButton, increaseLuminance, decreaseLuminance;
 	private JTextArea matchingColors, luminanceStatistics;
-	private JLabel calibrationFile;
+	private JLabel calibrationFile, luminanceField;
 	private boolean displayColorSpace;
 
 	@Override
@@ -69,12 +69,13 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 		displayImageButton = new JButton("Image distribution");
 		displayXYYButton = new JButton("xyY distribution");
 		analizeDataButton = new JButton("Analize data");
+		luminanceField = new JLabel("0.75");
+		increaseLuminance = new JButton(">");
+		decreaseLuminance = new JButton("<");
 
 		// Attaching to model
 		this.model = (Model) model;
 		model.attach(this);
-
-		//Adding objects to window
 		addComponent(loadButton, 0, 0, 1, 1, false);
 		addComponent(loadSettingsFileButton, 1, 0, 1, 1, false);
 		addComponent(calibrationFile, 2, 0, 1, 1, true);
@@ -82,14 +83,18 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 		addComponent(processButton, 4, 0, 1, 1, false);
 		addComponent(colorsCanvas, 0, 1, 1, 5, false);
 		addComponent(displayImageButton, 0, 2, 1, 1, false);
-		addComponent(displayXYYButton, 0, 3, 1, 1, false);
-		addComponent(updateMatchingColorsButton, 1, 2, 2, 1, false);
-		addLabel("List of matching colors", 2, 2, 2, 1, true);
-		addComponent(matchingColors, 3, 2, 2, 1, false);
-		addComponent(analizeDataButton, 4, 2, 2, 1, false);
+		addComponent(displayXYYButton, 0, 3, 3, 1, false);
+		addComponent(updateMatchingColorsButton, 1, 2, 1, 1, false);
+		addComponent(decreaseLuminance, 1, 3, 1, 1, false);
+		addComponent(luminanceField, 1, 4, 1, 1, false);
+		addComponent(increaseLuminance, 1, 5, 1, 1, false);
+		addLabel("List of matching colors", 2, 2, 4, 1, true);
+		addComponent(matchingColors, 3, 2, 4, 1, false);
+		addComponent(analizeDataButton, 4, 2, 4, 1, false);
 		addComponent(barsCanvas, 5, 0, 1, 1, false);
 		addComponent(histogramCanvas, 5, 1, 1, 1, false);
-		addComponent(luminanceStatistics, 5, 2, 2, 1, false);
+		addComponent(luminanceStatistics, 5, 2, 4, 1, false);
+
 
 		// Starting controller
 		new ComputerVisionController().init(model, this);
@@ -156,17 +161,17 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 						int[] xs = new int[border.getPolygon().length];
 						int[] ys = new int[border.getPolygon().length];
 						int i = 0;
-//						for (Point p : border.getPolygon()) {
-//							xs[i] = (int)(p.x*size[2]);
-//							ys[i] = (int)(p.y*size[2]);
-//							i ++;
-//						}
+						//						for (Point p : border.getPolygon()) {
+						//							xs[i] = (int)(p.x*size[2]);
+						//							ys[i] = (int)(p.y*size[2]);
+						//							i ++;
+						//						}
 						for (Point p : border.getPolygon()) {
 							xs[i] = (int)((p.x-size[0])*size[2]);
 							ys[i] = (int)((p.y-size[1])*size[2]);
 							i ++;
 						}
-						
+
 						g.setColor(Color.green);
 						g.drawPolygon(xs, ys, xs.length);
 					}
@@ -201,7 +206,7 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 					for (int y = startY; y < CANVAS_SIZE_BIG.height-startY; y++) {
 						double[] xyY = getPercentOnColorsCanvas(x, y);
 						double[][] inverseMatrixM = model.getCameraCalibration().getInverseWorkingSpaceMatrix();
-						g.setColor(new Color(ColorConverter.bgr2rgb(ColorConverter.xyY2bgr(new double[]{xyY[0], xyY[1], 0.75}, inverseMatrixM))));
+						g.setColor(new Color(ColorConverter.bgr2rgb(ColorConverter.xyY2bgr(new double[]{xyY[0], xyY[1], Double.valueOf(luminanceField.getText())}, inverseMatrixM))));
 						g.drawRect(x, y, 1, 1);
 					}
 				}
@@ -264,8 +269,6 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 							(int)((1-descriptor[1])*CANVAS_SIZE_BIG.getHeight() - h),
 							(int)(w*2), (int)(h*2));
 				}
-			} else {
-				System.out.println("No matching colors");
 			}
 		}
 	}
@@ -373,6 +376,18 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 
 	public JButton getDisplayXYYButton() {
 		return displayXYYButton;
+	}
+
+	public JButton getIncreaseLuminance() {
+		return increaseLuminance;
+	}
+
+	public JButton getDecreaseLuminance() {
+		return decreaseLuminance;
+	}
+
+	public JLabel getLuminanceField() {
+		return luminanceField;
 	}
 
 	// ****************** GETTERS ******************

@@ -25,6 +25,8 @@ public class ComputerVisionController implements Initializable, ActionListener, 
 	private static final String PROCESS = "Process";
 	private static final String DISPLAY_IMAGE = "DispImage";
 	private static final String DISPLAY_XYY = "DisplayXYY";
+	private static final String INCREASE_Y = "IncreaseY";
+	private static final String DECREASE_Y = "DecreaseY";
 	private static final String MATCHING_COLORS = "Matching";
 	private static final String ANALIZE = "Analize";
 
@@ -50,6 +52,10 @@ public class ComputerVisionController implements Initializable, ActionListener, 
 		view.getDisplayImageButton().addActionListener(this);
 		view.getDisplayXYYButton().setActionCommand(DISPLAY_XYY);
 		view.getDisplayXYYButton().addActionListener(this);
+		view.getIncreaseLuminance().setActionCommand(INCREASE_Y);
+		view.getIncreaseLuminance().addActionListener(this);
+		view.getDecreaseLuminance().setActionCommand(DECREASE_Y);
+		view.getDecreaseLuminance().addActionListener(this);
 		view.getUpdateMatchingColorsButton().addActionListener(this);
 		view.getAnalizeDataButton().setActionCommand(ANALIZE);
 		view.getAnalizeDataButton().addActionListener(this);
@@ -96,6 +102,22 @@ public class ComputerVisionController implements Initializable, ActionListener, 
 
 		case DISPLAY_XYY:
 			view.displayColorSpace();
+			view.update();
+			break;
+
+		case INCREASE_Y:
+			double incValue = Double.valueOf(view.getLuminanceField().getText())+0.05;
+			DecimalFormat numberFormat1 = new DecimalFormat("0.00");
+			view.getLuminanceField().setText(""+numberFormat1.format(incValue));
+			view.update();
+			break;
+
+		case DECREASE_Y:
+			double decValue = Double.valueOf(view.getLuminanceField().getText())-0.05;
+			if(decValue < 0)
+				decValue = 0;
+			DecimalFormat numberFormat2 = new DecimalFormat("0.00");
+			view.getLuminanceField().setText(""+numberFormat2.format(decValue));
 			view.update();
 			break;
 
