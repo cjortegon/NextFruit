@@ -29,30 +29,32 @@ public class Statistics {
 	}
 
 	public double getStandardDeviation() {
-		double differences = 0;
-		double mean = getMean();
+		double sum = 0;
+		double x = getMean();
 		for (int i = 0; i < set.size(); i++)
-			differences += Math.pow(set.get(i) - mean, 2);
-		differences /= set.size();
-		return Math.sqrt(differences);
+			sum += Math.pow(set.get(i) - x, 2);
+		sum /= (set.size()-1);
+		return Math.sqrt(sum);
 	}
-	
+
 	public double getSkewness() {
-		double differences = 0;
-		double mean = getMean();
+		double sum = 0;
+		double x = getMean();
+		double s = getStandardDeviation();
 		for (int i = 0; i < set.size(); i++)
-			differences += Math.pow(set.get(i) - mean, 3);
-		differences /= set.size();
-		return Math.sqrt(differences);
+			sum += Math.pow((set.get(i) - x)/s, 3);
+		double n = set.size();
+		return (n/((n-1)*(n-2)))*sum;
 	}
-	
+
 	public double getKurtosis() {
-		double differences = 0;
-		double mean = getMean();
+		double sum = 0;
+		double x = getMean();
+		double s = getStandardDeviation();
 		for (int i = 0; i < set.size(); i++)
-			differences += Math.pow(set.get(i) - mean, 4);
-		differences /= set.size();
-		return Math.sqrt(differences);
+			sum += Math.pow((set.get(i) - x)/s, 4);
+		double n = set.size();
+		return ((n*(n+1))/((n-1)*(n-2)*(n-3)))*sum-((3*Math.pow(n-1, 2))/((n-2)*(n-3)));
 	}
 
 }
