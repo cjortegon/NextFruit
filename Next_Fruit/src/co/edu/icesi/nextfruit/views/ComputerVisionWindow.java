@@ -49,7 +49,6 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 	private JTextArea matchingColors, luminanceStatistics;
 	private JLabel calibrationFile, luminanceField;
 
-
 	@Override
 	public void init(Attachable model, Updateable view) {
 
@@ -97,7 +96,6 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 		addComponent(histogramCanvas, 5, 1, 1, 1, false);
 		addComponent(luminanceStatistics, 5, 2, 4, 1, false);
 
-
 		// Starting controller
 		new ComputerVisionController().init(model, this);
 
@@ -120,17 +118,12 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 
 	public void realTimeColorSlider(int screenX, int screenY, boolean paint) {
 		if(paint && drawingConstrains != null) {
-//			System.out.println("----------------");
-//			System.out.println("onScreen: ("+screenX+","+screenY+")");
 			int realX = (int) ((screenX/drawingConstrains[2])+drawingConstrains[0]);
 			int realY = (int) ((screenY/drawingConstrains[2])+drawingConstrains[1]);
-//			System.out.println("real: ("+realX+","+realY+")");
 			double[] bgr = mat.get(realY, realX);
-//			System.out.println("BGR: ("+bgr[0]+","+bgr[1]+","+bgr[2]+")");
 			double[] xyY = ColorConverter.rgb2xyY(ColorConverter.bgr2rgb(bgr),
 					model.getCameraCalibration().getWorkingSpaceMatrix(),
 					model.getCameraCalibration().getWhiteX());
-//			System.out.println("xyY: ("+xyY[0]+","+xyY[1]+","+xyY[2]+")");
 			colorsPanel.setPoint(xyY);
 		} else {
 			colorsPanel.setPoint(null);
