@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.Collection;
 import java.util.List;
@@ -23,6 +24,7 @@ public class ColorsPanel extends KPanel {
 	private Image loadedImage;
 	private BufferedImage canvas;
 	private Graphics graphics;
+	private Point point;
 
 	public ColorsPanel(Model model, Dimension canvasSize, double luminantValue) {
 		super(canvasSize);
@@ -36,7 +38,11 @@ public class ColorsPanel extends KPanel {
 		return new double[] {x/canvasSize.getWidth(), 1-(y/canvasSize.getHeight())};
 	}
 
-	public void repaint() {
+	public Point xy2inCanvas(double x, double y) {
+		return new Point((int)(x*canvasSize.getWidth()), (int)((1-y)*canvasSize.getHeight()));
+	}
+
+	public void paintCanvas() {
 		if(changes) {
 			canvas = new BufferedImage(canvasSize.width, canvasSize.height, BufferedImage.TYPE_INT_RGB);
 			graphics = canvas.getGraphics();
@@ -122,8 +128,14 @@ public class ColorsPanel extends KPanel {
 	}
 
 	public void paintComponent(Graphics g) {
-		repaint();
+		paintCanvas();
 		g.drawImage(canvas, 0, 0, null);
+		if(point != null) {
+			g.setColor(Color.white);
+			g.fillOval(point.x - 4, point.y - 4, 8, 8);
+			g.setColor(Color.black);
+			g.fillOval(point.x - 2, point.y - 2, 4, 4);
+		}
 	}
 
 	public void displayColorSpace() {
@@ -148,5 +160,13 @@ public class ColorsPanel extends KPanel {
 		if(this.loadedImage != loadedImage)
 			changes = true;
 		this.loadedImage = loadedImage;
+	}
+
+	public void setPoint(double[] xyY) {
+		if(xyY != null) {
+			point = xy2inCanvas(xyY[0], xyY[1]);
+			repaint();
+		} else
+			point = null;
 	}
 }

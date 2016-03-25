@@ -4,6 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.io.File;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -18,7 +19,7 @@ import co.edu.icesi.nextfruit.mvc.interfaces.Initializable;
 import co.edu.icesi.nextfruit.mvc.interfaces.Updateable;
 import co.edu.icesi.nextfruit.views.ComputerVisionWindow;
 
-public class ComputerVisionController implements Initializable, ActionListener, MouseListener {
+public class ComputerVisionController implements Initializable, ActionListener, MouseListener, MouseMotionListener {
 
 	private static final String LOAD_IMAGE = "LoadImage";
 	private static final String LOAD_SETTINGS = "LoadSettings";
@@ -60,6 +61,7 @@ public class ComputerVisionController implements Initializable, ActionListener, 
 		view.getAnalizeDataButton().setActionCommand(ANALIZE);
 		view.getAnalizeDataButton().addActionListener(this);
 		view.getColorsCanvas().addMouseListener(this);
+		view.getImageCanvas().addMouseMotionListener(this);
 	}
 
 	@Override
@@ -152,6 +154,18 @@ public class ComputerVisionController implements Initializable, ActionListener, 
 
 	@Override
 	public void mouseExited(MouseEvent e) {
+	}
+
+	@Override
+	public void mouseDragged(MouseEvent e) {
+//		System.out.println("mouseDragged: ("+e.getX()+","+e.getY()+")");
+		view.realTimeColorSlider(e.getX(), e.getY(), true);
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent e) {
+//		System.out.println("mouseMoved: ("+e.getX()+","+e.getY()+")");
+		view.realTimeColorSlider(0, 0, false);
 	}
 
 	private File loadFile(String title) {

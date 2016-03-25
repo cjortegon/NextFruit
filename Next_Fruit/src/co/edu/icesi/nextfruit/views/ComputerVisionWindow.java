@@ -22,6 +22,7 @@ import co.edu.icesi.nextfruit.modules.model.PolygonWrapper;
 import co.edu.icesi.nextfruit.mvc.interfaces.Attachable;
 import co.edu.icesi.nextfruit.mvc.interfaces.Initializable;
 import co.edu.icesi.nextfruit.mvc.interfaces.Updateable;
+import co.edu.icesi.nextfruit.util.ColorConverter;
 import co.edu.icesi.nextfruit.util.ImageUtility;
 import co.edu.icesi.nextfruit.util.Statistics;
 import visualkey.KFrame;
@@ -35,14 +36,19 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 
 	private Model model;
 	private Mat mat;
+
+	// Image
 	private Image loadedImage;
 	private ImageCanvas imageCanvas;
+	private double drawingConstrains[];
+
 	private ColorsPanel colorsPanel;
 	private BarDiagramCanvas barsCanvas;
 	private HistogramCanvas histogramCanvas;
 	private JButton loadButton, loadSettingsFileButton, processButton, updateMatchingColorsButton, analizeDataButton, displayImageButton, displayXYYButton, increaseLuminance, decreaseLuminance;
 	private JTextArea matchingColors, luminanceStatistics;
 	private JLabel calibrationFile, luminanceField;
+
 
 	@Override
 	public void init(Attachable model, Updateable view) {
@@ -112,6 +118,25 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 		return colorsPanel.getPercentOnColorsCanvas(x, y);
 	}
 
+	public void realTimeColorSlider(int screenX, int screenY, boolean paint) {
+		if(paint && drawingConstrains != null) {
+//			System.out.println("----------------");
+//			System.out.println("onScreen: ("+screenX+","+screenY+")");
+			int realX = (int) ((screenX/drawingConstrains[2])+drawingConstrains[0]);
+			int realY = (int) ((screenY/drawingConstrains[2])+drawingConstrains[1]);
+//			System.out.println("real: ("+realX+","+realY+")");
+			double[] bgr = mat.get(realY, realX);
+//			System.out.println("BGR: ("+bgr[0]+","+bgr[1]+","+bgr[2]+")");
+			double[] xyY = ColorConverter.rgb2xyY(ColorConverter.bgr2rgb(bgr),
+					model.getCameraCalibration().getWorkingSpaceMatrix(),
+					model.getCameraCalibration().getWhiteX());
+//			System.out.println("xyY: ("+xyY[0]+","+xyY[1]+","+xyY[2]+")");
+			colorsPanel.setPoint(xyY);
+		} else {
+			colorsPanel.setPoint(null);
+		}
+	}
+
 	@Override
 	public void update() {
 		if(isVisible()) {
@@ -159,19 +184,15 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 					PolygonWrapper border = model.getFeaturesExtract().getPolygon();
 					if(border == null) {
 						ImageUtility.drawImage(loadedImage, CANVAS_SIZE_SMALL, g);
+						drawingConstrains = null;
 					} else {
-						double size[] = ImageUtility.drawCenteredImage(loadedImage, CANVAS_SIZE_SMALL, g, border);
+						drawingConstrains = ImageUtility.drawCenteredImage(loadedImage, CANVAS_SIZE_SMALL, g, border);
 						int[] xs = new int[border.getPolygon().length];
 						int[] ys = new int[border.getPolygon().length];
 						int i = 0;
-						//						for (Point p : border.getPolygon()) {
-						//							xs[i] = (int)(p.x*size[2]);
-						//							ys[i] = (int)(p.y*size[2]);
-						//							i ++;
-						//						}
 						for (Point p : border.getPolygon()) {
-							xs[i] = (int)((p.x-size[0])*size[2]);
-							ys[i] = (int)((p.y-size[1])*size[2]);
+							xs[i] = (int)((p.x-drawingConstrains[0])*drawingConstrains[2]);
+							ys[i] = (int)((p.y-drawingConstrains[1])*drawingConstrains[2]);
 							i ++;
 						}
 
@@ -304,6 +325,10 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 
 	public JLabel getLuminanceField() {
 		return luminanceField;
+	}
+
+	public ImageCanvas getImageCanvas() {
+		return imageCanvas;
 	}
 
 	// ****************** GETTERS ******************
