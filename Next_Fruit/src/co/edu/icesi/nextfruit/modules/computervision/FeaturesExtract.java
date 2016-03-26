@@ -33,14 +33,14 @@ public class FeaturesExtract {
 	// ***************** PUBLIC METHODS *****************
 
 	public void extractFeatures(CameraCalibration calibration) {
-		mat = bilateralFilter(mat);
+//		mat = bilateralFilter(mat);
 		polygon = getContours(mat.clone(), 150);
 		histogram = new Histogram(mat);
 		histogram.applyWhitePatch();
 		colorStatistics = histogram.getStatisticalColors(polygon);
 		for (ColorDistribution color : colorStatistics)
 			numberOfPixels += color.getRepeat();
-		System.out.println(colorStatistics.size()+" colors in this fruit for "+numberOfPixels+" pixels.");
+		//		System.out.println(colorStatistics.size()+" colors in this fruit for "+numberOfPixels+" pixels.");
 	}
 
 	public boolean hasExtractedFeatures() {

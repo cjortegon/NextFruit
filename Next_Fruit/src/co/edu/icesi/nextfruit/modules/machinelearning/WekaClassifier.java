@@ -84,8 +84,8 @@ public class WekaClassifier {
 	 * @param Classifier, the classifier object to be used.
 	 * @param dataUnlabeled, Instances object containing the unknown instance to classify.
 	 * @return double array, 
-	 * 			index[0] -> probability of being “positive”
-	 * 			index[1] -> probability of being “negative”
+	 * 			index[0] -> probability of being ï¿½positiveï¿½
+	 * 			index[1] -> probability of being ï¿½negativeï¿½
 	 * @throws Exception
 	 */
 	public double[] classify(Classifier classificationModel, Instances dataUnlabeled)
@@ -94,8 +94,8 @@ public class WekaClassifier {
 		dataUnlabeled.setClassIndex(dataUnlabeled.numAttributes() - 1);
 		
 		// Get the likelihood of each classes
-		// fDistribution[0] is the probability of being “positive”
-		// fDistribution[1] is the probability of being “negative”
+		// fDistribution[0] is the probability of being ï¿½positiveï¿½
+		// fDistribution[1] is the probability of being ï¿½negativeï¿½
 		
 		double[] fDistribution = classificationModel.distributionForInstance(dataUnlabeled.firstInstance());
 		return fDistribution;
@@ -114,7 +114,7 @@ public class WekaClassifier {
 			PrintWriter writer = new PrintWriter(LOAD_SAVE_PATH + fileName.trim() + ".arff");
 			writer.println(setToSave.toString());
 			writer.close();
-			writeLog("[saveDataSetIntoFile]: Se ha guardado la información del data set en " +
+			writeLog("[saveDataSetIntoFile]: Se ha guardado la informaciï¿½n del data set en " +
 			"el archivo " + fileName + ".arff");
 		} catch (FileNotFoundException e) {
 			
@@ -141,7 +141,7 @@ public class WekaClassifier {
 			fReader.close();
 			bReader.close();
 			
-			writeLog("[LoadDataSetFromFile]: Se cargó correctamente el archivo " + fileName.trim() + ".arff");
+			writeLog("[LoadDataSetFromFile]: Se cargï¿½ correctamente el archivo " + fileName.trim() + ".arff");
 			return returnValue;
 			
 		} catch (IOException e) {
@@ -191,7 +191,7 @@ public class WekaClassifier {
 		
 		try {
 			Classifier model = (Classifier) SerializationHelper.read(LOAD_SAVE_PATH + fileName.trim() + ".save");
-			writeLog("[loadClassifierFromFile]: Se cargó correctamente el clasificador de tipo " + 
+			writeLog("[loadClassifierFromFile]: Se cargï¿½ correctamente el clasificador de tipo " + 
 			model.getClass().getSimpleName() + " a partir del archivo " + fileName + ".save");
 			return model;
 		
@@ -227,7 +227,7 @@ public class WekaClassifier {
 				Evaluation ev = new Evaluation(trainingSet);
 				ev.evaluateModel(classificationModel, testSet);
 				saveEvaluationData(ev, classificationModel.getClass().getSimpleName() + "TestResults.txt");
-				writeLog("[testClassifierModel]: Se finalizó correctamente la evaluación del modelo " +
+				writeLog("[testClassifierModel]: Se finalizï¿½ correctamente la evaluaciï¿½n del modelo " +
 				classificationModel.getClass().getSimpleName());
 				
 			}else{
@@ -261,11 +261,11 @@ public class WekaClassifier {
 					separator + "-- CONFUSION MATRIX --" + separator + 
 					
 					//********************************************************
-					//	Modificar la matriz de confusión para que se ajuste a 
+					//	Modificar la matriz de confusiï¿½n para que se ajuste a 
 					//	nuestro problema.
 					//********************************************************
 					
-					separator + "Class-1" + "   " + "Class-2" + "Class-E"+ "   -> Se clasificó como" + separator +
+					separator + "Class-1" + "   " + "Class-2" + "Class-E"+ "   -> Se clasificï¿½ como" + separator +
 					"(" + cmMatrix[0][0] + ")" + " (" + cmMatrix[0][1] + ")" + "   | Class-1 (Real Value)" + separator +
 					"(" + cmMatrix[1][0] + ")" + " (" + cmMatrix[1][1] + ")" + "   | Class-2 (Rela Value)" + separator +
 					"(" + cmMatrix[2][0] + ")" + " (" + cmMatrix[2][1] + ")" + "   | Class-E (Real Value)");
@@ -273,12 +273,12 @@ public class WekaClassifier {
 			PrintWriter writer = new PrintWriter(LOAD_SAVE_PATH + fileName.trim() + ".txt");
 			writer.println(s);
 			writer.close();
-			writeLog("[saveEvaluationData]: Los resultados de la evaluación se han guardado en " +
+			writeLog("[saveEvaluationData]: Los resultados de la evaluaciï¿½n se han guardado en " +
 			"el archivo " + fileName + ".txt");
 			
 		} catch (FileNotFoundException e) {
 			
-			writeLog("[saveEvaluationData]: No se pudo guardar el resultado de la evaluación ");
+			writeLog("[saveEvaluationData]: No se pudo guardar el resultado de la evaluaciï¿½n ");
 			e.printStackTrace();
 		}
 	}
@@ -298,6 +298,11 @@ public class WekaClassifier {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+
+	public static ArrayList<Attribute> getFeatures() {
+		return features;
 	}
 	
 }
