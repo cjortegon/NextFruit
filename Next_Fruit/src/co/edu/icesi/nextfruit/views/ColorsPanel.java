@@ -60,7 +60,9 @@ public class ColorsPanel extends KPanel {
 					for (int y = startY; y < canvasSize.height-startY; y++) {
 						double[] xyY = getPercentOnColorsCanvas(x, y);
 						double[][] inverseMatrixM = model.getCameraCalibration().getInverseWorkingSpaceMatrix();
-						graphics.setColor(new Color(ColorConverter.bgr2rgb(ColorConverter.xyY2bgr(new double[]{xyY[0], xyY[1], luminantValue}, inverseMatrixM))));
+						double[] bgr = ColorConverter.xyY2bgr(new double[]{xyY[0], xyY[1], luminantValue}, inverseMatrixM);
+//						System.out.println("BGR: "+bgr[0]+","+bgr[1]+","+bgr[2]);
+						graphics.setColor(new Color(ColorConverter.bgr2rgb(bgr)));
 						graphics.drawRect(x, y, 1, 1);
 					}
 				}
