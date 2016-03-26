@@ -12,7 +12,6 @@ public class ColorConverter {
 	private static final double KAPPA = 24389/27;
 
 	
-	
 	/**
 	 * Converts from RGB color space to equivalent XYZ color space.
 	 * Color must be arranged in [R,G,B] order.
@@ -21,6 +20,7 @@ public class ColorConverter {
 	 * @return xyz, the xyz equivalent value of the rgb received as a parameter.
 	 */
 	public static double[] rgb2xyz(double[] rgb, double[][] matrixM) {
+		
 		double red = rgb[0]/255.0;
 		double green = rgb[1]/255.0;
 		double blue = rgb[2]/255.0;
@@ -273,6 +273,7 @@ public class ColorConverter {
 	 * 			BGR[2] = red component.
 	 */
 	public static double[] xyz2bgr(double[] xyz, double[][] inverseM){
+		
 		double X = xyz[0];
 		double Y = xyz[1];
 		double Z = xyz[2];
@@ -284,27 +285,27 @@ public class ColorConverter {
 		RGB[2] = (((inverseM[2][0])*X)+((inverseM[2][1])*Y)+(inverseM[2][2]*Z));
 
 		//	Red
-		if(RGB[0] > 0.04045){
+		if(RGB[0] > 0.0031308){
 			RGB[0] = (1.055 * Math.pow(RGB[0], 1 / 2.4)) - 0.055;
 		}else{
 			RGB[0] = 12.92 * RGB[0];
 		}
 		
 		//	Green
-		if(RGB[1] > 0.04045){
+		if(RGB[1] > 0.0031308){
 			RGB[1] = (1.055 * Math.pow(RGB[1], 1 / 2.4)) - 0.055;
 		}else{
 			RGB[1] = 12.92 * RGB[1];
 		}
 		
 		//	Blue
-		if(RGB[2] > 0.04045){
+		if(RGB[2] > 0.0031308){
 			RGB[2] = (1.055 * Math.pow(RGB[2], 1 / 2.4)) - 0.055;
 		}else{
 			RGB[2] = 12.92 * RGB[2];
 		}
 		
-		double[] BGR = {RGB[2], RGB[1], RGB[0]};
+		double[] BGR = {RGB[2]*255, RGB[1]*255, RGB[0]*255};
 		return BGR;
 	}
 

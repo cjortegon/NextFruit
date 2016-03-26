@@ -94,7 +94,7 @@ public class WekaTest {
 				predictions.appendElements(validation.predictions());
  
 				// Uncomment to see the summary for each training-testing pair.
-				//System.out.println(models[j].toString());
+				System.out.println(models[j].toString());
 			}
  
 			// Calculate overall accuracy of current classifier on all splits
@@ -107,5 +107,9 @@ public class WekaTest {
 					+ "\n---------------------------------");
 		}
  
+	}
+	
+	public static void usarClasificador(){
+		
 	}
 }
