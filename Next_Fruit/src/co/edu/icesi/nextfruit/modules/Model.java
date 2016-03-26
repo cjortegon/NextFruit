@@ -189,6 +189,12 @@ public class Model implements Attachable {
 	}
 
 	// ******************* CHARACTERIZATION MODULE ********************
+	
+	// ******************* MACHINE LEARNING MODULE ********************
+	
+	
+	
+	// ******************* MACHINE LEARNING MODULE ********************
 
 	// ************************ ACCESS METHODS ************************
 
