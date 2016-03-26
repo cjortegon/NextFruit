@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.Collection;
 import java.util.List;
@@ -109,27 +110,31 @@ public class ColorsPanel extends KPanel {
 			for (double i = 1; i < 20; i++) {
 				graphics.drawLine((int)(canvasSize.getWidth()/2)-5, (int)((i/20.0)*canvasSize.getHeight()), (int)(canvasSize.getWidth()/2)+5, (int)((i/20.0)*canvasSize.getHeight()));
 			}
-
-			// Matching colors
-			List<MatchingColor> matching = model.getMatchingColors();
-			if(matching != null) {
-				graphics.setColor(Color.BLACK);
-				for (MatchingColor matchingColor : matching) {
-					double[] descriptor = matchingColor.getDescriptor();
-					double w = descriptor[2]*canvasSize.getWidth();
-					double h = descriptor[2]*canvasSize.getHeight();
-					graphics.drawOval((int)(descriptor[0]*canvasSize.getWidth() - w),
-							(int)((1-descriptor[1])*canvasSize.getHeight() - h),
-							(int)(w*2), (int)(h*2));
-				}
-			}
 			changes = false;
 		}
 	}
 
 	public void paintComponent(Graphics g) {
 		paintCanvas();
+
+		// Painting pre-drawed image
 		g.drawImage(canvas, 0, 0, null);
+
+		// Matching colors
+		List<MatchingColor> matching = model.getMatchingColors();
+		if(matching != null) {
+			g.setColor(Color.BLACK);
+			for (MatchingColor matchingColor : matching) {
+				double[] descriptor = matchingColor.getDescriptor();
+				double w = descriptor[2]*canvasSize.getWidth();
+				double h = descriptor[2]*canvasSize.getHeight();
+				g.drawOval((int)(descriptor[0]*canvasSize.getWidth() - w),
+						(int)((1-descriptor[1])*canvasSize.getHeight() - h),
+						(int)(w*2), (int)(h*2));
+			}
+		}
+
+		// Color scroller
 		if(point != null) {
 			g.setColor(Color.white);
 			g.fillOval(point.x - 4, point.y - 4, 8, 8);
@@ -165,8 +170,8 @@ public class ColorsPanel extends KPanel {
 	public void setPoint(double[] xyY) {
 		if(xyY != null) {
 			point = xy2inCanvas(xyY[0], xyY[1]);
-			repaint();
 		} else
 			point = null;
+		repaint();
 	}
 }

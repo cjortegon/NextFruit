@@ -125,9 +125,8 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 					model.getCameraCalibration().getWorkingSpaceMatrix(),
 					model.getCameraCalibration().getWhiteX());
 			colorsPanel.setPoint(xyY);
-		} else {
+		} else
 			colorsPanel.setPoint(null);
-		}
 	}
 
 	@Override

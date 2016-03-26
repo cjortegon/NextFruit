@@ -33,11 +33,13 @@ public class ComputerVisionController implements Initializable, ActionListener, 
 
 	private Model model;
 	private ComputerVisionWindow view;
+	private boolean colorScroller;
 
 	@Override
 	public void init(Attachable model, Updateable view) {
 		this.model = (Model) model;
 		this.view = (ComputerVisionWindow) view;
+		this.colorScroller = true;
 		addListeners();
 	}
 
@@ -61,6 +63,7 @@ public class ComputerVisionController implements Initializable, ActionListener, 
 		view.getAnalizeDataButton().setActionCommand(ANALIZE);
 		view.getAnalizeDataButton().addActionListener(this);
 		view.getColorsCanvas().addMouseListener(this);
+		view.getImageCanvas().addMouseListener(this);
 		view.getImageCanvas().addMouseMotionListener(this);
 	}
 
@@ -132,16 +135,21 @@ public class ComputerVisionController implements Initializable, ActionListener, 
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		double[] point = view.getPercentOnColorsCanvas(e.getX(), e.getY());
-		DecimalFormat numberFormat = new DecimalFormat("0.00");
-		String newPoint = numberFormat.format(point[0])+";"+numberFormat.format(point[1])+";0.05";
-		newPoint = newPoint.replace(",", ".");
-		view.getMatchingColors().setText(view.getMatchingColors().getText()+"\n"+newPoint);
-		model.identifyMatchingColors(view.getMatchingColors().getText());
+		if(e.getSource() == view.getColorsCanvas()) {
+			double[] point = view.getPercentOnColorsCanvas(e.getX(), e.getY());
+			DecimalFormat numberFormat = new DecimalFormat("0.00");
+			String newPoint = numberFormat.format(point[0])+";"+numberFormat.format(point[1])+";0.05";
+			newPoint = newPoint.replace(",", ".");
+			view.getMatchingColors().setText(view.getMatchingColors().getText()+"\n"+newPoint);
+			model.identifyMatchingColors(view.getMatchingColors().getText());
+		}
 	}
 
 	@Override
 	public void mousePressed(MouseEvent e) {
+		if(e.getSource() == view.getImageCanvas()) {
+			this.colorScroller = !colorScroller;
+		}
 	}
 
 	@Override
@@ -150,22 +158,25 @@ public class ComputerVisionController implements Initializable, ActionListener, 
 
 	@Override
 	public void mouseEntered(MouseEvent e) {
+		if(e.getSource() == view.getImageCanvas()) {
+			this.colorScroller = true;
+		}
 	}
 
 	@Override
 	public void mouseExited(MouseEvent e) {
+		if(e.getSource() == view.getImageCanvas() && colorScroller)
+			view.realTimeColorSlider(0, 0, false);
 	}
 
 	@Override
 	public void mouseDragged(MouseEvent e) {
-//		System.out.println("mouseDragged: ("+e.getX()+","+e.getY()+")");
-		view.realTimeColorSlider(e.getX(), e.getY(), true);
 	}
 
 	@Override
 	public void mouseMoved(MouseEvent e) {
-//		System.out.println("mouseMoved: ("+e.getX()+","+e.getY()+")");
-		view.realTimeColorSlider(0, 0, false);
+		if(colorScroller)
+			view.realTimeColorSlider(e.getX(), e.getY(), true);
 	}
 
 	private File loadFile(String title) {
