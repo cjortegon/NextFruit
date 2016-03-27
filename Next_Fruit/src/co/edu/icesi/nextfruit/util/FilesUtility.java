@@ -2,6 +2,8 @@ package co.edu.icesi.nextfruit.util;
 
 import java.util.ArrayList;
 
+import javax.swing.JFileChooser;
+
 public class FilesUtility {
 
 	public static File[] listFiles(String folder, String extension) {
@@ -21,6 +23,18 @@ public class FilesUtility {
 			for (int i = 0; i < realFiles.size(); i++)
 				extensionFiles[i] = realFiles.get(i);
 			return extensionFiles;
+		}
+		return null;
+	}
+
+	public static java.io.File loadFile(String title) {
+		JFileChooser chooser = new JFileChooser();
+		chooser.setCurrentDirectory(new java.io.File("./"));
+		chooser.setDialogTitle(title);
+		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		chooser.setVisible(true);
+		if (chooser.showOpenDialog(chooser) == JFileChooser.APPROVE_OPTION) {
+			return chooser.getSelectedFile();
 		}
 		return null;
 	}

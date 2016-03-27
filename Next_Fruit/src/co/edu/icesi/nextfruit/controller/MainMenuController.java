@@ -2,11 +2,13 @@ package co.edu.icesi.nextfruit.controller;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 
 import co.edu.icesi.nextfruit.modules.Model;
 import co.edu.icesi.nextfruit.mvc.interfaces.Attachable;
 import co.edu.icesi.nextfruit.mvc.interfaces.Initializable;
 import co.edu.icesi.nextfruit.mvc.interfaces.Updateable;
+import co.edu.icesi.nextfruit.util.FilesUtility;
 import co.edu.icesi.nextfruit.views.CalibrationWindow;
 import co.edu.icesi.nextfruit.views.ComputerVisionWindow;
 import co.edu.icesi.nextfruit.views.MachineLearningWindow;
@@ -15,45 +17,63 @@ import co.edu.icesi.nextfruit.views.MainMenuWindow;
 public class MainMenuController implements Initializable, ActionListener {
 
 	private static final String CALIBRATION = "Calibration";
+	private static final String LOAD_SETTINGS = "LoadSettings";
 	private static final String CHARACTERIZATION = "Charaterization";
 	private static final String CLASIFICATION = "Clasificator";
 	private static final String TRAINING = "Training";
-	
+
 	private CalibrationWindow calibration;
 	private ComputerVisionWindow charaterization;
 	private MachineLearningWindow training;
 
 	private Model model;
-	private Updateable view;
+	private MainMenuWindow view;
 
 	@Override
 	public void init(Attachable model, Updateable view) {
 		this.model = (Model) model;
-		this.view = view;
+		this.view = (MainMenuWindow) view;
 		addListeners();
 	}
 
 	private void addListeners() {
-		MainMenuWindow mainMenu = (MainMenuWindow) view;
-		mainMenu.getCalibrationButton().setActionCommand(CALIBRATION);
-		mainMenu.getCalibrationButton().addActionListener(this);
-		mainMenu.getCharacterizationButton().setActionCommand(CHARACTERIZATION);
-		mainMenu.getCharacterizationButton().addActionListener(this);
-		mainMenu.getClasificationButton().setActionCommand(CLASIFICATION);
-		mainMenu.getClasificationButton().addActionListener(this);
-		mainMenu.getTrainingButton().setActionCommand(TRAINING);
-		mainMenu.getTrainingButton().addActionListener(this);
+		view.getCalibrationButton().setActionCommand(CALIBRATION);
+		view.getCalibrationButton().addActionListener(this);
+		view.getCharacterizationButton().setActionCommand(CHARACTERIZATION);
+		view.getCharacterizationButton().addActionListener(this);
+		view.getClasificationButton().setActionCommand(CLASIFICATION);
+		view.getClasificationButton().addActionListener(this);
+		view.getTrainingButton().setActionCommand(TRAINING);
+		view.getTrainingButton().addActionListener(this);
+		view.getLoadSettingsFileButton().setActionCommand(LOAD_SETTINGS);
+		view.getLoadSettingsFileButton().addActionListener(this);
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
+
 		switch (e.getActionCommand()) {
+
 		case CALIBRATION:
 			if(calibration == null) {
 				calibration = new CalibrationWindow();
 				calibration.init(model, null);
 			}
 			calibration.setVisible(true);
+			break;
+
+		case LOAD_SETTINGS:
+			File settingsFile = FilesUtility.loadFile("Load camera calibration file");
+			if(settingsFile != null) {
+				boolean result = this.model.loadCalibrationData(settingsFile);
+				if(!result) {
+					view.showMessage("Couldn't load the chosen file! Make sure it's a valid file.");
+					view.getCalibrationFileLabel().setText("(No calibration file loaded)");
+				} else {
+					view.showMessage("Settings loaded successfully!");
+					view.getCalibrationFileLabel().setText("Calibration file: "+settingsFile.getName());
+				}
+			}
 			break;
 
 		case CHARACTERIZATION:
@@ -66,7 +86,7 @@ public class MainMenuController implements Initializable, ActionListener {
 
 		case CLASIFICATION:
 			break;
-			
+
 		case TRAINING:
 			if(training == null){
 				training = new MachineLearningWindow();

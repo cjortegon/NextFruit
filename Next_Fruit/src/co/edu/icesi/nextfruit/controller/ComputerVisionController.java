@@ -17,6 +17,7 @@ import co.edu.icesi.nextfruit.modules.model.MatchingColor;
 import co.edu.icesi.nextfruit.mvc.interfaces.Attachable;
 import co.edu.icesi.nextfruit.mvc.interfaces.Initializable;
 import co.edu.icesi.nextfruit.mvc.interfaces.Updateable;
+import co.edu.icesi.nextfruit.util.FilesUtility;
 import co.edu.icesi.nextfruit.views.ComputerVisionWindow;
 
 public class ComputerVisionController implements Initializable, ActionListener, MouseListener, MouseMotionListener {
@@ -72,13 +73,13 @@ public class ComputerVisionController implements Initializable, ActionListener, 
 		switch (e.getActionCommand()) {
 
 		case LOAD_IMAGE:
-			File file = loadFile("Load your fruit image");
+			File file = FilesUtility.loadFile("Load your fruit image");
 			if(file != null)
 				model.startFeaturesExtract(file.getAbsolutePath());
 			break;
 
 		case LOAD_SETTINGS:
-			File settingsFile = loadFile("Load camera calibration file");
+			File settingsFile = FilesUtility.loadFile("Load camera calibration file");
 			if(settingsFile != null) {
 				boolean result = this.model.loadCalibrationData(settingsFile);
 				if(!result) {
@@ -178,17 +179,4 @@ public class ComputerVisionController implements Initializable, ActionListener, 
 		if(colorScroller)
 			view.realTimeColorSlider(e.getX(), e.getY(), true);
 	}
-
-	private File loadFile(String title) {
-		JFileChooser chooser = new JFileChooser();
-		chooser.setCurrentDirectory(new java.io.File("./"));
-		chooser.setDialogTitle(title);
-		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		chooser.setVisible(true);
-		if (chooser.showOpenDialog(chooser) == JFileChooser.APPROVE_OPTION) {
-			return chooser.getSelectedFile();
-		}
-		return null;
-	}
-
 }
