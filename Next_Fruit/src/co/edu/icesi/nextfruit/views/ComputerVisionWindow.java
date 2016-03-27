@@ -12,24 +12,25 @@ import javax.swing.JLabel;
 import javax.swing.JTextArea;
 
 import org.opencv.core.Mat;
-import org.opencv.core.Point;
 
 import co.edu.icesi.nextfruit.controller.ComputerVisionController;
 import co.edu.icesi.nextfruit.modules.Model;
 import co.edu.icesi.nextfruit.modules.computervision.Histogram;
 import co.edu.icesi.nextfruit.modules.model.ColorDistribution;
-import co.edu.icesi.nextfruit.modules.model.PolygonWrapper;
 import co.edu.icesi.nextfruit.mvc.interfaces.Attachable;
 import co.edu.icesi.nextfruit.mvc.interfaces.Initializable;
 import co.edu.icesi.nextfruit.mvc.interfaces.Updateable;
 import co.edu.icesi.nextfruit.util.ColorConverter;
 import co.edu.icesi.nextfruit.util.ImageUtility;
 import co.edu.icesi.nextfruit.util.Statistics;
+import co.edu.icesi.nextfruit.views.subviews.ColorsPanel;
+import co.edu.icesi.nextfruit.views.subviews.ImageCanvas;
 import visualkey.KFrame;
 import visualkey.KPanel;
 
 public class ComputerVisionWindow extends KFrame implements Initializable, Updateable {
 
+	private static final Dimension CANVAS_SIZE_VERTICAL = new Dimension(300, 300);
 	private static final Dimension CANVAS_SIZE_SMALL = new Dimension(300, 250);
 	private static final Dimension CANVAS_SIZE_BIG = new Dimension(350, 350);
 	private static final double INITIAL_LUMINANT = 0.75;
@@ -37,23 +38,23 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 	private Model model;
 	private Mat mat;
 
-	// Image
-	private Image loadedImage;
 	private ImageCanvas imageCanvas;
-	private double drawingConstrains[];
-
 	private ColorsPanel colorsPanel;
 	private BarDiagramCanvas barsCanvas;
 	private HistogramCanvas histogramCanvas;
-	private JButton loadButton, loadSettingsFileButton, processButton, updateMatchingColorsButton, analizeDataButton, displayImageButton, displayXYYButton, increaseLuminance, decreaseLuminance;
+	private JButton loadButton, processButton, updateMatchingColorsButton, analizeDataButton, displayImageButton, displayXYYButton, increaseLuminance, decreaseLuminance;
 	private JTextArea matchingColors, luminanceStatistics;
-	private JLabel calibrationFile, luminanceField;
+	private JLabel luminanceField;
 
 	@Override
 	public void init(Attachable model, Updateable view) {
 
+		// Attaching to model
+		this.model = (Model) model;
+		model.attach(this);
+
 		// Initializing objects
-		imageCanvas = new ImageCanvas(CANVAS_SIZE_SMALL);
+		imageCanvas = new ImageCanvas(CANVAS_SIZE_VERTICAL, this.model);
 		colorsPanel = new ColorsPanel((Model) model, CANVAS_SIZE_BIG, INITIAL_LUMINANT);
 		barsCanvas = new BarDiagramCanvas(CANVAS_SIZE_SMALL);
 		histogramCanvas = new HistogramCanvas(new Dimension(CANVAS_SIZE_BIG.width, CANVAS_SIZE_SMALL.height));
@@ -63,8 +64,6 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 		luminanceStatistics.setPreferredSize(CANVAS_SIZE_SMALL);
 		luminanceStatistics.setEditable(false);
 		loadButton = new JButton("Load image");
-		loadSettingsFileButton = new JButton("Load Calibration Data From an XML File");
-		calibrationFile = new JLabel("(No calibration file loaded)");
 		updateMatchingColorsButton = new JButton("Update matching colors");
 		processButton = new JButton("Process image");
 		displayImageButton = new JButton("Image distribution");
@@ -74,13 +73,9 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 		increaseLuminance = new JButton(">");
 		decreaseLuminance = new JButton("<");
 
-		// Attaching to model
-		this.model = (Model) model;
-		model.attach(this);
+		// Adding components
 		addComponent(loadButton, 0, 0, 1, 1, false);
-		addComponent(loadSettingsFileButton, 1, 0, 1, 1, false);
-		addComponent(calibrationFile, 2, 0, 1, 1, true);
-		addComponent(imageCanvas, 3, 0, 1, 1, false);
+		addComponent(imageCanvas, 1, 0, 1, 3, false);
 		addComponent(processButton, 4, 0, 1, 1, false);
 		addComponent(colorsPanel, 0, 1, 1, 5, false);
 		addComponent(displayImageButton, 0, 2, 1, 1, false);
@@ -117,6 +112,7 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 	}
 
 	public void realTimeColorSlider(int screenX, int screenY, boolean paint) {
+		double[] drawingConstrains = imageCanvas.getDrawingConstrains();
 		if(paint && drawingConstrains != null) {
 			int realX = (int) ((screenX/drawingConstrains[2])+drawingConstrains[0]);
 			int realY = (int) ((screenY/drawingConstrains[2])+drawingConstrains[1]);
@@ -137,8 +133,9 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 				if(model.getFeaturesExtract() != null) {
 					if(mat != model.getFeaturesExtract().getMat()) {
 						mat = model.getFeaturesExtract().getMat();
-						loadedImage = ImageUtility.mat2Image(mat);
-						colorsPanel.setLoadedImage(loadedImage);
+						Image image = ImageUtility.mat2Image(mat);
+						imageCanvas.setLoadedImage(image);
+						colorsPanel.setLoadedImage(image);
 					}
 					// Updating luminance statistics
 					Statistics statistics = model.getFeaturesExtract().getLuminanceStatistics();
@@ -163,44 +160,6 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 	}
 
 	// ***************** SUB-VIEWS *****************
-
-	public class ImageCanvas extends KPanel {
-
-		public ImageCanvas(Dimension canvasSize) {
-			super(canvasSize);
-		}
-
-		public void paintComponent(Graphics g) {
-			if(loadedImage != null) {
-				try {
-					PolygonWrapper border = model.getFeaturesExtract().getPolygon();
-					if(border == null) {
-						ImageUtility.drawImage(loadedImage, CANVAS_SIZE_SMALL, g);
-						drawingConstrains = null;
-					} else {
-						drawingConstrains = ImageUtility.drawCenteredImage(loadedImage, CANVAS_SIZE_SMALL, g, border);
-						int[] xs = new int[border.getPolygon().length];
-						int[] ys = new int[border.getPolygon().length];
-						int i = 0;
-						for (Point p : border.getPolygon()) {
-							xs[i] = (int)((p.x-drawingConstrains[0])*drawingConstrains[2]);
-							ys[i] = (int)((p.y-drawingConstrains[1])*drawingConstrains[2]);
-							i ++;
-						}
-
-						g.setColor(Color.green);
-						g.drawPolygon(xs, ys, xs.length);
-					}
-
-				} catch(NullPointerException npe) {}
-			} else {
-				g.setColor(Color.white);
-				g.fillRect(2, 2, CANVAS_SIZE_SMALL.width-4, CANVAS_SIZE_SMALL.height-4);
-				g.setColor(Color.LIGHT_GRAY);
-				g.drawString("No image to display...", 5, 15);
-			}
-		}
-	}
 
 	public class BarDiagramCanvas extends KPanel {
 
@@ -271,10 +230,6 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 		return loadButton;
 	}
 
-	public JButton getLoadSettingsFileButton() {
-		return loadSettingsFileButton;
-	}
-
 	public JButton getProcessButton() {
 		return processButton;
 	}
@@ -289,10 +244,6 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 
 	public JTextArea getMatchingColors() {
 		return matchingColors;
-	}
-
-	public JLabel getCalibrationFile() {
-		return calibrationFile;
 	}
 
 	public ColorsPanel getColorsCanvas() {

@@ -39,14 +39,17 @@ public class MainMenuController implements Initializable, ActionListener {
 	private void addListeners() {
 		view.getCalibrationButton().setActionCommand(CALIBRATION);
 		view.getCalibrationButton().addActionListener(this);
-		view.getCharacterizationButton().setActionCommand(CHARACTERIZATION);
-		view.getCharacterizationButton().addActionListener(this);
-		view.getClasificationButton().setActionCommand(CLASIFICATION);
-		view.getClasificationButton().addActionListener(this);
-		view.getTrainingButton().setActionCommand(TRAINING);
-		view.getTrainingButton().addActionListener(this);
 		view.getLoadSettingsFileButton().setActionCommand(LOAD_SETTINGS);
 		view.getLoadSettingsFileButton().addActionListener(this);
+		view.getCharacterizationButton().setActionCommand(CHARACTERIZATION);
+		view.getCharacterizationButton().addActionListener(this);
+		view.getCharacterizationButton().setEnabled(false);
+		view.getClasificationButton().setActionCommand(CLASIFICATION);
+		view.getClasificationButton().addActionListener(this);
+		view.getClasificationButton().setEnabled(false);
+		view.getTrainingButton().setActionCommand(TRAINING);
+		view.getTrainingButton().addActionListener(this);
+		view.getTrainingButton().setEnabled(false);
 	}
 
 	@Override
@@ -68,10 +71,12 @@ public class MainMenuController implements Initializable, ActionListener {
 				boolean result = this.model.loadCalibrationData(settingsFile);
 				if(!result) {
 					view.showMessage("Couldn't load the chosen file! Make sure it's a valid file.");
-					view.getCalibrationFileLabel().setText("(No calibration file loaded)");
 				} else {
 					view.showMessage("Settings loaded successfully!");
 					view.getCalibrationFileLabel().setText("Calibration file: "+settingsFile.getName());
+					view.getCharacterizationButton().setEnabled(true);
+					view.getClasificationButton().setEnabled(true);
+					view.getTrainingButton().setEnabled(true);
 				}
 			}
 			break;

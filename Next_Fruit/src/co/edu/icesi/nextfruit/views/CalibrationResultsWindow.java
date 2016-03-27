@@ -23,6 +23,7 @@ import co.edu.icesi.nextfruit.modules.callibrator.ColorChecker;
 import co.edu.icesi.nextfruit.mvc.interfaces.Attachable;
 import co.edu.icesi.nextfruit.mvc.interfaces.Initializable;
 import co.edu.icesi.nextfruit.mvc.interfaces.Updateable;
+import co.edu.icesi.nextfruit.views.subviews.CustomRenderer;
 import visualkey.KFrame;
 
 public class CalibrationResultsWindow extends KFrame implements Initializable, Updateable {

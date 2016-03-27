@@ -1,4 +1,4 @@
-package co.edu.icesi.nextfruit.views;
+package co.edu.icesi.nextfruit.views.subviews;
 
 import java.awt.Color;
 import java.awt.Component;
