@@ -39,4 +39,16 @@ public class FilesUtility {
 		return null;
 	}
 
+	public static java.io.File loadDirectory(String title) {
+		JFileChooser chooser = new JFileChooser();
+		chooser.setCurrentDirectory(new java.io.File("./"));
+		chooser.setDialogTitle(title);
+		chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		chooser.setVisible(true);
+		if (chooser.showOpenDialog(chooser) == JFileChooser.APPROVE_OPTION) {
+			return chooser.getSelectedFile();
+		}
+		return null;
+	}
+
 }
