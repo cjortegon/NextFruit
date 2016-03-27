@@ -10,6 +10,7 @@ import co.edu.icesi.nextfruit.modules.Model;
 import co.edu.icesi.nextfruit.mvc.interfaces.Attachable;
 import co.edu.icesi.nextfruit.mvc.interfaces.Initializable;
 import co.edu.icesi.nextfruit.mvc.interfaces.Updateable;
+import co.edu.icesi.nextfruit.util.FilesUtility;
 import co.edu.icesi.nextfruit.views.MachineLearningWindow;
 
 
@@ -37,24 +38,47 @@ public class MachineLearningController implements Initializable, ActionListener{
 	public void actionPerformed(ActionEvent e) {
 		
 		System.out.println("actionPerformed: "+e.getActionCommand());
+		File file;
 		
 		switch (e.getActionCommand()) {
 		case CHOOSE_IMAGES_DIR:
+			//file = //loadFile("Choose Images Directory");
+			
+			//
+			//	use as a directory, not as a file.
+			//
+			
+			//if(file != null){
+				//
+				//mLWindow.setTfImagesFieldText(file.getPath().toString());
+			//}
+			
 			break;
 			
 		case CHOOSE_TRAINING_SET_DIR:
-			File file = loadFile("Load Training Set");
+			file = FilesUtility.loadFile("Load Training Set");
 			
 			if(file != null){
-				
+				model.loadTrainingSet(file);
+				mLWindow.setTfDataFieldText(file.getPath().toString());
 			}
 			
 			break;
 			
 		case CHOOSE_CLASSIFIER_DIR:
+			file = FilesUtility.loadFile("Load Classifier");
+			
+			if(file != null){
+				//
+				mLWindow.setTfClassifierFieldText(file.getPath().toString());
+			}
+			
 			break;
 			
 		case GENERATE_TRAINING_SET:
+			
+			
+			
 			break;
 			
 		case LOAD_TRAINING_SET:
@@ -102,17 +126,5 @@ public class MachineLearningController implements Initializable, ActionListener{
 		
 	}
 	
-	
-	private File loadFile(String title) {
-		JFileChooser chooser = new JFileChooser();
-		chooser.setCurrentDirectory(new java.io.File("./"));
-		chooser.setDialogTitle(title);
-		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		chooser.setVisible(true);
-		if (chooser.showOpenDialog(chooser) == JFileChooser.APPROVE_OPTION) {
-			return chooser.getSelectedFile();
-		}
-		return null;
-	}
 
 }

@@ -7,6 +7,7 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
+import co.edu.icesi.nextfruit.controller.MachineLearningController;
 import co.edu.icesi.nextfruit.modules.Model;
 import co.edu.icesi.nextfruit.mvc.interfaces.Attachable;
 import co.edu.icesi.nextfruit.mvc.interfaces.Initializable;
@@ -92,6 +93,8 @@ public class MachineLearningWindow extends KFrame implements Initializable, Upda
 		
 		//	Start controller
 		
+		new MachineLearningController().init(model, this);
+		
 		
 		//	End initialization
 		
@@ -147,6 +150,30 @@ public class MachineLearningWindow extends KFrame implements Initializable, Upda
 	
 	public void setBtChooseClassifierDir(JButton btChooseClassifierDir) {
 		this.btChooseClassifierDir = btChooseClassifierDir;
+	}
+
+	public JTextField getTfImagesField() {
+		return tfImagesField;
+	}
+
+	public void setTfImagesFieldText(String tfImagesField) {
+		this.tfImagesField.setText(tfImagesField);
+	}
+
+	public JTextField getTfDataField() {
+		return tfDataField;
+	}
+
+	public void setTfDataFieldText(String tfDataField) {
+		this.tfDataField.setText(tfDataField);
+	}
+
+	public JTextField getTfClassifierField() {
+		return tfClassifierField;
+	}
+
+	public void setTfClassifierFieldText(String tfClassifierField) {
+		this.tfClassifierField.setText(tfClassifierField);
 	}
 
 }
