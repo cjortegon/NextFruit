@@ -1,6 +1,7 @@
 package co.edu.icesi.nextfruit.views;
 
 import javax.swing.JButton;
+import javax.swing.JLabel;
 
 import co.edu.icesi.nextfruit.controller.MainMenuController;
 import co.edu.icesi.nextfruit.mvc.interfaces.Attachable;
@@ -12,6 +13,8 @@ public class MainMenuWindow extends KFrame implements Initializable, Updateable 
 
 	private KFrame calibrator, caracterizator, clasification;
 	private JButton calibrationButton, characterizationButton, clasificationButton;
+	private JButton loadSettingsFileButton;
+	private JLabel calibrationFile;
 	private Attachable model;
 
 	public MainMenuWindow() {
@@ -24,11 +27,15 @@ public class MainMenuWindow extends KFrame implements Initializable, Updateable 
 		calibrationButton = new JButton("Calibrar");
 		characterizationButton = new JButton("Caracterizar");
 		clasificationButton = new JButton("Clasificar");
+		loadSettingsFileButton = new JButton("Load Calibration Data From an XML File");
+		calibrationFile = new JLabel("(No calibration file loaded)");
 
 		// Adding objects to window
 		addComponent(calibrationButton, 0, 0, 1, 1, false);
-		addComponent(characterizationButton, 1, 0, 1, 1, false);
-		addComponent(clasificationButton, 2, 0, 1, 1, false);
+		addComponent(calibrationFile, 1, 0, 1, 1, true);
+		addComponent(loadSettingsFileButton, 2, 0, 1, 1, false);
+		addComponent(characterizationButton, 3, 0, 1, 1, false);
+		addComponent(clasificationButton, 4, 0, 1, 1, false);
 
 		// Starting controller
 		new MainMenuController().init(model, this);

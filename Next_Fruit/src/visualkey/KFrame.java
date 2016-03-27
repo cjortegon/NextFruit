@@ -34,6 +34,11 @@ public class KFrame extends JFrame {
 		this.setSize(dimension);
 	}
 
+	public void pack() {
+		super.pack();
+		setLocationRelativeTo(null);
+	}
+
 	public Image getImage(String path){
 		return Toolkit.getDefaultToolkit().getImage(getClass().getResource(path));
 	}
