@@ -1,9 +1,9 @@
 package co.edu.icesi.nextfruit.modules;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 
 import co.edu.icesi.nextfruit.modules.computervision.FeaturesExtract;
@@ -13,46 +13,61 @@ import co.edu.icesi.nextfruit.modules.model.ColorDistribution;
 import co.edu.icesi.nextfruit.modules.model.MatchingColor;
 import co.edu.icesi.nextfruit.modules.model.PolygonWrapper;
 import co.edu.icesi.nextfruit.util.Statistics;
+import weka.classifiers.Classifier;
 import weka.classifiers.bayes.NaiveBayes;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
 
+/**
+ * This class gets all the features from the images loaded
+ */
 public class ModelBuilder {
+
+	public static final String NAIVE_BAYES = "NaiveBayes";
+	public static final String[] MODEL_TYPES = new String[]{NAIVE_BAYES};
 
 	private WekaClassifier classifier;
 	private Instances instances;
-	private String trainingSet;
+	private ArrayList<File> images;
 	private List<MatchingColor> matchingColors;
 	private boolean meanActive, standardDeviationActive, skeewnessActive, kurtosisActive, areaActive, perimeterActive;
+	private boolean hasLoadedImages, hasLoadedTrainingSet;
 
 	/**
-	 * This class gets all the features from the images loaded
+	 * Starts a new classifier class
 	 */
 	public ModelBuilder() {
 		this.classifier = new WekaClassifier();
 	}
 
-	public void obtainTrainingSet(File folder, String destinationFile, CameraCalibration cameraCalibration) {
-		obtainTrainingSet(folder, "-", destinationFile, cameraCalibration);
-	}
-
-	public void obtainTrainingSet(File folder, String classSeparator, String destinationFile, CameraCalibration calibration) {
-
-		// Creating temporal matching colors
-		matchingColors = new ArrayList<>();
-		matchingColors.add(new MatchingColor(new double[]{0.5, 0.5, 0.75}, 0.05, calibration.getInverseWorkingSpaceMatrix()));
-
-		// Reading files and validating if is in JPEG or PNG format
+	/**
+	 * This method reads all the files from the given folder and validates if is a JPEG PNG image.
+	 * @param folder Directory This is the location where the fruit images are located.
+	 */
+	public void loadImages(File folder) {
 		File[] files = folder.listFiles();
-		LinkedList<File> images = new LinkedList<>();
+		images = new ArrayList<>();
 		for (File file : files) {
 			if(file.isFile() && !file.isHidden() &&
 					(file.getName().endsWith(".jpg") || file.getName().endsWith(".jpeg") || file.getName().endsWith(".png"))) {
 				images.add(file);
 			}
 		}
+	}
+
+	/**
+	 * This class uses the process the loaded images to create a training set placed in the WekaClassifier (classifier).
+	 * @param classSeparator The special character or expression that separates the tag from the fruit class and the name of the specific instance.
+	 * @param destinationFile The destination file where the training set will be saved.
+	 * @param calibration The calibration settings.
+	 */
+	public void processTrainingSet(String classSeparator, File destinationFile, CameraCalibration calibration) {
+
+		// Creating temporal matching colors
+		matchingColors = new ArrayList<>();
+		matchingColors.add(new MatchingColor(new double[]{0.5, 0.5, 0.75}, 0.05, calibration.getInverseWorkingSpaceMatrix()));
 
 		// Starting instances container
 		int numberOfImages = images.size();
@@ -103,16 +118,55 @@ public class ModelBuilder {
 			count ++;
 		}
 
-		this.classifier.saveDataSetIntoFile(instances, trainingSet);
+		this.classifier.saveDataSetIntoFile(instances, destinationFile.getAbsolutePath());
+		this.hasLoadedTrainingSet = true;
 	}
 
-	public void loadTrainingSet(String fileName) {
-		this.trainingSet = fileName;
-		this.classifier.LoadDataSetFromFile(fileName);
+	/**
+	 * Loads a training set from the given file.
+	 * @param fileName Location of the file that contains the training set.
+	 */
+	public void loadTrainingSet(File fileName) {
+		try {
+			this.classifier.loadDataSetFromFile(fileName.getAbsolutePath());
+			this.hasLoadedTrainingSet = true;
+		} catch (IOException e) {
+			this.hasLoadedTrainingSet = false;
+		}
 	}
 
-	public void trainClassifier(String classifierDestination) {
-		this.classifier.trainClassifier(new NaiveBayes(), trainingSet, classifierDestination);
+	/**
+	 * This method can only be used if either processTrainingSet or loadTrainingSet have been called.
+	 * @param classifierDestination The destination file where the model will be saved.
+	 * @param type The type of machine learning that will be created.
+	 * @return If the operation was successfully finished.
+	 */
+	public boolean trainClassifier(File classifierDestination, String type) {
+		if(hasLoadedTrainingSet) {
+			Classifier classifierType = null;
+			switch (type) {
+			case "":
+				classifierType = new NaiveBayes();
+				break;
+			}
+			if(classifierType != null) {
+				this.classifier.trainClassifier(classifierType, null, classifierDestination.getAbsolutePath());
+				return true;
+			}
+		}
+		return false;
 	}
+
+	// ************************ ACCESS METHODS ************************
+
+	public boolean hasLoadedImages() {
+		return hasLoadedImages;
+	}
+
+	public ArrayList<File> getImages() {
+		return images;
+	}
+
+	// ************************ ACCESS METHODS ************************
 
 }
