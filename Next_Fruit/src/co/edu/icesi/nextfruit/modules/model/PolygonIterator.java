@@ -1,11 +1,13 @@
-package co.edu.icesi.nextfruit.util;
+package co.edu.icesi.nextfruit.modules.model;
 
 import java.util.Iterator;
 
 import org.opencv.core.Point;
 
-import co.edu.icesi.nextfruit.modules.model.PolygonWrapper;
-
+/**
+ * This object is used to iterate over all the containing points inside a polygon. Points are defined as absolute values.
+ * @author cjortegon
+ */
 public class PolygonIterator implements Iterator<Point> {
 
 	private PolygonWrapper polygon;
@@ -13,6 +15,10 @@ public class PolygonIterator implements Iterator<Point> {
 	private int top, bottom, left, right;
 	private int x, y;
 
+	/**
+	 * This constructor is used by PolygonWrapper in getIterator method.
+	 * @param polygon
+	 */
 	public PolygonIterator(PolygonWrapper polygon) {
 		this.polygon = polygon;
 		this.top = (int) Math.ceil(polygon.getTop());

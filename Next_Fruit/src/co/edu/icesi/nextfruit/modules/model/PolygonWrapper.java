@@ -7,19 +7,34 @@ import org.opencv.core.Mat;
 import org.opencv.core.Point;
 
 import co.edu.icesi.nextfruit.util.Geometry;
-import co.edu.icesi.nextfruit.util.PolygonIterator;
 
+/**
+ * This class wraps a list of Point objects that form a polygon.
+ * It permits to execute polygon operations over it.
+ * PolygonWrapper natural order is calculated using a spatial approach where vertical is evaluated first (top to bottom) and horizontal after (left to right).
+ * @author cjortegon
+ */
 public class PolygonWrapper implements Comparable<PolygonWrapper> {
 
+	/**
+	 * The list of points that form the polygon.
+	 */
 	private Point[] box;
+
+	// Properties
 	private Point center;
 	private double perimeter, area;
 	private double top, bottom, left, right;
 
-	public PolygonWrapper(Point[] box, boolean reduceToSquare) {
+	/**
+	 * Constructor
+	 * @param box The list of points to start the polygon
+	 * @param reduceToRectangular True if you want to reduce the polygon into rectangular form.
+	 */
+	public PolygonWrapper(Point[] box, boolean reduceToRectangular) {
 		this.box = box;
-		if(reduceToSquare)
-			reduceToSquare();
+		if(reduceToRectangular)
+			reduceToRectangular();
 		Point last = null;
 		double cordX[] = new double[box.length];
 		double cordY[] = new double[box.length];
@@ -45,7 +60,10 @@ public class PolygonWrapper implements Comparable<PolygonWrapper> {
 		getBoundaries();
 	}
 
-	public void reduceToSquare() {
+	/**
+	 * Reduces the polygon to a rectangular form.
+	 */
+	public void reduceToRectangular() {
 		double xStart = Double.MAX_VALUE, xEnd = Double.MIN_VALUE, yStart = Double.MAX_VALUE, yEnd = Double.MIN_VALUE;
 		for (Point p : box) {
 			if(p.x < xStart)
@@ -61,6 +79,10 @@ public class PolygonWrapper implements Comparable<PolygonWrapper> {
 				new Point(xEnd, yEnd), new Point(xStart, yEnd)};
 	}
 
+	/**
+	 * Groups closed points to reduce the number of needed points that describe the figure.
+	 * This operation is made by angles matching. Removes all the edges with angles smaller than 30 degrees.
+	 */
 	public void reduceBoxPoints() {
 		Point last = null;
 		ArrayList<Point> newPoints = new ArrayList<>();
@@ -73,7 +95,7 @@ public class PolygonWrapper implements Comparable<PolygonWrapper> {
 				if(lastAngle == null) {
 					newPoints.add(point);
 					lastAngle = angle;
-				} else if(Math.abs(lastAngle - angle) > Math.PI/4) {
+				} else if(Math.abs(lastAngle - angle) > Math.PI/6) {
 					newPoints.add(point);
 					lastAngle = angle;
 				}
@@ -86,6 +108,14 @@ public class PolygonWrapper implements Comparable<PolygonWrapper> {
 		}
 	}
 
+	/**
+	 * Returns the average RGB color using a Mat object.
+	 * It works correctly only with rectangular figures with edges aligned to X and Y axes.
+	 * This method is deprecated. Use the PolygonIterator and calculate the average color by yourself.
+	 * @param mat The image to get the colors.
+	 * @return The average RGB value in double[] format.
+	 */
+	@Deprecated
 	public double[] getAverageRGB(Mat mat) {
 		double xStart = Double.MAX_VALUE, xEnd = Double.MIN_VALUE, yStart = Double.MAX_VALUE, yEnd = Double.MIN_VALUE;
 		for (Point p : box) {
@@ -111,28 +141,39 @@ public class PolygonWrapper implements Comparable<PolygonWrapper> {
 		return new double[]{r/pixels, g/pixels, b/pixels};
 	}
 
+	/**
+	 * @return The list of points that form the polygon.
+	 */
 	public Point[] getPolygon() {
 		return box;
 	}
 
+	/**
+	 * @return The calculated center of mass from the polygon.
+	 */
 	public Point getCenter() {
 		return center;
 	}
 
+	/**
+	 * @return The calculated contour from the polygon.
+	 */
 	public double getPerimeter() {
 		return perimeter;
 	}
 
+	/**
+	 * @return The calculated area from the polygon.
+	 */
 	public double getArea() {
 		return area;
 	}
 
+	/**
+	 * @return The average size length from each side of the polygon.
+	 */
 	public double getAverageSideLength() {
 		return perimeter / (box.length-1);
-	}
-
-	public int getNumberOfSides() {
-		return box.length;
 	}
 
 	private void getBoundaries() {
@@ -166,18 +207,30 @@ public class PolygonWrapper implements Comparable<PolygonWrapper> {
 		return c;
 	}
 
+	/**
+	 * @return The top margin from the figure.
+	 */
 	public double getTop() {
 		return top;
 	}
 
+	/**
+	 * @return The bottom margin from the figure.
+	 */
 	public double getBottom() {
 		return bottom;
 	}
 
+	/**
+	 * @return The left margin from the figure.
+	 */
 	public double getLeft() {
 		return left;
 	}
 
+	/**
+	 * @return The right margin from the figure.
+	 */
 	public double getRight() {
 		return right;
 	}
