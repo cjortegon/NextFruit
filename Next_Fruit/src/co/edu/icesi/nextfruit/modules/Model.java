@@ -2,6 +2,7 @@ package co.edu.icesi.nextfruit.modules;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.attribute.AclEntry.Builder;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -26,14 +27,25 @@ public class Model implements Attachable {
 	private static final int CALIBRATE = 0;
 	private static final int EXTRACT = 1;
 
-	// Private attributes
+	// MVC objects
 	private LinkedList<Updateable> updateables;
+
+	// Calibration module
 	private ColorChecker colorChecker;
 	private SizeCalibrator sizeCalibrator;
 	private CalibrationDataHandler calibrationDataHandler;
+
+	// Computer vision module
 	private FeaturesExtract featuresExtract;
 	private List<MatchingColor> matchingColors;
 
+	// Machine learning module
+	private ModelBuilder modelBuilder;
+
+	/**
+	 * Creates an empty model ready to interact with all the classes from specific modules.
+	 * This starts the OpenCV library
+	 */
 	public Model() {
 		this.updateables = new LinkedList<>();
 		// Starting OpenCV
@@ -87,11 +99,6 @@ public class Model implements Attachable {
 		updateAll();
 	}
 
-	//	public void startCalDataHandler(){
-	//		calibrationDataHandler = new CalibrationDataHandler();
-	//		updateAll();
-	//	}
-
 	public void calibrate(File conversionCsv, double gridSize) throws IOException {
 		if(colorChecker != null) {
 			colorChecker.process(MatrixReader.readCameraSettings(conversionCsv.getAbsolutePath()));
@@ -105,7 +112,7 @@ public class Model implements Attachable {
 	/**
 	 * This method saves the particular calibration data, of a given camera, as an XML file in disk.
 	 * @param file File object with the information about the XML file to save.
-	 * @param rgbs array containing the information about the rgb colors of each box in a colorchecker.
+	 * @param rgbs array containing the information about the RGB colors from each box in the colorchecker.
 	 * @return boolean, represents if file was saved correctly or not.
 	 */
 	public boolean saveCalibrationData(File file, int[][][] rgbs, double pixelsxCm){			
@@ -189,11 +196,50 @@ public class Model implements Attachable {
 	}
 
 	// ******************* CHARACTERIZATION MODULE ********************
-	
+
 	// ******************* MACHINE LEARNING MODULE ********************
-	
-	
-	
+
+	/**
+	 * Loads the image file names from the given folder.
+	 * @param folder This is the location where the fruit images are located.
+	 */
+	public void loadImagesForTraining(File folder) {
+		if(folder != null && folder.isDirectory()) {
+			this.modelBuilder = new ModelBuilder();
+			this.modelBuilder.loadImages(folder);
+		}
+	}
+
+	/**
+	 * Loads a training set previously saved.
+	 * @param file The location of the file with the training set.
+	 */
+	public void loadTrainingSet(File file) {
+		this.modelBuilder = new ModelBuilder();
+		this.modelBuilder.loadTrainingSet(file);
+	}
+
+	/**
+	 * This method has to be called after loadImagesForTraining, it extracts the image features and creates a new training set.
+	 * @param destinationFile The file where the training set will be saved.
+	 */
+	public void processTrainingSet(File destinationFile) {
+		if(modelBuilder != null && modelBuilder.hasLoadedImages()) {
+			this.modelBuilder.processTrainingSet("-", destinationFile, getCameraCalibration());
+		}
+	}
+
+	/**
+	 * This method has to be called if either processTrainingSet or loadTrainingSet have been called.
+	 * @param destinationFile The file where the model will be saved.
+	 * @param type The type of machine learning to use for building the new model.
+	 */
+	public void trainClassifier(File destinationFile, String type) {
+		if(modelBuilder != null) {
+			this.modelBuilder.trainClassifier(destinationFile, type);
+		}
+	}
+
 	// ******************* MACHINE LEARNING MODULE ********************
 
 	// ************************ ACCESS METHODS ************************
