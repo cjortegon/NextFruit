@@ -50,27 +50,35 @@ public class WekaClassifier {
 	 * Initialize the features vector.
 	 */
 	public void defineFeaturesVector(){
-
+		
 		//****************************************************************
 		//	Atributos temporales -> Falta complementar estos, con los 
 		//	atributos faltantes que falta definir.
 		//****************************************************************
-
+		
 		//	Create and Initialize Attributes
-
+	
 		Attribute mean = new Attribute("mean");
 		Attribute sD = new Attribute("standard-deviation");
 		Attribute skewness = new Attribute("skewness");
 		Attribute kurtosis = new Attribute("kurtosis");
+		Attribute red = new Attribute("red-percentage");
+		Attribute green = new Attribute("green-percentage");
+		Attribute area = new Attribute("area");
 
 		//	Declare the feature vector
-
+		
 		features = new ArrayList<Attribute>(4);
 		features.add(mean);
 		features.add(sD);
 		features.add(skewness);
 		features.add(kurtosis);
+		features.add(red);
+		features.add(green);
+		features.add(area);
+				
 	}
+
 
 	/**
 	 * Classify a given unknown instance, which is the first element in an Instances object

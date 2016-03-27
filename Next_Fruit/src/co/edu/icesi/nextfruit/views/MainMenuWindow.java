@@ -12,9 +12,13 @@ import visualkey.KFrame;
 public class MainMenuWindow extends KFrame implements Initializable, Updateable {
 
 	private KFrame calibrator, caracterizator, clasification;
+<<<<<<< HEAD
 	private JButton calibrationButton, characterizationButton, clasificationButton;
 	private JButton loadSettingsFileButton;
 	private JLabel calibrationFile;
+=======
+	private JButton calibrationButton, characterizationButton, clasificationButton, trainingButton;
+>>>>>>> e8ea9e4583193c17b7ce5d297546c2165944a6e9
 	private Attachable model;
 
 	public MainMenuWindow() {
@@ -24,6 +28,7 @@ public class MainMenuWindow extends KFrame implements Initializable, Updateable 
 	public void init(Attachable model, Updateable view) {
 
 		// Initializing objects
+<<<<<<< HEAD
 		calibrationButton = new JButton("Calibrar");
 		characterizationButton = new JButton("Caracterizar");
 		clasificationButton = new JButton("Clasificar");
@@ -36,6 +41,19 @@ public class MainMenuWindow extends KFrame implements Initializable, Updateable 
 		addComponent(loadSettingsFileButton, 2, 0, 1, 1, false);
 		addComponent(characterizationButton, 3, 0, 1, 1, false);
 		addComponent(clasificationButton, 4, 0, 1, 1, false);
+=======
+		calibrationButton = new JButton("Camera Calibration");
+		characterizationButton = new JButton("Fruit Characterisation");
+		clasificationButton = new JButton("Fruit Classification");
+		trainingButton = new JButton("Training And Configuration");
+		
+
+		// Adding objects to window
+		addComponent(calibrationButton, 0, 0, 1, 1, false);
+		addComponent(characterizationButton, 1, 0, 1, 1, false);
+		addComponent(clasificationButton, 2, 0, 1, 1, false);
+		addComponent(trainingButton, 3, 0, 1, 1, false);
+>>>>>>> e8ea9e4583193c17b7ce5d297546c2165944a6e9
 
 		// Starting controller
 		new MainMenuController().init(model, this);
@@ -68,6 +86,14 @@ public class MainMenuWindow extends KFrame implements Initializable, Updateable 
 
 	public void setClasificationButton(JButton clasificationButton) {
 		this.clasificationButton = clasificationButton;
+	}
+
+	public JButton getTrainingButton() {
+		return trainingButton;
+	}
+
+	public void setTrainingButton(JButton trainingButton) {
+		this.trainingButton = trainingButton;
 	}
 
 	@Override
