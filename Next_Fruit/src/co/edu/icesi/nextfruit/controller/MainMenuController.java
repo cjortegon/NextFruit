@@ -9,6 +9,7 @@ import co.edu.icesi.nextfruit.mvc.interfaces.Initializable;
 import co.edu.icesi.nextfruit.mvc.interfaces.Updateable;
 import co.edu.icesi.nextfruit.views.CalibrationWindow;
 import co.edu.icesi.nextfruit.views.ComputerVisionWindow;
+import co.edu.icesi.nextfruit.views.MachineLearningWindow;
 import co.edu.icesi.nextfruit.views.MainMenuWindow;
 
 public class MainMenuController implements Initializable, ActionListener {
@@ -16,9 +17,11 @@ public class MainMenuController implements Initializable, ActionListener {
 	private static final String CALIBRATION = "Calibration";
 	private static final String CHARACTERIZATION = "Charaterization";
 	private static final String CLASIFICATION = "Clasificator";
+	private static final String TRAINING = "Training";
 	
 	private CalibrationWindow calibration;
 	private ComputerVisionWindow charaterization;
+	private MachineLearningWindow training;
 
 	private Model model;
 	private Updateable view;
@@ -38,6 +41,8 @@ public class MainMenuController implements Initializable, ActionListener {
 		mainMenu.getCharacterizationButton().addActionListener(this);
 		mainMenu.getClasificationButton().setActionCommand(CLASIFICATION);
 		mainMenu.getClasificationButton().addActionListener(this);
+		mainMenu.getTrainingButton().setActionCommand(TRAINING);
+		mainMenu.getTrainingButton().addActionListener(this);
 	}
 
 	@Override
@@ -60,6 +65,14 @@ public class MainMenuController implements Initializable, ActionListener {
 			break;
 
 		case CLASIFICATION:
+			break;
+			
+		case TRAINING:
+			if(training == null){
+				training = new MachineLearningWindow();
+				training.init(model, null);
+			}
+			training.setVisible(true);
 			break;
 		}
 	}

@@ -11,7 +11,7 @@ import visualkey.KFrame;
 public class MainMenuWindow extends KFrame implements Initializable, Updateable {
 
 	private KFrame calibrator, caracterizator, clasification;
-	private JButton calibrationButton, characterizationButton, clasificationButton;
+	private JButton calibrationButton, characterizationButton, clasificationButton, trainingButton;
 	private Attachable model;
 
 	public MainMenuWindow() {
@@ -21,14 +21,17 @@ public class MainMenuWindow extends KFrame implements Initializable, Updateable 
 	public void init(Attachable model, Updateable view) {
 
 		// Initializing objects
-		calibrationButton = new JButton("Calibrar");
-		characterizationButton = new JButton("Caracterizar");
-		clasificationButton = new JButton("Clasificar");
+		calibrationButton = new JButton("Camera Calibration");
+		characterizationButton = new JButton("Fruit Characterisation");
+		clasificationButton = new JButton("Fruit Classification");
+		trainingButton = new JButton("Training And Configuration");
+		
 
 		// Adding objects to window
 		addComponent(calibrationButton, 0, 0, 1, 1, false);
 		addComponent(characterizationButton, 1, 0, 1, 1, false);
 		addComponent(clasificationButton, 2, 0, 1, 1, false);
+		addComponent(trainingButton, 3, 0, 1, 1, false);
 
 		// Starting controller
 		new MainMenuController().init(model, this);
@@ -61,6 +64,14 @@ public class MainMenuWindow extends KFrame implements Initializable, Updateable 
 
 	public void setClasificationButton(JButton clasificationButton) {
 		this.clasificationButton = clasificationButton;
+	}
+
+	public JButton getTrainingButton() {
+		return trainingButton;
+	}
+
+	public void setTrainingButton(JButton trainingButton) {
+		this.trainingButton = trainingButton;
 	}
 
 	@Override
