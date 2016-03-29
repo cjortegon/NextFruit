@@ -57,6 +57,13 @@ public class WekaClassifier {
 		//****************************************************************
 		
 		//	Create and Initialize Attributes
+		
+		ArrayList<String> qualityClassValues = new ArrayList<String>(4);
+		qualityClassValues.add("5r");
+		qualityClassValues.add("5v");
+		qualityClassValues.add("er");
+		qualityClassValues.add("fea");
+		
 		Attribute area = new Attribute("area");
 		Attribute mean = new Attribute("mean");
 		Attribute sD = new Attribute("standard-deviation");
@@ -65,8 +72,9 @@ public class WekaClassifier {
 		Attribute red = new Attribute("red-percentage");
 		Attribute green = new Attribute("green-percentage");
 		Attribute brown = new Attribute("brown-percentage");
-		Attribute className = new Attribute("class-name");
+		Attribute qualityClass = new Attribute("quality", qualityClassValues);
 
+		
 		//	Declare the feature vector
 		features = new ArrayList<Attribute>(9);
 		features.add(area);
@@ -77,7 +85,7 @@ public class WekaClassifier {
 		features.add(red);
 		features.add(green);
 		features.add(brown);
-		features.add(className);
+		features.add(qualityClass);
 	}
 
 	/**
