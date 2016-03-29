@@ -37,8 +37,7 @@ public class CalibrationResultsWindow extends KFrame implements Initializable, U
 	private JButton btSaveSettings;
 	private int[][][] rgbs;
 	private double pixelsxCm;
-	
-	
+
 	@Override
 	public void init(Attachable model, Updateable view) {
 
@@ -54,69 +53,61 @@ public class CalibrationResultsWindow extends KFrame implements Initializable, U
 		lbPixelsXCm.setBorder(new EtchedBorder(EtchedBorder.LOWERED));
 		lbColorCal.setBorder(new EtchedBorder(EtchedBorder.LOWERED));
 
-		
 		// Attaching to model
 		this.model = (Model) model;
 		model.attach(this);
 
-		
 		//Label
 		String pixelsXCm = this.model.getSizeCalibrator().getPixelsForCentimeter() + "";
 		lbPixelsXCm.setText(" Simple Spatial Calibration ");
 		lbPixelsXCmValue.setText(" There are " + pixelsXCm + " pixels per centimeter. ");
 
 		lbPixelsXCmValue.setFont(lbPixelsXCmValue.getFont().deriveFont(Font.PLAIN));
-		
-		
+
 		//Grid
 		ColorChecker cC = this.model.getColorChecker();
 
 		Object[] columnNames = {"", "", "", "", "", ""};
 		Object[][] rowData = new Object[4][6];
-		
+
 		double[][][] rgbValues = cC.getReadRGB();
 		double[][][] labValues = cC.getReadLAB();
-		
+
 		rgbs = new int[4][6][3];
 		pixelsxCm = Double.parseDouble(pixelsXCm);
-		
-		
+
 		for (int i = 0; i < 4; i++){
 			for (int j = 0; j < 6; j++){
-				
+
 				int r = (int)rgbValues[i][j][0];
 				int g = (int)rgbValues[i][j][1];
 				int b = (int)rgbValues[i][j][2];
-				
+
 				rowData[i][j] = "<html><b><center>" + "RGB: " + r +
 						", " + g + ", " + b + "<br>" +
 						"Lab: " + (int)labValues[i][j][0] + ", " + (int)labValues[i][j][1] + ", " +
 						(int)labValues[i][j][2] + "</center></b></html>";
-				
+
 				rgbs[i][j][0] = r;
 				rgbs[i][j][1] = g;
 				rgbs[i][j][2] = b;
-				
 			}
 		}
 
-		
 		colorSpacesGrid = new JTable(rowData, columnNames);	
-		
+
 		colorSpacesGrid.setRowHeight(60);
 		colorSpacesGrid.setBorder(new LineBorder(Color.BLACK));
 		colorSpacesGrid.setGridColor(Color.BLACK);
-		
+
 		colorSpacesGrid.getColumnModel().getColumn(0).setCellRenderer(new CustomRenderer());
 		colorSpacesGrid.getColumnModel().getColumn(1).setCellRenderer(new CustomRenderer());
 		colorSpacesGrid.getColumnModel().getColumn(2).setCellRenderer(new CustomRenderer());
 		colorSpacesGrid.getColumnModel().getColumn(3).setCellRenderer(new CustomRenderer());
 		colorSpacesGrid.getColumnModel().getColumn(4).setCellRenderer(new CustomRenderer());
 		colorSpacesGrid.getColumnModel().getColumn(5).setCellRenderer(new CustomRenderer());
-		
-		setTableWidth();
-		
 
+		setTableWidth();
 
 		//Adding objects to window
 		addComponent(lbPixelsXCm, 1, 0, 1, 1, false);
@@ -124,19 +115,15 @@ public class CalibrationResultsWindow extends KFrame implements Initializable, U
 		addComponent(lbColorCal, 3, 0, 1, 1, false);
 		addComponent(colorSpacesGrid, 4, 0, 1, 1, true);
 		addComponent(btSaveSettings, 5, 0, 1, 1, true);
-		
 
-		
 		// Starting controller
 		new CalibrationResultsController().init(model, this);
 
 		// Ending initialization
 		pack();
 		setResizable(false);
-		
 	}
 
-	
 	@Override
 	public void update() {
 		if(isVisible()) {
@@ -144,12 +131,10 @@ public class CalibrationResultsWindow extends KFrame implements Initializable, U
 			repaint();
 		}
 	}
-	
-	
-	private void setTableWidth(){
+
+	private void setTableWidth() {
 
 		JTableHeader header = colorSpacesGrid.getTableHeader();
-
 		TableCellRenderer defaultHeaderRenderer = null;
 
 		if (header != null)
@@ -159,66 +144,46 @@ public class CalibrationResultsWindow extends KFrame implements Initializable, U
 		TableModel data = colorSpacesGrid.getModel();
 
 		int margin = columns.getColumnMargin(); // only JDK1.3
-
 		int rowCount = data.getRowCount();
-
-		//int totalWidth = 0;
 
 		for (int i = columns.getColumnCount() - 1; i >= 0; --i) {
 			TableColumn column = columns.getColumn(i);
-
 			int columnIndex = column.getModelIndex();
-
 			int width = -1;
-
 			TableCellRenderer h = column.getHeaderRenderer();
 
-			if (h == null){
+			if (h == null)
 				h = defaultHeaderRenderer;
-			}
 
-			if (h != null) // Not explicitly impossible
-			{
+			if (h != null) { // Not explicitly impossible
 				Component c = h.getTableCellRendererComponent(colorSpacesGrid, column.getHeaderValue(), false, false,
 						-1, i);
-
 				width = c.getPreferredSize().width;
 			}
 
 			for (int row = rowCount - 1; row >= 0; --row) {
 				TableCellRenderer r = colorSpacesGrid.getCellRenderer(row, i);
-
-				Component c = r.getTableCellRendererComponent(colorSpacesGrid, data.getValueAt(row, columnIndex), false,
-						false, row, i);
-
+				Component c = r.getTableCellRendererComponent(colorSpacesGrid, data.getValueAt(row, columnIndex),
+						false, false, row, i);
 				width = Math.max(width, c.getPreferredSize().width);
 			}
 
-			if (width >= 0){
+			if (width >= 0)
 				column.setPreferredWidth(width + margin); // <1.3: without margin
-			}
-
-			//totalWidth += column.getPreferredWidth();
-
 		}
-
 	}
-
 
 	public JButton getBtSaveSettings() {
 		return btSaveSettings;
 	}
 
-
 	public void setBtSaveSettings(JButton btSaveSettings) {
 		this.btSaveSettings = btSaveSettings;
 	}
 
-
 	public int[][][] getRgbs() {
 		return rgbs;
 	}
-
 
 	public double getPixelsxCm() {
 		return pixelsxCm;

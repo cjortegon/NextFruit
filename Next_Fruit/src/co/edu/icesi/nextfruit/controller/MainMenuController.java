@@ -49,7 +49,7 @@ public class MainMenuController implements Initializable, ActionListener {
 		view.getClasificationButton().setEnabled(false);
 		view.getTrainingButton().setActionCommand(TRAINING);
 		view.getTrainingButton().addActionListener(this);
-		view.getTrainingButton().setEnabled(false);
+//		view.getTrainingButton().setEnabled(false);
 	}
 
 	@Override
@@ -66,7 +66,7 @@ public class MainMenuController implements Initializable, ActionListener {
 			break;
 
 		case LOAD_SETTINGS:
-			File settingsFile = FilesUtility.loadFile("Load camera calibration file");
+			File settingsFile = FilesUtility.loadFile(view, "Load camera calibration file");
 			if(settingsFile != null) {
 				boolean result = this.model.loadCalibrationData(settingsFile);
 				if(!result) {

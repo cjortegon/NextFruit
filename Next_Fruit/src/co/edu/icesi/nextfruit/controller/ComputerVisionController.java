@@ -23,7 +23,6 @@ import co.edu.icesi.nextfruit.views.ComputerVisionWindow;
 public class ComputerVisionController implements Initializable, ActionListener, MouseListener, MouseMotionListener {
 
 	private static final String LOAD_IMAGE = "LoadImage";
-//	private static final String LOAD_SETTINGS = "LoadSettings";
 	private static final String PROCESS = "Process";
 	private static final String DISPLAY_IMAGE = "DispImage";
 	private static final String DISPLAY_XYY = "DisplayXYY";
@@ -47,8 +46,6 @@ public class ComputerVisionController implements Initializable, ActionListener, 
 	private void addListeners() {
 		view.getLoadButton().setActionCommand(LOAD_IMAGE);
 		view.getLoadButton().addActionListener(this);
-//		view.getLoadSettingsFileButton().setActionCommand(LOAD_SETTINGS);
-//		view.getLoadSettingsFileButton().addActionListener(this);
 		view.getProcessButton().setActionCommand(PROCESS);
 		view.getProcessButton().addActionListener(this);
 		view.getUpdateMatchingColorsButton().setActionCommand(MATCHING_COLORS);
@@ -73,24 +70,10 @@ public class ComputerVisionController implements Initializable, ActionListener, 
 		switch (e.getActionCommand()) {
 
 		case LOAD_IMAGE:
-			File file = FilesUtility.loadFile("Load your fruit image");
+			File file = FilesUtility.loadFile(view, "Load your fruit image");
 			if(file != null)
 				model.startFeaturesExtract(file.getAbsolutePath());
 			break;
-
-//		case LOAD_SETTINGS:
-//			File settingsFile = FilesUtility.loadFile("Load camera calibration file");
-//			if(settingsFile != null) {
-//				boolean result = this.model.loadCalibrationData(settingsFile);
-//				if(!result) {
-//					view.showMessage("Couldn't load the chosen file! Make sure it's a valid file.");
-//					view.getCalibrationFile().setText("(No calibration file loaded)");
-//				} else {
-//					view.showMessage("Settings loaded successfully!");
-//					view.getCalibrationFile().setText("Calibration file: "+settingsFile.getName());
-//				}
-//			}
-//			break;
 
 		case PROCESS:
 			if(!model.extractFeatures())

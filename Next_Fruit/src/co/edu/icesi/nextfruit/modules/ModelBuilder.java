@@ -25,8 +25,10 @@ import weka.core.Instances;
  */
 public class ModelBuilder {
 
-	public static final String NAIVE_BAYES = "NaiveBayes";
-	public static final String[] MODEL_TYPES = new String[]{NAIVE_BAYES};
+	public static final String NAIVE_BAYES = "Naive Bayes";
+	public static final String SECOND_TYPE = "Second type";
+	public static final String THIRD_TYPE = "Third type";
+	public static final String[] MODEL_TYPES = new String[]{NAIVE_BAYES, SECOND_TYPE, THIRD_TYPE};
 
 	private WekaClassifier classifier;
 	private Instances instances;
@@ -34,6 +36,11 @@ public class ModelBuilder {
 	private List<MatchingColor> matchingColors;
 	private boolean meanActive, standardDeviationActive, skeewnessActive, kurtosisActive, areaActive, perimeterActive;
 	private boolean hasLoadedImages, hasLoadedTrainingSet;
+	private double[][] definedColors = new double[][]{
+		{0.30,0.49,0.11},
+		{0.62,0.31,0.15},
+		{0.37,0.35,0.03}
+	};
 
 	/**
 	 * Starts a new classifier class
@@ -50,11 +57,14 @@ public class ModelBuilder {
 		File[] files = folder.listFiles();
 		images = new ArrayList<>();
 		for (File file : files) {
-			if(file.isFile() && !file.isHidden() &&
-					(file.getName().endsWith(".jpg") || file.getName().endsWith(".jpeg") || file.getName().endsWith(".png"))) {
-				images.add(file);
+			if(file.isFile() && !file.isHidden()) {
+				String name = file.getName().toLowerCase();
+				if(name.toLowerCase().endsWith(".jpg") || name.endsWith(".jpeg") || name.endsWith(".png"))
+					images.add(file);
 			}
 		}
+		hasLoadedImages = true;
+		System.out.println("Total images to train system: "+images.size());
 	}
 
 	/**
@@ -67,14 +77,14 @@ public class ModelBuilder {
 
 		// Creating temporal matching colors
 		matchingColors = new ArrayList<>();
-		matchingColors.add(new MatchingColor(new double[]{0.5, 0.5, 0.75}, 0.05, calibration.getInverseWorkingSpaceMatrix()));
+		for (double[] color : definedColors)
+			matchingColors.add(new MatchingColor(new double[]{color[0], color[1], 0.75}, color[2], calibration.getInverseWorkingSpaceMatrix()));
 
 		// Starting instances container
 		int numberOfImages = images.size();
 		this.instances = new Instances("strawberry-qualities", classifier.getFeatures(), numberOfImages);
 
 		// Extracting features from images and creating new instances from that
-		System.out.println("Extracting features...");
 		int count = 0;
 		ArrayList<Attribute> list = classifier.getFeatures();
 		for (File file : images) {
@@ -82,6 +92,7 @@ public class ModelBuilder {
 			// Getting class name
 			String fileName = file.getName();
 			String className = fileName.substring(0, fileName.indexOf(classSeparator));
+			System.out.println("Extracting features... ("+className+")");
 
 			// Processing features
 			FeaturesExtract features = new FeaturesExtract(file.getAbsolutePath());
@@ -97,20 +108,22 @@ public class ModelBuilder {
 			Statistics luminantStatistics = features.getLuminanceStatistics();
 			PolygonWrapper polygon = features.getPolygon();
 			int index = 0;
-			double colors[] = new double[2];
+			double colors[] = new double[3];
 			for (ColorDistribution color : matchs)
 				colors[index++] = color.getRepeat()/(double)features.getNumberOfPixels();
 
 			// Creating instances
 			Instance instance = new DenseInstance(9);
-			instance.setValue(list.get(0), luminantStatistics.getMean());
-			instance.setValue(list.get(1), luminantStatistics.getStandardDeviation());
-			instance.setValue(list.get(2), luminantStatistics.getSkewness());
-			instance.setValue(list.get(3), luminantStatistics.getKurtosis());
-			instance.setValue(list.get(4), colors[0]);
-			instance.setValue(list.get(5), colors[1]);
-			instance.setValue(list.get(6), polygon.getArea());
-			instance.setValue(list.get(7), className);
+
+			instance.setValue(list.get(0), polygon.getArea());
+			instance.setValue(list.get(1), luminantStatistics.getMean());
+			instance.setValue(list.get(2), luminantStatistics.getStandardDeviation());
+			instance.setValue(list.get(3), luminantStatistics.getSkewness());
+			instance.setValue(list.get(4), luminantStatistics.getKurtosis());
+			instance.setValue(list.get(5), colors[0]);
+			instance.setValue(list.get(6), colors[1]);
+			instance.setValue(list.get(7), colors[2]);
+			instance.setValue(list.get(8), className);
 			instances.add(instance);
 
 			percent = (int) (((count*3+3)/((double)images.size()*3))*100);

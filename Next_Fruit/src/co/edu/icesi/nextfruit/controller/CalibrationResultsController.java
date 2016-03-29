@@ -4,15 +4,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 
-import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
 import co.edu.icesi.nextfruit.modules.Model;
 import co.edu.icesi.nextfruit.mvc.interfaces.Attachable;
 import co.edu.icesi.nextfruit.mvc.interfaces.Initializable;
 import co.edu.icesi.nextfruit.mvc.interfaces.Updateable;
+import co.edu.icesi.nextfruit.util.FilesUtility;
 import co.edu.icesi.nextfruit.views.CalibrationResultsWindow;
-
 
 /**
  * Controller class.
@@ -45,15 +44,15 @@ public class CalibrationResultsController implements Initializable, ActionListen
 		switch (e.getActionCommand()) {
 
 		case SAVE_SETTINGS:
-			File file = chooseFile();
+			File file = FilesUtility.chooseFileToSave(view, "Save calibration file");
 			if(file != null) {
 				int[][][] rgbs = this.view.getRgbs();
 				double pixelsxCm = this.view.getPixelsxCm();
 				boolean result = this.model.saveCalibrationData(file, rgbs, pixelsxCm);
-				if(!result){
+				if(!result) {
 					JOptionPane.showMessageDialog(this.view,
 							"The calibration data couldn't be saved!");
-				}else{
+				} else {
 					JOptionPane.showMessageDialog(this.view,
 							"Settings saved successfully!");
 				}
@@ -62,19 +61,4 @@ public class CalibrationResultsController implements Initializable, ActionListen
 
 		}
 	}
-
-	/**
-	 * This method return a File object created by the user using the GUI.
-	 * @return File object.
-	 */
-	private File chooseFile(){
-		JFileChooser fc = new JFileChooser();
-		int option = fc.showSaveDialog(this.view);
-		if(option == JFileChooser.APPROVE_OPTION){
-			return fc.getSelectedFile();
-		}else{
-			return null;
-		}
-	}
-
 }

@@ -57,28 +57,28 @@ public class WekaClassifier {
 		//****************************************************************
 		
 		//	Create and Initialize Attributes
-	
+		Attribute area = new Attribute("area");
 		Attribute mean = new Attribute("mean");
 		Attribute sD = new Attribute("standard-deviation");
 		Attribute skewness = new Attribute("skewness");
 		Attribute kurtosis = new Attribute("kurtosis");
 		Attribute red = new Attribute("red-percentage");
 		Attribute green = new Attribute("green-percentage");
-		Attribute area = new Attribute("area");
+		Attribute brown = new Attribute("brown-percentage");
+		Attribute className = new Attribute("class-name");
 
 		//	Declare the feature vector
-		
-		features = new ArrayList<Attribute>(4);
+		features = new ArrayList<Attribute>(9);
+		features.add(area);
 		features.add(mean);
 		features.add(sD);
 		features.add(skewness);
 		features.add(kurtosis);
 		features.add(red);
 		features.add(green);
-		features.add(area);
-				
+		features.add(brown);
+		features.add(className);
 	}
-
 
 	/**
 	 * Classify a given unknown instance, which is the first element in an Instances object
