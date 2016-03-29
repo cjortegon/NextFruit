@@ -140,7 +140,8 @@ public class ModelBuilder {
 			count ++;
 		}
 
-		this.classifier.saveDataSetIntoFile(instances, destinationFile.getAbsolutePath());
+		//getAbsolutePath()
+		this.classifier.saveDataSetIntoFile(instances, destinationFile.getName());
 		this.hasLoadedTrainingSet = true;
 	}
 

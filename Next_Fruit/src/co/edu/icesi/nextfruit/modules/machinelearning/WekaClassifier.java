@@ -28,10 +28,10 @@ import weka.core.SerializationHelper;
  */
 public class WekaClassifier {
 
-	private static final String LOAD_SAVE_PATH = "resources" + System.getProperty("line.separator") +
-			"MachineLearning" + System.getProperty("line.separator"); 
-	private static final String LOG_PATH = "resources" + System.getProperty("line.separator") + 
-			"MachineLearning" + System.getProperty("line.separator") + "log.txt";
+	private static final String LOAD_SAVE_PATH = "resources" + File.separator +
+			"MachineLearning" +  File.separator; 
+	private static final String LOG_PATH = "resources" + File.separator + 
+			"MachineLearning" + File.separator + "log.txt";
 
 	private static Instances trainingSet;
 	private static Instances testSet;
@@ -41,9 +41,21 @@ public class WekaClassifier {
 	 * Class constructor.
 	 */
 	public WekaClassifier(){
+		
+		File temp = new File(LOG_PATH);
+		
+		if(!temp.exists()){
+			try {
+				temp.createNewFile();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
 		if(features == null){
 			defineFeaturesVector();
 		}
+		
 	}
 
 	/**
@@ -288,6 +300,7 @@ public class WekaClassifier {
 	private void writeLog(String message){
 		try {
 			DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+			System.out.println(LOG_PATH);
 			Files.write(Paths.get(LOG_PATH), ("[" + (dateFormat.format(Calendar.getInstance().getTime())) + "]" + message +
 					System.getProperty("line.separator")).getBytes(),
 					StandardOpenOption.APPEND);
