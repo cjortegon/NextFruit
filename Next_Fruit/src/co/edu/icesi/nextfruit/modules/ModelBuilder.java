@@ -91,7 +91,16 @@ public class ModelBuilder {
 
 			// Getting class name
 			String fileName = file.getName();
-			String className = fileName.substring(0, fileName.indexOf(classSeparator));
+			String className = null;
+			try {
+				className = fileName.substring(0, fileName.indexOf(classSeparator));
+			} catch(Exception e1) {
+				try {
+					className = fileName.substring(0, fileName.indexOf("."));
+				} catch(Exception e2) {
+					className = fileName;
+				}
+			}
 			System.out.println("Extracting features... ("+className+")");
 
 			// Processing features
