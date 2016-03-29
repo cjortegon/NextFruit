@@ -49,7 +49,7 @@ public class MainMenuController implements Initializable, ActionListener {
 		view.getClasificationButton().setEnabled(false);
 		view.getTrainingButton().setActionCommand(TRAINING);
 		view.getTrainingButton().addActionListener(this);
-//		view.getTrainingButton().setEnabled(false);
+		view.getTrainingButton().setEnabled(false);
 	}
 
 	@Override
