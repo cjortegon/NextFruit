@@ -29,9 +29,8 @@ import weka.core.SerializationHelper;
 public class WekaClassifier {
 
 	private static final String LOAD_SAVE_PATH = "resources" + File.separator +
-			"MachineLearning" +  File.separator; 
-	private static final String LOG_PATH = "resources" + File.separator + 
-			"MachineLearning" + File.separator + "log.txt";
+			"MachineLearning" +  File.separator;
+	private static final String LOG_PATH = "resources" + File.separator + "log.txt";
 
 	private static Instances trainingSet;
 	private static Instances testSet;
@@ -41,9 +40,9 @@ public class WekaClassifier {
 	 * Class constructor.
 	 */
 	public WekaClassifier(){
-		
+
 		File temp = new File(LOG_PATH);
-		
+
 		if(!temp.exists()){
 			try {
 				temp.createNewFile();
@@ -51,31 +50,31 @@ public class WekaClassifier {
 				e.printStackTrace();
 			}
 		}
-		
+
 		if(features == null){
 			defineFeaturesVector();
 		}
-		
+
 	}
 
 	/**
 	 * Initialize the features vector.
 	 */
 	public void defineFeaturesVector(){
-		
+
 		//****************************************************************
 		//	Atributos temporales -> Falta complementar estos, con los 
 		//	atributos faltantes que falta definir.
 		//****************************************************************
-		
+
 		//	Create and Initialize Attributes
-		
+
 		ArrayList<String> qualityClassValues = new ArrayList<String>(4);
 		qualityClassValues.add("5r");
 		qualityClassValues.add("5v");
 		qualityClassValues.add("er");
 		qualityClassValues.add("fea");
-		
+
 		Attribute area = new Attribute("area");
 		Attribute mean = new Attribute("mean");
 		Attribute sD = new Attribute("standard-deviation");
@@ -86,7 +85,7 @@ public class WekaClassifier {
 		Attribute brown = new Attribute("brown-percentage");
 		Attribute qualityClass = new Attribute("quality", qualityClassValues);
 
-		
+
 		//	Declare the feature vector
 		features = new ArrayList<Attribute>(9);
 		features.add(area);
@@ -129,22 +128,26 @@ public class WekaClassifier {
 	 * @param fileName, name of the ARFF file
 	 * @throws FileNotFoundException
 	 */
-	public void saveDataSetIntoFile(Instances instances, String fileName){
+	public void saveDataSetIntoFile(Instances instances, File file){
 
 		// Keeping a reference to the instances
 		this.trainingSet = instances;
 
 		// Saving the file
 		try {
-			PrintWriter writer = new PrintWriter(LOAD_SAVE_PATH + fileName.trim() + ".arff");
+			PrintWriter writer = new PrintWriter(file.getAbsolutePath() + ".arff");
 			writer.println(instances.toString());
 			writer.close();
 			writeLog("[saveDataSetIntoFile]: Se ha guardado la informacion del data set en " +
-					"el archivo " + fileName + ".arff");
+					"el archivo " + file.getName() + ".arff");
 		} catch (FileNotFoundException e) {
 			writeLog("[saveDataSetIntoFile]: No se pudo guardar el data set");
 			e.printStackTrace();
 		}
+	}
+
+	public void loadDataSetFromFile(File dataToLoad) throws IOException {
+		trainingSet = getDataSetFromFile(dataToLoad);
 	}
 
 	/**
@@ -152,10 +155,9 @@ public class WekaClassifier {
 	 * @param fileName, the file containing the training set data.
 	 * @throws IOException
 	 */
-	public Instances loadDataSetFromFile(String fileName) throws IOException{		
-
+	public Instances getDataSetFromFile(File dataToLoad) throws IOException {
+		String fileName = dataToLoad.getName();
 		try {
-			File dataToLoad = new File(LOAD_SAVE_PATH + fileName.trim() + ".arff");
 			FileReader fReader = new FileReader(dataToLoad);
 			BufferedReader bReader = new BufferedReader(fReader);
 			Instances returnValue = new Instances(bReader);
@@ -181,17 +183,16 @@ public class WekaClassifier {
 	 * @param trainingSetFileName, the name of the file containing the training set.
 	 * @param classifierSaveFileName, the name of the file to save the classifier into.
 	 */
-	public void trainClassifier(Classifier classificationModel, String trainingSetFileName, String classifierSaveFileName){
+	public void trainClassifier(Classifier classificationModel, File trainingSetFileName, File classifierSaveFile) {
 		try {
-			if(trainingSet == null){
-				trainingSet = loadDataSetFromFile(trainingSetFileName);
-			}
+			if(trainingSet == null)
+				loadDataSetFromFile(trainingSetFileName);
 
 			classificationModel.buildClassifier(trainingSet);
 
-			SerializationHelper.write(LOAD_SAVE_PATH + classifierSaveFileName.trim() + ".save", classificationModel);
+			SerializationHelper.write(classifierSaveFile.getAbsolutePath() + ".save", classificationModel);
 			writeLog("[trainClassifier]: Se ha guardado correctamente el clasificador de tipo " +
-					classificationModel.getClass().getSimpleName() + " en el archivo " + classifierSaveFileName.trim()+".save");
+					classificationModel.getClass().getSimpleName() + " en el archivo " + classifierSaveFile.getName()+".save");
 
 		} catch (Exception e) {
 			writeLog("[trainClassifier]: El clasificador entrenado no pudo ser guardado");
@@ -203,8 +204,9 @@ public class WekaClassifier {
 	 * Loads a classifier from a file in disk.
 	 * @param fileName, the name of the file containing the classifier.
 	 * @return classifier object loaded from file.
+	 * @deprecated Cuero: Cambia el String por un File y que no se usen ubicaciones relativas
 	 */
-	public Classifier loadClassifierFromFile(String fileName){
+	public Classifier loadClassifierFromFile(String fileName) {
 		try {
 			Classifier model = (Classifier) SerializationHelper.read(LOAD_SAVE_PATH + fileName.trim() + ".save");
 			writeLog("[loadClassifierFromFile]: Se cargo correctamente el clasificador de tipo " + 
@@ -229,10 +231,10 @@ public class WekaClassifier {
 	public void testClassifierModel(Classifier classificationModel, String trainingSetFileName, String testSetFileName){
 		try {
 			if(trainingSet == null){
-				trainingSet = loadDataSetFromFile(trainingSetFileName);
+				trainingSet = getDataSetFromFile(new File("resources/"+trainingSetFileName));
 			}
 			if(testSet == null){
-				testSet = loadDataSetFromFile(testSetFileName);
+				testSet = getDataSetFromFile(new File("resources/"+testSetFileName));
 			}
 
 			if(trainingSet != null && testSet != null){
@@ -242,8 +244,7 @@ public class WekaClassifier {
 				saveEvaluationData(ev, classificationModel.getClass().getSimpleName() + "TestResults.txt");
 				writeLog("[testClassifierModel]: Se finalizo correctamente la evaluacion del modelo " +
 						classificationModel.getClass().getSimpleName());
-
-			}else{
+			} else {
 				writeLog("[testClassifierModel]: No se pudo evaluar el modelo");
 			}
 
@@ -258,6 +259,7 @@ public class WekaClassifier {
 	 * Given an evaluation of a classifier, saves the results to a file in disk.
 	 * @param ev, evaluation object with the results data.
 	 * @param fileName, name of the file in which the data is going to be saved.
+	 * @deprecated Cuero: Cambia el String por un File y que no se usen ubicaciones relativas
 	 */
 	public void saveEvaluationData(Evaluation ev, String fileName){
 		try {

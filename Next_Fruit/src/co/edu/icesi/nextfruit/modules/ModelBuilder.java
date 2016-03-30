@@ -141,20 +141,22 @@ public class ModelBuilder {
 		}
 
 		//getAbsolutePath()
-		this.classifier.saveDataSetIntoFile(instances, destinationFile.getName());
+		this.classifier.saveDataSetIntoFile(instances, destinationFile);
 		this.hasLoadedTrainingSet = true;
 	}
 
 	/**
 	 * Loads a training set from the given file.
-	 * @param fileName Location of the file that contains the training set.
+	 * @param file Location of the file that contains the training set.
 	 */
-	public void loadTrainingSet(File fileName) {
+	public boolean loadTrainingSet(File file) {
 		try {
-			this.classifier.loadDataSetFromFile(fileName.getAbsolutePath());
+			this.classifier.loadDataSetFromFile(file);
 			this.hasLoadedTrainingSet = true;
+			return true;
 		} catch (IOException e) {
 			this.hasLoadedTrainingSet = false;
+			return false;
 		}
 	}
 
@@ -168,12 +170,12 @@ public class ModelBuilder {
 		if(hasLoadedTrainingSet) {
 			Classifier classifierType = null;
 			switch (type) {
-			case "":
+			case NAIVE_BAYES:
 				classifierType = new NaiveBayes();
 				break;
 			}
 			if(classifierType != null) {
-				this.classifier.trainClassifier(classifierType, null, classifierDestination.getAbsolutePath());
+				this.classifier.trainClassifier(classifierType, null, classifierDestination);
 				return true;
 			}
 		}

@@ -2,7 +2,6 @@ package co.edu.icesi.nextfruit.modules;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.attribute.AclEntry.Builder;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -214,9 +213,9 @@ public class Model implements Attachable {
 	 * Loads a training set previously saved.
 	 * @param file The location of the file with the training set.
 	 */
-	public void loadTrainingSet(File file) {
+	public boolean loadTrainingSet(File file) {
 		this.modelBuilder = new ModelBuilder();
-		this.modelBuilder.loadTrainingSet(file);
+		return this.modelBuilder.loadTrainingSet(file);
 	}
 
 	/**
@@ -234,10 +233,12 @@ public class Model implements Attachable {
 	 * @param destinationFile The file where the model will be saved.
 	 * @param type The type of machine learning to use for building the new model.
 	 */
-	public void trainClassifier(File destinationFile, String type) {
+	public boolean trainClassifier(File destinationFile, String type) {
 		if(modelBuilder != null) {
 			this.modelBuilder.trainClassifier(destinationFile, type);
+			return true;
 		}
+		return false;
 	}
 
 	// ******************* MACHINE LEARNING MODULE ********************

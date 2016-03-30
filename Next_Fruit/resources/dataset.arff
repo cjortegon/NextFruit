@@ -1,0 +1,19 @@
+@relation strawberry-qualities
+
+@attribute area numeric
+@attribute mean numeric
+@attribute standard-deviation numeric
+@attribute skewness numeric
+@attribute kurtosis numeric
+@attribute red-percentage numeric
+@attribute green-percentage numeric
+@attribute brown-percentage numeric
+@attribute quality {5r,5v,er,fea}
+
+@data
+239748,0.153331,0.060966,1.788877,11.065769,0.090318,0.691281,0.01213,5r
+182350,0.132953,0.069986,1.516912,4.121543,0.03961,0.697012,0.03609,5r
+292230.5,0.176353,0.095007,0.992574,2.314696,0.193903,0.002488,0.04141,5v
+130920,0.199246,0.08679,0.779798,1.121321,0.546173,0,0.040754,5v
+409965.5,0.165999,0.08836,1.526334,4.870368,0.222148,0.269625,0.011011,er
+367599.5,0.128109,0.066054,1.657707,5.022995,0.000525,0.263238,0.194837,fea

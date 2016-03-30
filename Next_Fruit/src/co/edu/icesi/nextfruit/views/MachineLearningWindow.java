@@ -4,7 +4,6 @@ import java.awt.Dimension;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JLabel;
 import javax.swing.JTextField;
 
 import co.edu.icesi.nextfruit.controller.MachineLearningController;
@@ -23,11 +22,9 @@ import visualkey.KFrame;
 public class MachineLearningWindow extends KFrame implements Initializable, Updateable{
 
 	private Model model;
-	private JLabel lbImagesDirectory, lbDataDirectory, lbClassifierDirectory;
-	private JTextField tfImagesField, tfDataField, tfClassifierField;
-	private JButton btGenerateTrainingSet, btLoadTrainingSet, btTrainClassifier, 
-	btChooseImagesDir, btChooseDataDir, btChooseClassifierDir;
-	private JComboBox<String> modelType;
+	private JTextField tfImagesField;
+	private JButton btGenerateTrainingSet, btLoadTrainingSet, btTrainClassifier, btChooseImagesDir;
+	private JComboBox<String> modelTypeComboBox;
 
 	@Override
 	public void update() {
@@ -42,49 +39,28 @@ public class MachineLearningWindow extends KFrame implements Initializable, Upda
 
 		//	Initializing objects
 
-		lbImagesDirectory = new JLabel("Load images from directory: ");
 		tfImagesField = new JTextField();
 		tfImagesField.setPreferredSize(new Dimension(200, 20));
 		tfImagesField.setEnabled(false);
 		btChooseImagesDir = new JButton("Choose directory");
 
-		lbDataDirectory = new JLabel("Save the training set file in directory: ");
-		tfDataField = new JTextField();
-		tfDataField.setPreferredSize(new Dimension(200, 20));
-		tfDataField.setEnabled(false);
-		btChooseDataDir = new JButton("Choose directory");
-
-		lbClassifierDirectory = new JLabel("Save the classifier file in directory: ");
-		tfClassifierField = new JTextField();
-		tfClassifierField.setPreferredSize(new Dimension(200, 20));
-		tfClassifierField.setEnabled(false);
-		btChooseClassifierDir = new JButton("Choose directory");
-
 		btGenerateTrainingSet = new JButton("Generate Training Set File");
 		btLoadTrainingSet = new JButton("Load Training Set File");
 		btTrainClassifier = new JButton("Train Classifier");
-		modelType = new JComboBox<String>(ModelBuilder.MODEL_TYPES);
+		modelTypeComboBox = new JComboBox<String>(ModelBuilder.MODEL_TYPES);
 
 		//	Attach to model
 		this.model = (Model) model;
 		model.attach(this);
 
-		addComponent(lbImagesDirectory, 0, 0, 1, 1, false);
+		addLabel("Load images from directory:", 0, 0, 1, 1, false);
 		addComponent(tfImagesField, 1, 0, 1, 1, false);
 		addComponent(btChooseImagesDir, 1, 1, 1, 1, false);
 
-		addComponent(lbDataDirectory, 2, 0, 1, 1, false);
-		addComponent(tfDataField, 3, 0, 1, 1, false);
-		addComponent(btChooseDataDir, 3, 1, 1, 1, false);
-
-		addComponent(lbClassifierDirectory, 4, 0, 1, 1, false);
-		addComponent(tfClassifierField, 5, 0, 1, 1, false);
-		addComponent(btChooseClassifierDir, 5, 1, 1, 1, false);
-
-		addComponent(btGenerateTrainingSet, 0, 4, 2, 1, false);
-		addComponent(btLoadTrainingSet, 1, 4, 2, 1, false);
-		addComponent(modelType, 2, 4, 1, 1, false);
-		addComponent(btTrainClassifier, 3, 4, 1, 1, false);
+		addComponent(btGenerateTrainingSet, 2, 0, 1, 1, false);
+		addComponent(btLoadTrainingSet, 2, 1, 1, 1, false);
+		addComponent(modelTypeComboBox, 3, 0, 1, 1, false);
+		addComponent(btTrainClassifier, 3, 1, 1, 1, false);
 
 		//	Starting controller
 		new MachineLearningController().init(model, this);
@@ -110,32 +86,16 @@ public class MachineLearningWindow extends KFrame implements Initializable, Upda
 		return btChooseImagesDir;
 	}
 
-	public JButton getBtChooseDataDir() {
-		return btChooseDataDir;
-	}
-
-	public JButton getBtChooseClassifierDir() {
-		return btChooseClassifierDir;
-	}
-
 	public JTextField getTfImagesField() {
 		return tfImagesField;
 	}
 
-	public JTextField getTfDataField() {
-		return tfDataField;
+	public JComboBox<String> getModelTypeComboBox() {
+		return modelTypeComboBox;
 	}
 
 	public void setTfImagesFieldText(String tfImagesField) {
 		this.tfImagesField.setText(tfImagesField);
-	}
-
-	public void setTfDataFieldText(String tfDataField) {
-		this.tfDataField.setText(tfDataField);
-	}
-
-	public void setTfClassifierFieldText(String tfClassifierField) {
-		this.tfClassifierField.setText(tfClassifierField);
 	}
 
 }
