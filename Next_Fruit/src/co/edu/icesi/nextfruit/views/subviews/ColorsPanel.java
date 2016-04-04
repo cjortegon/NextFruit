@@ -12,6 +12,7 @@ import java.util.List;
 import co.edu.icesi.nextfruit.modules.Model;
 import co.edu.icesi.nextfruit.modules.model.ColorDistribution;
 import co.edu.icesi.nextfruit.modules.model.MatchingColor;
+import co.edu.icesi.nextfruit.modules.model.MatchingColorGroup;
 import co.edu.icesi.nextfruit.util.ColorConverter;
 import visualkey.KPanel;
 
@@ -137,11 +138,13 @@ public class ColorsPanel extends KPanel {
 			g.setColor(Color.BLACK);
 			for (MatchingColor matchingColor : matching) {
 				double[] descriptor = matchingColor.getDescriptor();
-				double w = descriptor[2]*getPreferredSize().getWidth();
-				double h = descriptor[2]*getPreferredSize().getHeight();
-				g.drawOval((int)(descriptor[0]*getPreferredSize().getWidth() - w),
-						(int)((1-descriptor[1])*getPreferredSize().getHeight() - h),
-						(int)(w*2), (int)(h*2));
+				for(int i = 0; i < descriptor.length; i += 3) {
+					double w = descriptor[i+2]*getPreferredSize().getWidth();
+					double h = descriptor[i+2]*getPreferredSize().getHeight();
+					g.drawOval((int)(descriptor[i]*getPreferredSize().getWidth() - w),
+							(int)((1-descriptor[i+1])*getPreferredSize().getHeight() - h),
+							(int)(w*2), (int)(h*2));
+				}
 			}
 		}
 

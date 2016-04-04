@@ -19,6 +19,7 @@ import co.edu.icesi.nextfruit.modules.model.CameraCalibration;
 import co.edu.icesi.nextfruit.modules.model.CameraSettings;
 import co.edu.icesi.nextfruit.modules.model.ColorDistribution;
 import co.edu.icesi.nextfruit.modules.model.MatchingColor;
+import co.edu.icesi.nextfruit.modules.model.MatchingColorInterpreter;
 import co.edu.icesi.nextfruit.modules.model.PolygonWrapper;
 import co.edu.icesi.nextfruit.modules.persistence.CalibrationDataHandler;
 import co.edu.icesi.nextfruit.mvc.interfaces.Attachable;
@@ -51,13 +52,13 @@ public class Model implements Attachable {
 	// Machine learning module
 	private ModelBuilder modelBuilder;
 	private WekaClassifier weka;
-	
+
 	private double[][] definedColors = new double[][]{
 		{0.30,0.49,0.11},
 		{0.62,0.31,0.15},
 		{0.37,0.35,0.03}
 	};
-	
+
 
 	/**
 	 * Creates an empty model ready to interact with all the classes from specific modules.
@@ -188,17 +189,9 @@ public class Model implements Attachable {
 		String lines[] = text.split("\n");
 		double[][] inverseMatrixM = getCameraCalibration().getInverseWorkingSpaceMatrix();
 		for (String line : lines) {
-			String numbers[] = line.split(";");
-			try {
-				double[] xyY = new double[]{
-						Double.valueOf(numbers[0]),
-						Double.valueOf(numbers[1]),
-						0.75
-				};
-				matchingColors.add(new MatchingColor(xyY, Double.valueOf(numbers[2]), inverseMatrixM));
-			} catch(NumberFormatException nfe) {
-			} catch(ArrayIndexOutOfBoundsException aiobe) {
-			}
+			MatchingColor mc = MatchingColorInterpreter.identifyMatchingColor(line, inverseMatrixM, 0.75);
+			if(mc != null)
+				matchingColors.add(mc);
 		}
 		updateAll();
 	}
@@ -226,9 +219,9 @@ public class Model implements Attachable {
 	}
 
 	// ******************* CHARACTERIZATION MODULE ********************
-	
+
 	// ******************* MACHINE LEARNING MODULE ********************
-	
+
 	/**
 	 * Loads the image file names from the given folder.
 	 * @param folder This is the location where the fruit images are located.
@@ -262,8 +255,8 @@ public class Model implements Attachable {
 		}
 		return false;
 	}
-	
-	
+
+
 	/**
 	 * 
 	 * @param image
@@ -278,13 +271,13 @@ public class Model implements Attachable {
 		ArrayList<Attribute> features = weka.getFeatures();
 		Instances dataUnlabeled = new Instances("test-instances", features, 0);
 		CameraCalibration calibration = getCameraCalibration();
-		
+
 		// Creating temporal matching colors
 		matchingColors = new ArrayList<>();
 		for (double[] color : definedColors){
 			matchingColors.add(new MatchingColor(new double[]{color[0], color[1], 0.75}, color[2], calibration.getInverseWorkingSpaceMatrix()));
 		}
-		
+
 		// Getting class name
 		String fileName = image.getName();
 		String className = null;
@@ -297,14 +290,14 @@ public class Model implements Attachable {
 				className = fileName;
 			}
 		}
-		
+
 		System.out.println("Extracting features... ("+className+")");
-		
+
 		// Processing features
 		FeaturesExtract ft = new FeaturesExtract(image.getAbsolutePath());
 		ft.extractFeatures(calibration);
 		ft.analizeData(calibration, matchingColors);
-		
+
 		// Getting results
 		Collection<ColorDistribution> matchs = ft.getMatchingColors();
 		Statistics luminantStatistics = ft.getLuminanceStatistics();
@@ -313,7 +306,7 @@ public class Model implements Attachable {
 		double colors[] = new double[3];
 		for (ColorDistribution color : matchs)
 			colors[index++] = color.getRepeat()/(double)ft.getNumberOfPixels();
-		
+
 		// Creating instances
 		Instance unknown = new DenseInstance(8);
 
@@ -325,14 +318,14 @@ public class Model implements Attachable {
 		unknown.setValue(features.get(5), colors[0]);
 		unknown.setValue(features.get(6), colors[1]);
 		unknown.setValue(features.get(7), colors[2]);
-		
+
 		dataUnlabeled.add(unknown);
-		
+
 		double[] fDistribution = weka.classify(model, dataUnlabeled);
 		return fDistribution;		
 	}
-	
-	
+
+
 
 	// ******************* MACHINE LEARNING MODULE ********************
 

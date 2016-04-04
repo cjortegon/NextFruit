@@ -45,4 +45,11 @@ public class MatchingColor extends ColorDistribution {
 		return new double[] {getxyY()[0], getxyY()[1], sensibility};
 	}
 
+	/**
+	 * @return The sensibility to match this color
+	 */
+	public double getSensibility() {
+		return sensibility;
+	}
+
 }
