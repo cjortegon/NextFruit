@@ -21,7 +21,6 @@ public class CalibrationController implements Initializable, ActionListener {
 	private static final String LOAD_SIZE_CALIBRATION = "SizeCalibrator";
 	private static final String PROCESS = "Process";
 	private static final String RESULTS = "Results";
-	private static final String LOAD_SETTINGS = "LoadSettings"; 
 
 	private Model model;
 	private CalibrationWindow view;
@@ -45,8 +44,6 @@ public class CalibrationController implements Initializable, ActionListener {
 		view.getResultsButton().setActionCommand(RESULTS);
 		view.getResultsButton().addActionListener(this);
 
-		view.getBtLoadCalData().setActionCommand(LOAD_SETTINGS);
-		view.getBtLoadCalData().addActionListener(this);
 	}
 
 	@Override
@@ -94,20 +91,6 @@ public class CalibrationController implements Initializable, ActionListener {
 			results.setVisible(true);
 			break;
 
-		case LOAD_SETTINGS:
-			File file = loadFile("");
-			if(file != null) {
-				boolean result = this.model.loadCalibrationData(file);
-				if(!result){
-					JOptionPane.showMessageDialog(this.view,
-							"Couldn't load the chosen file! Make sure it's a valid file.");
-				}else{
-					JOptionPane.showMessageDialog(this.view,
-							"Settings loaded successfully!");
-				}
-			}
-
-			break;
 		}
 
 		// Enabling process button after both images have been loaded

@@ -42,8 +42,6 @@ public class CalibrationWindow extends KFrame implements Initializable, Updateab
 	private Mat colorCheckerMat, sizeCalibrationMat;
 	private Image colorCheckerImage, sizeCalibrationImage;
 	private File matrixFiles[];
-	
-	private JButton btLoadCalData;
 
 	
 	public CalibrationWindow() {
@@ -67,7 +65,6 @@ public class CalibrationWindow extends KFrame implements Initializable, Updateab
 		colorCheckerCanvas = new ColorCheckerCanvas(CANVAS_SIZE);
 		sizeCalibrationCanvas = new SizeCalibrationCanvas(CANVAS_SIZE);
 		
-		btLoadCalData = new JButton("Load Calibration Data From an XML File");
 
 		// Adding objects to window
 		addComponent(loadColorCheckerButton, 0, 0, 1, 1, false);
@@ -82,7 +79,6 @@ public class CalibrationWindow extends KFrame implements Initializable, Updateab
 		addComponent(sizeCalibrationMeasure, 4, 1, 1, 1, false);
 		addComponent(processButton, 5, 0, 1, 1, true);
 		addComponent(resultsButton, 5, 1, 1, 1, true);
-		addComponent(btLoadCalData, 6, 0, 2, 1, true);
 
 
 		// Attaching to model
@@ -224,10 +220,6 @@ public class CalibrationWindow extends KFrame implements Initializable, Updateab
 			// Repainting components
 			repaint();
 		}
-	}
-
-	public JButton getBtLoadCalData() {
-		return btLoadCalData;
 	}
 
 }

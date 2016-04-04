@@ -10,6 +10,7 @@ import co.edu.icesi.nextfruit.mvc.interfaces.Initializable;
 import co.edu.icesi.nextfruit.mvc.interfaces.Updateable;
 import co.edu.icesi.nextfruit.util.FilesUtility;
 import co.edu.icesi.nextfruit.views.CalibrationWindow;
+import co.edu.icesi.nextfruit.views.ClassificationWindow;
 import co.edu.icesi.nextfruit.views.ComputerVisionWindow;
 import co.edu.icesi.nextfruit.views.MachineLearningWindow;
 import co.edu.icesi.nextfruit.views.MainMenuWindow;
@@ -19,12 +20,13 @@ public class MainMenuController implements Initializable, ActionListener {
 	private static final String CALIBRATION = "Calibration";
 	private static final String LOAD_SETTINGS = "LoadSettings";
 	private static final String CHARACTERIZATION = "Charaterization";
-	private static final String CLASIFICATION = "Clasificator";
+	private static final String CLASIFICATION = "Clasification";
 	private static final String TRAINING = "Training";
 
 	private CalibrationWindow calibration;
 	private ComputerVisionWindow charaterization;
 	private MachineLearningWindow training;
+	private ClassificationWindow classification;
 
 	private Model model;
 	private MainMenuWindow view;
@@ -90,8 +92,14 @@ public class MainMenuController implements Initializable, ActionListener {
 			break;
 
 		case CLASIFICATION:
+			if(classification == null){
+				classification = new ClassificationWindow();
+				classification.init(model, null);
+			}
+			
+			classification.setVisible(true);
 			break;
-
+			
 		case TRAINING:
 			if(training == null){
 				training = new MachineLearningWindow();

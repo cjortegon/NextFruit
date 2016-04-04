@@ -204,13 +204,12 @@ public class WekaClassifier {
 	 * Loads a classifier from a file in disk.
 	 * @param fileName, the name of the file containing the classifier.
 	 * @return classifier object loaded from file.
-	 * @deprecated Cuero: Cambia el String por un File y que no se usen ubicaciones relativas
 	 */
-	public Classifier loadClassifierFromFile(String fileName) {
+	public Classifier loadClassifierFromFile(File fileToLoad) {
 		try {
-			Classifier model = (Classifier) SerializationHelper.read(LOAD_SAVE_PATH + fileName.trim() + ".save");
+			Classifier model = (Classifier) SerializationHelper.read(fileToLoad.getAbsolutePath());
 			writeLog("[loadClassifierFromFile]: Se cargo correctamente el clasificador de tipo " + 
-					model.getClass().getSimpleName() + " a partir del archivo " + fileName + ".save");
+					model.getClass().getSimpleName() + " a partir del archivo " + fileToLoad.getName() + ".");
 			return model;
 
 		} catch (Exception e) {
@@ -311,7 +310,7 @@ public class WekaClassifier {
 		}
 	}
 
-	public static ArrayList<Attribute> getFeatures() {
+	public ArrayList<Attribute> getFeatures() {
 		return features;
 	}
 
