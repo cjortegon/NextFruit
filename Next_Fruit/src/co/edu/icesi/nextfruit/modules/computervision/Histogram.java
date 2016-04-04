@@ -2,9 +2,7 @@ package co.edu.icesi.nextfruit.modules.computervision;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
 
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
@@ -14,7 +12,6 @@ import co.edu.icesi.nextfruit.modules.model.ColorDistribution;
 import co.edu.icesi.nextfruit.modules.model.PolygonWrapper;
 import co.edu.icesi.nextfruit.util.ColorConverter;
 import co.edu.icesi.nextfruit.util.CumulativeStatistics;
-import co.edu.icesi.nextfruit.util.ImageUtility;
 import co.edu.icesi.nextfruit.util.Statistics;
 
 public class Histogram {
@@ -185,6 +182,28 @@ public class Histogram {
 							d[1] > minG && d[1] < maxG &&
 							d[2] > minR && d[2] < maxR
 							);
+					if(match) {
+						if(matchColor != null) {
+							mat.put(i, j, matchColor);
+						}
+					} else {
+						if(notMatchColor != null) {
+							mat.put(i, j, notMatchColor);
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	public void filterFigureByGrayProfile(int gray, int range, double[] matchColor, double[] notMatchColor) {
+		if(matchColor != null || notMatchColor != null) {
+			int max = gray + range;
+			int min = gray - range;
+			for (int i = 0; i < mat.height(); i++) {
+				for (int j = 0; j < mat.width(); j++) {
+					double[] d = mat.get(i, j);
+					boolean match = (d[0] > min && d[0] < max);
 					if(match) {
 						if(matchColor != null) {
 							mat.put(i, j, matchColor);

@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
+import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
@@ -33,14 +33,12 @@ public class FeaturesExtract {
 	// ***************** PUBLIC METHODS *****************
 
 	public void extractFeatures(CameraCalibration calibration) {
-//		mat = bilateralFilter(mat);
-		polygon = getContours(mat.clone(), 150);
+		polygon = getContours(mat.clone(), 80);
 		histogram = new Histogram(mat);
 		histogram.applyWhitePatch();
 		colorStatistics = histogram.getStatisticalColors(polygon);
 		for (ColorDistribution color : colorStatistics)
 			numberOfPixels += color.getRepeat();
-		//		System.out.println(colorStatistics.size()+" colors in this fruit for "+numberOfPixels+" pixels.");
 	}
 
 	public boolean hasExtractedFeatures() {
@@ -54,49 +52,22 @@ public class FeaturesExtract {
 
 	// ***************** PUBLIC METHODS *****************
 
-	// ******************** FILTERS *********************
-
-	private Mat bilateralFilter(Mat src) {
-		Mat dst = Mat.zeros(src.width(), src.height(), CvType.CV_32F);
-		double sigmaColor = Math.sqrt(src.width()*src.height())/100;
-		Imgproc.bilateralFilter(src, dst, -1, sigmaColor, 3);
-		return dst;
-	}
-
-	private Mat medianBlur(Mat mat) {
-		Mat MBlurred = new Mat();
-		int ksize = (int) (Math.sqrt(mat.width()*mat.height())/60);
-		if(ksize %2 == 0)
-			ksize ++;
-		Imgproc.medianBlur(mat, MBlurred, ksize);
-		return MBlurred;
-	}
-
-	private Mat sobelFilter(Mat src) {
-		Mat dst = Mat.zeros(src.width(), src.height(), CvType.CV_32F);
-		int ddepth = -1;
-		double delta = 0;
-		int ksize = 5;
-		int scale = 2;
-		Imgproc.Sobel(src, dst, ddepth, 1, 1, ksize, scale, delta);
-		return dst;
-	}
-
-	// ******************** FILTERS *********************
-
 	// **************** PRIVATE METHODS *****************
 
-	private PolygonWrapper getContours(Mat mat, int sensibility) {
+	private PolygonWrapper getContours(Mat src, int sensibility) {
 
-		Mat gray = mat.clone();
-		Imgproc.cvtColor(mat, gray, Imgproc.COLOR_BGR2GRAY, 1);
+		Imgproc.threshold(src, src, sensibility, 255, 1);
+		Mat src_gray = new Mat();
+		Imgproc.cvtColor(src, src_gray, Imgproc.COLOR_BGR2GRAY);
+		Imgproc.blur( src_gray, src_gray, new Size(10, 10));
 
-		Mat thresh = new Mat();
-		Imgproc.threshold(gray, thresh, sensibility, 255, 1);
-		List<MatOfPoint> contours = new ArrayList<>();
-		Imgproc.findContours(thresh, contours, gray, 1, 2);
+		// Histogram
+		Histogram histogram2 = new Histogram(src_gray);
+		histogram2.filterFigureByGrayProfile(0, 10, new double[]{0}, new double[]{255});
+		src = histogram2.getImage();
 
-		ArrayList<PolygonWrapper> boxes = new ArrayList<PolygonWrapper>();
+		List<MatOfPoint> contours = findContours(src);
+		ArrayList<PolygonWrapper> boxes = new ArrayList<>();
 		PolygonWrapper biggest = null;
 		double biggestArea = 0;
 		for (MatOfPoint cnt : contours) {
@@ -108,6 +79,13 @@ public class FeaturesExtract {
 			}
 		}
 		return biggest;
+	}
+
+	private List<MatOfPoint> findContours(Mat mat) {
+		List<MatOfPoint> contours = new ArrayList<>();
+		Mat hierarchy = new Mat();
+		Imgproc.findContours( mat, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_TC89_L1);
+		return contours;
 	}
 
 	private List<ColorDistribution> colorMatching(List<MatchingColor> colors, CameraCalibration calibration) {
