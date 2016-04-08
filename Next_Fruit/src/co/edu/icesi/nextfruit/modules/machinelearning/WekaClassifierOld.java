@@ -26,20 +26,20 @@ import weka.core.SerializationHelper;
  * @author JuanD
  *
  */
-public abstract class WekaClassifier {
+public class WekaClassifierOld {
 
 	private static final String LOAD_SAVE_PATH = "resources" + File.separator +
 			"MachineLearning" +  File.separator;
 	private static final String LOG_PATH = "resources" + File.separator + "log.txt";
 
-	protected Instances trainingSet;
-	protected Instances testSet;
-	private ArrayList<Attribute> features;
+	private static Instances trainingSet;
+	private static Instances testSet;
+	private static ArrayList<Attribute> features;
 
 	/**
 	 * Class constructor.
 	 */
-	public WekaClassifier() {
+	public WekaClassifierOld(){
 
 		File temp = new File(LOG_PATH);
 
@@ -51,13 +51,53 @@ public abstract class WekaClassifier {
 			}
 		}
 
-		features = defineFeaturesVector();
+		if(features == null){
+			defineFeaturesVector();
+		}
+
 	}
 
 	/**
 	 * Initialize the features vector.
 	 */
-	protected abstract ArrayList<Attribute> defineFeaturesVector();
+	public void defineFeaturesVector(){
+
+		//****************************************************************
+		//	Atributos temporales -> Falta complementar estos, con los 
+		//	atributos faltantes que falta definir.
+		//****************************************************************
+
+		//	Create and Initialize Attributes
+
+		ArrayList<String> qualityClassValues = new ArrayList<String>(4);
+		qualityClassValues.add("5r");
+		qualityClassValues.add("5v");
+		qualityClassValues.add("er");
+		qualityClassValues.add("fea");
+
+		Attribute area = new Attribute("area");
+		Attribute mean = new Attribute("mean");
+		Attribute sD = new Attribute("standard-deviation");
+		Attribute skewness = new Attribute("skewness");
+		Attribute kurtosis = new Attribute("kurtosis");
+		Attribute red = new Attribute("red-percentage");
+		Attribute green = new Attribute("green-percentage");
+		Attribute brown = new Attribute("brown-percentage");
+		Attribute qualityClass = new Attribute("quality", qualityClassValues);
+
+
+		//	Declare the feature vector
+		features = new ArrayList<Attribute>(9);
+		features.add(area);
+		features.add(mean);
+		features.add(sD);
+		features.add(skewness);
+		features.add(kurtosis);
+		features.add(red);
+		features.add(green);
+		features.add(brown);
+		features.add(qualityClass);
+	}
 
 	/**
 	 * Classify a given unknown instance, which is the first element in an Instances object
@@ -105,10 +145,6 @@ public abstract class WekaClassifier {
 			e.printStackTrace();
 			throw e;
 		}
-	}
-	
-	public void saveTrainningSetIntoFile(File file) throws FileNotFoundException {
-		saveDataSetIntoFile(trainingSet, file);
 	}
 
 	public void loadDataSetFromFile(File dataToLoad) throws IOException {

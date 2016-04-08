@@ -1,13 +1,16 @@
 package co.edu.icesi.nextfruit.modules;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import co.edu.icesi.nextfruit.modules.computervision.FeaturesExtract;
+import co.edu.icesi.nextfruit.modules.machinelearning.QualityFeaturesAdapter;
 import co.edu.icesi.nextfruit.modules.machinelearning.WekaClassifier;
+import co.edu.icesi.nextfruit.modules.machinelearning.WekaClassifierAdapter;
 import co.edu.icesi.nextfruit.modules.model.CameraCalibration;
 import co.edu.icesi.nextfruit.modules.model.ColorDistribution;
 import co.edu.icesi.nextfruit.modules.model.MatchingColor;
@@ -30,23 +33,15 @@ public class ModelBuilder {
 	public static final String THIRD_TYPE = "Third type";
 	public static final String[] MODEL_TYPES = new String[]{NAIVE_BAYES, SECOND_TYPE, THIRD_TYPE};
 
-	private WekaClassifier classifier;
-	private Instances instances;
 	private ArrayList<File> images;
-	private List<MatchingColor> matchingColors;
-	private boolean meanActive, standardDeviationActive, skeewnessActive, kurtosisActive, areaActive, perimeterActive;
+
+	private WekaClassifierAdapter classifiers[];
 	private boolean hasLoadedImages, hasLoadedTrainingSet;
-	private double[][] definedColors = new double[][]{
-		{0.30,0.49,0.11},
-		{0.62,0.31,0.15},
-		{0.37,0.35,0.03}
-	};
 
 	/**
 	 * Starts a new classifier class
 	 */
 	public ModelBuilder() {
-		this.classifier = new WekaClassifier();
 	}
 
 	/**
@@ -67,6 +62,87 @@ public class ModelBuilder {
 		System.out.println("Total images to train system: "+images.size());
 	}
 
+	//	/**
+	//	 * This class uses the process the loaded images to create a training set placed in the WekaClassifier (classifier).
+	//	 * @param classSeparator The special character or expression that separates the tag from the fruit class and the name of the specific instance.
+	//	 * @param destinationFile The destination file where the training set will be saved.
+	//	 * @param calibration The calibration settings.
+	//	 */
+	//	public void processTrainingSet(String classSeparator, File destinationFile, CameraCalibration calibration) {
+	//
+	//		// Creating temporal matching colors
+	//		matchingColors = new ArrayList<>();
+	//		for (double[] color : definedColors)
+	//			matchingColors.add(new MatchingColor(new double[]{color[0], color[1], 0.75}, color[2], calibration.getInverseWorkingSpaceMatrix()));
+	//
+	//		// Starting instances container
+	//		int numberOfImages = images.size();
+	//		this.instances = new Instances("strawberry-qualities", classifier.getFeatures(), numberOfImages);
+	//
+	//		// Extracting features from images and creating new instances from that
+	//		int count = 0;
+	//		ArrayList<Attribute> list = classifier.getFeatures();
+	//		for (File file : images) {
+	//
+	//			// Getting class name
+	//			String fileName = file.getName();
+	//			String className = null;
+	//			try {
+	//				className = fileName.substring(0, fileName.indexOf(classSeparator));
+	//			} catch(Exception e1) {
+	//				try {
+	//					className = fileName.substring(0, fileName.indexOf("."));
+	//				} catch(Exception e2) {
+	//					className = fileName;
+	//				}
+	//			}
+	//			System.out.println("Extracting features... ("+className+")");
+	//
+	//			// Processing features
+	//			FeaturesExtract features = new FeaturesExtract(file.getAbsolutePath());
+	//			features.extractFeatures(calibration);
+	//			int percent = (int) (((count*3+1)/((double)images.size()*3))*100);
+	////			System.out.println("Extracting features... "+percent+"%");
+	//			features.analizeData(calibration, matchingColors);
+	//			percent = (int) (((count*3+2)/((double)images.size()*3))*100);
+	////			System.out.println("Extracting features... "+percent+"%");
+	//
+	//			// Getting results
+	//			Collection<ColorDistribution> matchs = features.getMatchingColors();
+	//			Statistics luminantStatistics = features.getLuminanceStatistics();
+	//			PolygonWrapper polygon = features.getPolygon();
+	//			int index = 0;
+	//			double colors[] = new double[3];
+	//			for (ColorDistribution color : matchs)
+	//				colors[index++] = color.getRepeat()/(double)features.getNumberOfPixels();
+	//
+	//			// Creating instances
+	//			Instance instance = new DenseInstance(9);
+	//
+	//			instance.setValue(list.get(0), polygon.getArea());
+	//			instance.setValue(list.get(1), luminantStatistics.getMean());
+	//			instance.setValue(list.get(2), luminantStatistics.getStandardDeviation());
+	//			instance.setValue(list.get(3), luminantStatistics.getSkewness());
+	//			instance.setValue(list.get(4), luminantStatistics.getKurtosis());
+	//			instance.setValue(list.get(5), colors[0]);
+	//			instance.setValue(list.get(6), colors[1]);
+	//			instance.setValue(list.get(7), colors[2]);
+	//			instance.setValue(list.get(8), className);
+	//			instances.add(instance);
+	//
+	//			percent = (int) (((count*3+3)/((double)images.size()*3))*100);
+	//			System.out.println("Extracting features... "+percent+"%");
+	//			count ++;
+	//		}
+	//
+	//		//getAbsolutePath()
+	//		try {
+	//			this.classifier.saveDataSetIntoFile(instances, destinationFile);
+	//		} catch (FileNotFoundException e) {
+	//		}
+	//		this.hasLoadedTrainingSet = true;
+	//	}
+
 	/**
 	 * This class uses the process the loaded images to create a training set placed in the WekaClassifier (classifier).
 	 * @param classSeparator The special character or expression that separates the tag from the fruit class and the name of the specific instance.
@@ -75,73 +151,45 @@ public class ModelBuilder {
 	 */
 	public void processTrainingSet(String classSeparator, File destinationFile, CameraCalibration calibration) {
 
-		// Creating temporal matching colors
-		matchingColors = new ArrayList<>();
-		for (double[] color : definedColors)
-			matchingColors.add(new MatchingColor(new double[]{color[0], color[1], 0.75}, color[2], calibration.getInverseWorkingSpaceMatrix()));
-
 		// Starting instances container
 		int numberOfImages = images.size();
-		this.instances = new Instances("strawberry-qualities", classifier.getFeatures(), numberOfImages);
+
+		// Starting classifiers
+		this.classifiers = new WekaClassifierAdapter[1];
+		this.classifiers[0] = new QualityFeaturesAdapter(calibration, numberOfImages);
 
 		// Extracting features from images and creating new instances from that
-		int count = 0;
-		ArrayList<Attribute> list = classifier.getFeatures();
 		for (File file : images) {
 
-			// Getting class name
+			// Getting class names
 			String fileName = file.getName();
-			String className = null;
-			try {
-				className = fileName.substring(0, fileName.indexOf(classSeparator));
-			} catch(Exception e1) {
-				try {
-					className = fileName.substring(0, fileName.indexOf("."));
-				} catch(Exception e2) {
-					className = fileName;
+			fileName.substring(0, fileName.indexOf("."));
+			String classNames[] = fileName.split(classSeparator);
+			if(classNames.length >= classifiers.length) {
+				System.out.println("Processing file: "+file.getName());
+
+				// Processing features
+				FeaturesExtract extracted = new FeaturesExtract(file.getAbsolutePath());
+				extracted.extractFeatures(calibration);
+
+				// Extracting features for each classifier
+				for (int i = 0; i < classifiers.length; i++) {
+					System.out.println("Extracting features for instance type: "+classNames[i]);
+					classifiers[i].insertInstanceFromFeatures(extracted, classNames[i]);
 				}
+			} else {
+				System.out.println("Invalid format from file: "+file.getName());
 			}
-			System.out.println("Extracting features... ("+className+")");
-
-			// Processing features
-			FeaturesExtract features = new FeaturesExtract(file.getAbsolutePath());
-			features.extractFeatures(calibration);
-			int percent = (int) (((count*3+1)/((double)images.size()*3))*100);
-			System.out.println("Extracting features... "+percent+"%");
-			features.analizeData(calibration, matchingColors);
-			percent = (int) (((count*3+2)/((double)images.size()*3))*100);
-			System.out.println("Extracting features... "+percent+"%");
-
-			// Getting results
-			Collection<ColorDistribution> matchs = features.getMatchingColors();
-			Statistics luminantStatistics = features.getLuminanceStatistics();
-			PolygonWrapper polygon = features.getPolygon();
-			int index = 0;
-			double colors[] = new double[3];
-			for (ColorDistribution color : matchs)
-				colors[index++] = color.getRepeat()/(double)features.getNumberOfPixels();
-
-			// Creating instances
-			Instance instance = new DenseInstance(9);
-
-			instance.setValue(list.get(0), polygon.getArea());
-			instance.setValue(list.get(1), luminantStatistics.getMean());
-			instance.setValue(list.get(2), luminantStatistics.getStandardDeviation());
-			instance.setValue(list.get(3), luminantStatistics.getSkewness());
-			instance.setValue(list.get(4), luminantStatistics.getKurtosis());
-			instance.setValue(list.get(5), colors[0]);
-			instance.setValue(list.get(6), colors[1]);
-			instance.setValue(list.get(7), colors[2]);
-			instance.setValue(list.get(8), className);
-			instances.add(instance);
-
-			percent = (int) (((count*3+3)/((double)images.size()*3))*100);
-			System.out.println("Extracting features... "+percent+"%");
-			count ++;
 		}
 
-		//getAbsolutePath()
-		this.classifier.saveDataSetIntoFile(instances, destinationFile);
+		// Saving data
+		try {
+			for (int i = 0; i < classifiers.length; i++) {
+				File toSave = new File(destinationFile.getParentFile().getAbsolutePath()+"/ts"+i+"_"+destinationFile.getName());
+				classifiers[i].saveTrainningSetIntoFile(toSave);
+			}
+		} catch (FileNotFoundException e) {
+		}
 		this.hasLoadedTrainingSet = true;
 	}
 
@@ -150,14 +198,14 @@ public class ModelBuilder {
 	 * @param file Location of the file that contains the training set.
 	 */
 	public boolean loadTrainingSet(File file) {
-		try {
-			this.classifier.loadDataSetFromFile(file);
-			this.hasLoadedTrainingSet = true;
-			return true;
-		} catch (IOException e) {
-			this.hasLoadedTrainingSet = false;
-			return false;
-		}
+		//		try {
+		//			this.classifier.loadDataSetFromFile(file);
+		//			this.hasLoadedTrainingSet = true;
+		//			return true;
+		//		} catch (IOException e) {
+		//			this.hasLoadedTrainingSet = false;
+		return false;
+		//		}
 	}
 
 	/**
@@ -175,11 +223,22 @@ public class ModelBuilder {
 				break;
 			}
 			if(classifierType != null) {
-				this.classifier.trainClassifier(classifierType, null, classifierDestination);
+				try {
+					trainAll(classifierType, classifierDestination);
+				} catch (Exception e) {
+					return false;
+				}
 				return true;
 			}
 		}
 		return false;
+	}
+
+	private void trainAll(Classifier classifierType, File destinationFile) throws Exception {
+		for (int i = 0; i < classifiers.length; i++) {
+			File toSave = new File(destinationFile.getParentFile().getAbsolutePath()+"/model"+i+"_"+destinationFile.getName());
+			classifiers[i].trainClassifier(classifierType, null, toSave);
+		}
 	}
 
 	// ************************ ACCESS METHODS ************************

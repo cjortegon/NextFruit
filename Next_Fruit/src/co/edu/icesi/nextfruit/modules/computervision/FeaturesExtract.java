@@ -45,9 +45,17 @@ public class FeaturesExtract {
 		return colorStatistics != null;
 	}
 
-	public void analizeData(CameraCalibration calibration, List<MatchingColor> colors) {
-		matchingColors = colorMatching(colors, calibration);
+	public void processLuminanceAnalysis() {
 		luminanceStatistics = luminanceAnalysis();
+	}
+
+	public void processColorAnalysis(CameraCalibration calibration, List<MatchingColor> colors) {
+		matchingColors = colorMatching(colors, calibration);
+	}
+
+	public void analizeData(CameraCalibration calibration, List<MatchingColor> colors) {
+		processColorAnalysis(calibration, colors);
+		processLuminanceAnalysis();
 	}
 
 	// ***************** PUBLIC METHODS *****************
