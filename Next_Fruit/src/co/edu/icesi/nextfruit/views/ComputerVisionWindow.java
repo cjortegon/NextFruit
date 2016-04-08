@@ -44,7 +44,7 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 	private HistogramCanvas histogramCanvas;
 	private JButton loadButton, processButton, updateMatchingColorsButton, analizeDataButton, displayImageButton, displayXYYButton, increaseLuminance, decreaseLuminance;
 	private JTextArea matchingColors, luminanceStatistics;
-	private JLabel luminanceField;
+	private JLabel luminanceField, xyYscroller;
 
 	@Override
 	public void init(Attachable model, Updateable view) {
@@ -55,6 +55,7 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 
 		// Initializing objects
 		imageCanvas = new ImageCanvas(CANVAS_SIZE_VERTICAL, this.model);
+		xyYscroller = new JLabel("(x,y,Y)");
 		colorsPanel = new ColorsPanel((Model) model, CANVAS_SIZE_BIG, INITIAL_LUMINANT);
 		barsCanvas = new BarDiagramCanvas(CANVAS_SIZE_SMALL);
 		histogramCanvas = new HistogramCanvas(new Dimension(CANVAS_SIZE_BIG.width, CANVAS_SIZE_SMALL.height));
@@ -74,22 +75,43 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 		decreaseLuminance = new JButton("<");
 
 		// Adding components
-		addComponent(loadButton, 0, 0, 1, 1, false);
-		addComponent(imageCanvas, 1, 0, 1, 3, false);
-		addComponent(processButton, 4, 0, 1, 1, false);
-		addComponent(colorsPanel, 0, 1, 1, 5, false);
-		addComponent(displayImageButton, 0, 2, 1, 1, false);
-		addComponent(displayXYYButton, 0, 3, 3, 1, false);
-		addComponent(updateMatchingColorsButton, 1, 2, 1, 1, false);
-		addComponent(decreaseLuminance, 1, 3, 1, 1, false);
-		addComponent(luminanceField, 1, 4, 1, 1, false);
-		addComponent(increaseLuminance, 1, 5, 1, 1, false);
-		addLabel("List of matching colors", 2, 2, 4, 1, true);
-		addComponent(matchingColors, 3, 2, 4, 1, false);
-		addComponent(analizeDataButton, 4, 2, 4, 1, false);
-		addComponent(barsCanvas, 5, 0, 1, 1, false);
-		addComponent(histogramCanvas, 5, 1, 1, 1, false);
-		addComponent(luminanceStatistics, 5, 2, 4, 1, false);
+//		addComponent(loadButton, 0, 0, 1, 1, false);
+//		addComponent(imageCanvas, 1, 0, 1, 3, false);
+//		addComponent(processButton, 4, 0, 1, 1, false);
+//		addComponent(colorsPanel, 0, 1, 1, 5, false);
+//		addComponent(displayImageButton, 0, 2, 1, 1, false);
+//		addComponent(displayXYYButton, 0, 3, 3, 1, false);
+//		addComponent(updateMatchingColorsButton, 1, 2, 1, 1, false);
+//		addComponent(decreaseLuminance, 1, 3, 1, 1, false);
+//		addComponent(luminanceField, 1, 4, 1, 1, false);
+//		addComponent(increaseLuminance, 1, 5, 1, 1, false);
+//		addLabel("List of matching colors", 2, 2, 4, 1, true);
+//		addComponent(matchingColors, 3, 2, 4, 1, false);
+//		addComponent(analizeDataButton, 4, 2, 4, 1, false);
+//		addComponent(barsCanvas, 5, 0, 1, 1, false);
+//		addComponent(histogramCanvas, 5, 1, 1, 1, false);
+//		addComponent(luminanceStatistics, 5, 2, 4, 1, false);
+
+		// Adding components
+		addComponent(loadButton, 0, 0, 2, 1, false);
+		addComponent(imageCanvas, 1, 0, 2, 3, false);
+		addComponent(xyYscroller, 4, 0, 1, 1, true);
+		addComponent(processButton, 4, 1, 1, 1, false);
+		addComponent(barsCanvas, 5, 0, 2, 1, false);
+		
+		addComponent(colorsPanel, 0, 2, 1, 5, false);
+		addComponent(histogramCanvas, 5, 2, 1, 1, false);
+		
+		addComponent(displayImageButton, 0, 3, 1, 1, false);
+		addComponent(displayXYYButton, 0, 4, 3, 1, false);
+		addComponent(updateMatchingColorsButton, 1, 3, 1, 1, false);
+		addComponent(decreaseLuminance, 1, 4, 1, 1, false);
+		addComponent(luminanceField, 1, 5, 1, 1, false);
+		addComponent(increaseLuminance, 1, 6, 1, 1, false);
+		addLabel("List of matching colors", 2, 3, 4, 1, true);
+		addComponent(matchingColors, 3, 3, 4, 1, false);
+		addComponent(analizeDataButton, 4, 3, 4, 1, false);
+		addComponent(luminanceStatistics, 5, 3, 4, 1, false);
 
 		// Starting controller
 		new ComputerVisionController().init(model, this);
@@ -121,8 +143,12 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 					model.getCameraCalibration().getWorkingSpaceMatrix(),
 					model.getCameraCalibration().getWhiteX());
 			colorsPanel.setPoint(xyY);
-		} else
+			DecimalFormat numberFormat = new DecimalFormat("0.00");
+			xyYscroller.setText("("+numberFormat.format(xyY[0])+","+numberFormat.format(xyY[1])+","+numberFormat.format(xyY[2])+")");
+		} else {
 			colorsPanel.setPoint(null);
+			xyYscroller.setText("(x,y,Y)");
+		}
 	}
 
 	@Override

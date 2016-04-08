@@ -15,17 +15,11 @@ import weka.core.Instance;
 public class QualityFeaturesAdapter extends WekaClassifierAdapter {
 
 	private final String[] matchingColors = new String[] {
-			"0.40;0.47;0.05+0.39;0.41;0.03+0.46;0.42;0.03", // Amarillos
-			"0.39;0.35;0.03", // Cafe
-			"0.58;0.34;0.1" // Rojo
+			"0.40;0.47;0.05+0.39;0.41;0.03+0.46;0.42;0.03", // Yellow
+			"0.39;0.35;0.03", // Brown
+			"0.58;0.34;0.1", // Red
+			"0.34;0.43;0.02+0.32;0.40;0.02" // Leaves
 	};
-
-	//	private final String[] matchingColors = new String[] {
-	//			"0.40;0.47;0.05+0.39;0.41;0.03+0.46;0.42;0.03", // Amarillos
-	//			"0.39;0.35;0.03", // Cafe
-	//			"0.58;0.34;0.1", // Rojo
-	//			"0.34;0.43;0.02+0.32;0.40;0.02" // Hojas
-	//	};
 
 	private CameraCalibration calibration;
 
@@ -88,9 +82,10 @@ public class QualityFeaturesAdapter extends WekaClassifierAdapter {
 		Attribute sD = new Attribute("standard-deviation");
 		Attribute skewness = new Attribute("skewness");
 		Attribute kurtosis = new Attribute("kurtosis");
+		Attribute yellow = new Attribute("yellow-percentage");
+		Attribute brown = new Attribute("brown-percentage");
 		Attribute red = new Attribute("red-percentage");
 		Attribute green = new Attribute("green-percentage");
-		Attribute brown = new Attribute("brown-percentage");
 		Attribute qualityClass = new Attribute("quality", qualityClassValues);
 
 		// Declare the feature vector
@@ -100,9 +95,10 @@ public class QualityFeaturesAdapter extends WekaClassifierAdapter {
 		features.add(sD);
 		features.add(skewness);
 		features.add(kurtosis);
+		features.add(yellow);
+		features.add(brown);
 		features.add(red);
 		features.add(green);
-		features.add(brown);
 		features.add(qualityClass);
 
 		return features;
