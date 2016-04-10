@@ -181,7 +181,7 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 
 	@Override
 	public void repaint() {
-		colorsPanel.setLuminantValue(Double.valueOf(luminanceField.getText()));
+		colorsPanel.setLuminantValue(Double.valueOf(luminanceField.getText().replace(",", ".")));
 		super.repaint();
 	}
 
