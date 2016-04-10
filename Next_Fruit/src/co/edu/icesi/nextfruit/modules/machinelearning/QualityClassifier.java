@@ -1,6 +1,8 @@
 package co.edu.icesi.nextfruit.modules.machinelearning;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -14,7 +16,7 @@ import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instance;
 
-public class QualityFeaturesAdapter extends WekaClassifierAdapter {
+public class QualityClassifier extends WekaClassifierAdapter {
 
 	private final String[] matchingColors = new String[] {
 			"0.40;0.47;0.05+0.39;0.41;0.03+0.46;0.42;0.03", // Yellow
@@ -25,7 +27,7 @@ public class QualityFeaturesAdapter extends WekaClassifierAdapter {
 
 	private CameraCalibration calibration;
 
-	public QualityFeaturesAdapter(CameraCalibration calibration, int numberOfInstances) {
+	public QualityClassifier(CameraCalibration calibration, int numberOfInstances) {
 		super("strawberry-qualities", numberOfInstances);
 		this.calibration = calibration;
 
@@ -73,11 +75,8 @@ public class QualityFeaturesAdapter extends WekaClassifierAdapter {
 
 		// Create and Initialize Attributes
 		ArrayList<String> qualityClassValues = new ArrayList<String>(4);
-		qualityClassValues.add("4r");
-		qualityClassValues.add("5r");
-		qualityClassValues.add("5v");
-		qualityClassValues.add("er");
-		qualityClassValues.add("fea");
+		qualityClassValues.add("t");
+		qualityClassValues.add("f");
 
 		Attribute area = new Attribute("area");
 		Attribute mean = new Attribute("mean");
@@ -108,8 +107,36 @@ public class QualityFeaturesAdapter extends WekaClassifierAdapter {
 
 	@Override
 	protected void saveEvaluationData(Evaluation ev, File file) {
-		// TODO Auto-generated method stub
-		
+		try {
+			String separator = System.getProperty("line.separator");
+			double[][] cmMatrix = ev.confusionMatrix();
+
+			String s = ("**************" + separator + separator +
+					" Test Results" + separator + separator +
+					"**************" + separator + separator +
+					separator + "-- SUMMARY --" + separator +
+					ev.toSummaryString() + separator +
+					separator + "-- CONFUSION MATRIX --" + separator + 
+
+					//********************************************************
+					//	Modificar la matriz de confusion para que se ajuste a 
+					//	nuestro problema.
+					//********************************************************
+
+					separator + "Approved" + "   " + "" + "Rejected"+ "   -> Classified as" + separator +
+					"(" + cmMatrix[0][0] + ")" + " (" + cmMatrix[0][1] + ")" + "   | Approved (Real Value)" + separator +
+					"(" + cmMatrix[1][0] + ")" + " (" + cmMatrix[1][1] + ")" + "   | Rejected (Rela Value)");
+
+			PrintWriter writer = new PrintWriter(file);
+			writer.println(s);
+			writer.close();
+			writeLog("[saveEvaluationData]: Los resultados de la evaluacion se han guardado en " +
+					"el archivo " + file.getName() + ".");
+
+		} catch (FileNotFoundException e) {
+			writeLog("[saveEvaluationData]: No se pudo guardar el resultado de la evaluacion ");
+			e.printStackTrace();
+		}		
 	}
 
 }

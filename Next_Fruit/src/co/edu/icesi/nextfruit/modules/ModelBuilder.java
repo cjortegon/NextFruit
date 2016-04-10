@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.List;
 
 import co.edu.icesi.nextfruit.modules.computervision.FeaturesExtract;
-import co.edu.icesi.nextfruit.modules.machinelearning.QualityFeaturesAdapter;
+import co.edu.icesi.nextfruit.modules.machinelearning.QualityClassifier;
 import co.edu.icesi.nextfruit.modules.machinelearning.WekaClassifier;
 import co.edu.icesi.nextfruit.modules.machinelearning.WekaClassifierAdapter;
 import co.edu.icesi.nextfruit.modules.model.CameraCalibration;
@@ -156,7 +156,7 @@ public class ModelBuilder {
 
 		// Starting classifiers
 		this.classifiers = new WekaClassifierAdapter[1];
-		this.classifiers[0] = new QualityFeaturesAdapter(calibration, numberOfImages);
+		this.classifiers[0] = new QualityClassifier(calibration, numberOfImages);
 
 		// Extracting features from images and creating new instances from that
 		for (File file : images) {

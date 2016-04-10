@@ -244,7 +244,7 @@ public abstract class WekaClassifier {
 	 * Auxiliary method to write a message into a log file. 
 	 * @param message, the string to write into the file.
 	 */
-	private void writeLog(String message){
+	public void writeLog(String message){
 		try {
 			DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 			System.out.println(LOG_PATH);

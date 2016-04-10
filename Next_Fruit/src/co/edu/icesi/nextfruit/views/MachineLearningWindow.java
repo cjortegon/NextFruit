@@ -21,6 +21,10 @@ import visualkey.KFrame;
  */
 public class MachineLearningWindow extends KFrame implements Initializable, Updateable{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private Model model;
 	private JTextField tfImagesField;
 	private JButton btGenerateTrainingSet, btLoadTrainingSet, btTrainClassifier, btChooseImagesDir;
@@ -51,7 +55,7 @@ public class MachineLearningWindow extends KFrame implements Initializable, Upda
 
 		//	Attach to model
 		this.model = (Model) model;
-		model.attach(this);
+		this.model.attach(this);
 
 		addLabel("Load images from directory:", 0, 0, 1, 1, false);
 		addComponent(tfImagesField, 1, 0, 1, 1, false);
