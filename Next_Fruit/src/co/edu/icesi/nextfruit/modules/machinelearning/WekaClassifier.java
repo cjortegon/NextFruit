@@ -28,14 +28,12 @@ import weka.core.SerializationHelper;
  */
 public abstract class WekaClassifier {
 
-	private static final String LOAD_SAVE_PATH = "resources" + File.separator +
-			"MachineLearning" +  File.separator;
 	private static final String LOG_PATH = "resources" + File.separator + "log.txt";
 
+	private ArrayList<Attribute> features;
 	protected Instances trainingSet;
 	protected Instances testSet;
-	private ArrayList<Attribute> features;
-
+		
 	/**
 	 * Class constructor.
 	 */
@@ -53,11 +51,7 @@ public abstract class WekaClassifier {
 
 		features = defineFeaturesVector();
 	}
-
-	/**
-	 * Initialize the features vector.
-	 */
-	protected abstract ArrayList<Attribute> defineFeaturesVector();
+	
 
 	/**
 	 * Classify a given unknown instance, which is the first element in an Instances object
@@ -190,76 +184,62 @@ public abstract class WekaClassifier {
 	/**
 	 * Evaluates a classifier trained with a given training data, using a test data.
 	 * @param classificationModel, the classifier to test.
-	 * @param trainingSetFileName, the name of the file containing the training set data.
-	 * @param testSetFileName, the name of the file containing the test set data.
+	 * @param trainingSetFile, file containing the training set data.
+	 * @param testSetFile, file containing the test set data.
+	 * @param testResults, file into which the test results will be saved.
 	 */
-	public void testClassifierModel(Classifier classificationModel, String trainingSetFileName, String testSetFileName){
+	public Evaluation testClassifierModel(Classifier classificationModel, File trainingSetFile, 
+			File testSetFile, File testResults){
+		
+		Evaluation ev = null;
+		
 		try {
 			if(trainingSet == null){
-				trainingSet = getDataSetFromFile(new File("resources/"+trainingSetFileName));
+				trainingSet = getDataSetFromFile(trainingSetFile);
 			}
 			if(testSet == null){
-				testSet = getDataSetFromFile(new File("resources/"+testSetFileName));
+				testSet = getDataSetFromFile(testSetFile);
 			}
 
 			if(trainingSet != null && testSet != null){
 
-				Evaluation ev = new Evaluation(trainingSet);
+				ev = new Evaluation(trainingSet);
 				ev.evaluateModel(classificationModel, testSet);
-				saveEvaluationData(ev, classificationModel.getClass().getSimpleName() + "TestResults.txt");
+				saveEvaluationData(ev, testResults);
 				writeLog("[testClassifierModel]: Se finalizo correctamente la evaluacion del modelo " +
 						classificationModel.getClass().getSimpleName());
+				
 			} else {
 				writeLog("[testClassifierModel]: No se pudo evaluar el modelo");
 			}
-
+			
 		} catch (Exception e) {
 
 			writeLog("[testClassifierModel]: No se pudo evaluar el modelo");
 			e.printStackTrace();
 		}	
+		
+		return ev;
 	}
 
+	public ArrayList<Attribute> getFeatures() {
+		return features;
+	}
+	
+	
+	/**
+	 * Initialize the features vector.
+	 */
+	protected abstract ArrayList<Attribute> defineFeaturesVector();
+	
 	/**
 	 * Given an evaluation of a classifier, saves the results to a file in disk.
 	 * @param ev, evaluation object with the results data.
-	 * @param fileName, name of the file in which the data is going to be saved.
-	 * @deprecated Cuero: Cambia el String por un File y que no se usen ubicaciones relativas
+	 * @param file, file in which the data is going to be saved.
 	 */
-	public void saveEvaluationData(Evaluation ev, String fileName){
-		try {
-			String separator = System.getProperty("line.separator");
-			double[][] cmMatrix = ev.confusionMatrix();
-
-			String s = ("**************" + separator + separator +
-					" Test Results" + separator + separator +
-					"**************" + separator + separator +
-					separator + "-- SUMMARY --" + separator +
-					ev.toSummaryString() + separator +
-					separator + "-- CONFUSION MATRIX --" + separator + 
-
-					//********************************************************
-					//	Modificar la matriz de confusion para que se ajuste a 
-					//	nuestro problema.
-					//********************************************************
-
-					separator + "Class-1" + "   " + "Class-2" + "Class-E"+ "   -> Se clasifico como" + separator +
-					"(" + cmMatrix[0][0] + ")" + " (" + cmMatrix[0][1] + ")" + "   | Class-1 (Real Value)" + separator +
-					"(" + cmMatrix[1][0] + ")" + " (" + cmMatrix[1][1] + ")" + "   | Class-2 (Rela Value)" + separator +
-					"(" + cmMatrix[2][0] + ")" + " (" + cmMatrix[2][1] + ")" + "   | Class-E (Real Value)");
-
-			PrintWriter writer = new PrintWriter(LOAD_SAVE_PATH + fileName.trim() + ".txt");
-			writer.println(s);
-			writer.close();
-			writeLog("[saveEvaluationData]: Los resultados de la evaluacion se han guardado en " +
-					"el archivo " + fileName + ".txt");
-
-		} catch (FileNotFoundException e) {
-			writeLog("[saveEvaluationData]: No se pudo guardar el resultado de la evaluacion ");
-			e.printStackTrace();
-		}
-	}
-
+	protected abstract void saveEvaluationData(Evaluation ev, File file);
+	
+	
 	/**
 	 * Auxiliary method to write a message into a log file. 
 	 * @param message, the string to write into the file.
@@ -274,10 +254,6 @@ public abstract class WekaClassifier {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
-
-	public ArrayList<Attribute> getFeatures() {
-		return features;
 	}
 
 }

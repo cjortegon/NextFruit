@@ -1,5 +1,6 @@
 package co.edu.icesi.nextfruit.modules.machinelearning;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -8,6 +9,7 @@ import co.edu.icesi.nextfruit.modules.model.CameraCalibration;
 import co.edu.icesi.nextfruit.modules.model.ColorDistribution;
 import co.edu.icesi.nextfruit.modules.model.PolygonWrapper;
 import co.edu.icesi.nextfruit.util.Statistics;
+import weka.classifiers.Evaluation;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instance;
@@ -102,6 +104,12 @@ public class QualityFeaturesAdapter extends WekaClassifierAdapter {
 		features.add(qualityClass);
 
 		return features;
+	}
+
+	@Override
+	protected void saveEvaluationData(Evaluation ev, File file) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

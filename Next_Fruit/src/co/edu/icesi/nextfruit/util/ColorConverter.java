@@ -259,6 +259,24 @@ public class ColorConverter {
 			Z = 0;
 		}
 		
+		if(X > 1){
+			X = 1;
+		}else if(X < 0){
+			X = 0;
+		}
+		
+		if(Y > 1){
+			Y = 1;
+		}else if(Y < 0){
+			Y = 0;
+		}
+		
+		if(Z > 1){
+			Z = 1;
+		}else if(Z < 0){
+			Z = 0;
+		}
+		
 		double[] returnValue = {X, Y, Z};
 		return returnValue;
 	}
