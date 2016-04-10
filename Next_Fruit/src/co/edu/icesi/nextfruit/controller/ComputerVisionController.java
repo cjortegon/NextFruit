@@ -95,14 +95,14 @@ public class ComputerVisionController implements Initializable, ActionListener, 
 			break;
 
 		case INCREASE_Y:
-			double incValue = Double.valueOf(view.getLuminanceField().getText())+0.05;
+			double incValue = Double.valueOf(view.getLuminanceField().getText().replaceAll(",", "."))+0.05;
 			DecimalFormat numberFormat1 = new DecimalFormat("0.00");
 			view.getLuminanceField().setText(""+numberFormat1.format(incValue));
 			view.update();
 			break;
 
 		case DECREASE_Y:
-			double decValue = Double.valueOf(view.getLuminanceField().getText())-0.05;
+			double decValue = Double.valueOf(view.getLuminanceField().getText().replaceAll(",", "."))-0.05;
 			if(decValue < 0)
 				decValue = 0;
 			DecimalFormat numberFormat2 = new DecimalFormat("0.00");
