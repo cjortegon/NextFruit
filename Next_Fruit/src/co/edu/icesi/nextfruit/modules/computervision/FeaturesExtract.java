@@ -117,6 +117,7 @@ public class FeaturesExtract {
 			histogram.increaseLuminancePosition(luminance, true);
 			stat.addValue(c.getxyY()[2]);
 		}
+		histogram.generateRangesFromStatistics(16);
 		return stat;
 	}
 
