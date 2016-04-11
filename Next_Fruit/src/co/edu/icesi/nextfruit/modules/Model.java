@@ -34,7 +34,7 @@ import weka.core.Instance;
 import weka.core.Instances;
 
 public class Model implements Attachable {
-
+	
 	private static final int CALIBRATE = 0;
 	private static final int EXTRACT = 1;
 
@@ -257,7 +257,32 @@ public class Model implements Attachable {
 		return false;
 	}
 
+	
+	public void testClassifier(String type){
+		/*
+		switch (type) {
+		
+		case QUALITY_CLASSIFIER:
+			
+			break;
+			
+		case SIZE_CLASSIFIER:
+			
+			break;
+			
+		case CLASS_CLASSIFIER:
+			
+			break;
+			
+		case RIPENESS_CLASSIFIER:
+			
+			break;
 
+		}
+		*/
+	}
+
+	
 	/**
 	 * NOT IMPLEMENTED YET
 	 * NOT IMPLEMENTED YET

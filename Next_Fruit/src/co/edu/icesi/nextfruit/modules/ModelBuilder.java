@@ -33,6 +33,11 @@ public class ModelBuilder {
 	public static final String THIRD_TYPE = "Third type";
 	public static final String[] MODEL_TYPES = new String[]{NAIVE_BAYES, SECOND_TYPE, THIRD_TYPE};
 
+	public static final String QUALITY_CLASSIFIER = "QUALITY";
+	public static final String SIZE_CLASSIFIER = "SIZE";
+	public static final String CLASS_CLASSIFIER = "CLASS";
+	public static final String RIPENESS_CLASSIFIER = "RIPENESS";
+	
 	private ArrayList<File> images;
 
 	private WekaClassifierAdapter classifiers[];
