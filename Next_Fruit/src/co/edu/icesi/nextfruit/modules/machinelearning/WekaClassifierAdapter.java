@@ -12,9 +12,9 @@ public abstract class WekaClassifierAdapter extends WekaClassifier {
 
 	private List<MatchingColor> matchingColors;
 	
-	public WekaClassifierAdapter(String name, int numberOfInstances) {
+	public WekaClassifierAdapter(String name) {
 		super();
-		this.trainingSet = new Instances(name, getFeatures(), numberOfInstances);
+		this.trainingSet = new Instances(name, getFeatures(), 0);
 	}
 
 	public abstract void insertInstanceFromFeatures(FeaturesExtract extracted, String className);

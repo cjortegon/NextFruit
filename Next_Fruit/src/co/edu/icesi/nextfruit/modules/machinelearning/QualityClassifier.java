@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import co.edu.icesi.nextfruit.modules.computervision.FeaturesExtract;
+import co.edu.icesi.nextfruit.modules.computervision.Histogram;
 import co.edu.icesi.nextfruit.modules.model.CameraCalibration;
 import co.edu.icesi.nextfruit.modules.model.ColorDistribution;
 import co.edu.icesi.nextfruit.modules.model.PolygonWrapper;
@@ -19,16 +20,78 @@ import weka.core.Instance;
 public class QualityClassifier extends WekaClassifierAdapter {
 
 	private final String[] matchingColors = new String[] {
-			"0.40;0.47;0.05+0.39;0.41;0.03+0.46;0.42;0.03", // Yellow
-			"0.39;0.35;0.03", // Brown
-			"0.58;0.34;0.1", // Red
-			"0.34;0.43;0.02+0.32;0.40;0.02" // Leaves
+			"0.30;0.30;0.025",
+			"0.35;0.30;0.025",
+			"0.40;0.30;0.025",
+			"0.45;0.30;0.025",
+			"0.50;0.30;0.025",
+			"0.55;0.30;0.025",
+			"0.60;0.30;0.025",
+
+			"0.325;0.325;0.025",
+			"0.375;0.325;0.025",
+			"0.425;0.325;0.025",
+			"0.475;0.325;0.025",
+			"0.525;0.325;0.025",
+			"0.575;0.325;0.025",
+			"0.625;0.325;0.025",
+
+			"0.30;0.35;0.025",
+			"0.35;0.35;0.025",
+			"0.40;0.35;0.025",
+			"0.45;0.35;0.025",
+			"0.50;0.35;0.025",
+			"0.55;0.35;0.025",
+			"0.60;0.35;0.025",
+
+			"0.325;0.375;0.025",
+			"0.375;0.375;0.025",
+			"0.425;0.375;0.025",
+			"0.475;0.375;0.025",
+			"0.525;0.375;0.025",
+			"0.575;0.375;0.025",
+
+			"0.30;0.40;0.025",
+			"0.35;0.40;0.025",
+			"0.40;0.40;0.025",
+			"0.45;0.40;0.025",
+			"0.50;0.40;0.025",
+			"0.55;0.40;0.025",
+
+			"0.325;0.425;0.025",
+			"0.375;0.425;0.025",
+			"0.425;0.425;0.025",
+			"0.475;0.425;0.025",
+			"0.525;0.425;0.025",
+
+			"0.30;0.45;0.025",
+			"0.35;0.45;0.025",
+			"0.40;0.45;0.025",
+			"0.45;0.45;0.025",
+			"0.50;0.45;0.025",
+
+			"0.325;0.475;0.025",
+			"0.375;0.475;0.025",
+			"0.425;0.475;0.025",
+			"0.475;0.475;0.025",
+
+			"0.30;0.50;0.025",
+			"0.35;0.50;0.025",
+			"0.40;0.50;0.025",
+			"0.45;0.50;0.025",
+
+			"0.325;0.525;0.025",
+			"0.375;0.525;0.025",
+			"0.425;0.525;0.025",
+
+			"0.35;0.55;0.025",
+			"0.40;0.55;0.025"
 	};
 
 	private CameraCalibration calibration;
 
-	public QualityClassifier(CameraCalibration calibration, int numberOfInstances) {
-		super("strawberry-qualities", numberOfInstances);
+	public QualityClassifier(CameraCalibration calibration) {
+		super("strawberry-qualities");
 		this.calibration = calibration;
 
 		// Loading matching colors
@@ -51,18 +114,31 @@ public class QualityClassifier extends WekaClassifierAdapter {
 			colors[index++] = color.getRepeat()/(double)extracted.getNumberOfPixels();
 
 		// Creating instance
-		Instance instance = new DenseInstance(9);
+		Instance instance = new DenseInstance(12+colors.length);
 		ArrayList<Attribute> features = getFeatures();
 
+		// Adding features
 		instance.setValue(features.get(0), polygon.getArea());
 		instance.setValue(features.get(1), luminantStatistics.getMean());
 		instance.setValue(features.get(2), luminantStatistics.getStandardDeviation());
 		instance.setValue(features.get(3), luminantStatistics.getSkewness());
 		instance.setValue(features.get(4), luminantStatistics.getKurtosis());
-		instance.setValue(features.get(5), colors[0]);
-		instance.setValue(features.get(6), colors[1]);
-		instance.setValue(features.get(7), colors[2]);
-		instance.setValue(features.get(8), className);
+
+		// Adding luminance ranges
+		double[] ranges = extracted.getHistogram().getRanges();
+		instance.setValue(features.get(5), ranges[0]);
+		instance.setValue(features.get(6), ranges[1]);
+		instance.setValue(features.get(7), ranges[2]);
+		instance.setValue(features.get(8), ranges[3]);
+		instance.setValue(features.get(9), ranges[4]);
+		instance.setValue(features.get(10), ranges[5]);
+
+		// Adding colors
+		for (int i = 0; i < colors.length; i++)
+			instance.setValue(features.get(i+11), colors[i]);
+
+		// Adding class name
+		instance.setValue(features.get(colors.length+5), className);
 		this.trainingSet.add(instance);
 
 	}

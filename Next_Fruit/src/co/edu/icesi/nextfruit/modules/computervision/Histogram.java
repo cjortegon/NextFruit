@@ -19,6 +19,7 @@ public class Histogram {
 	private Mat mat;
 	private int[] histogram;
 	private int[][] rgbHistogram;
+	private double[] ranges;
 
 	public Histogram(String imagePath) {
 		mat = Imgcodecs.imread(imagePath);
@@ -90,6 +91,25 @@ public class Histogram {
 
 	public void generateEmptyLuminanceHistogram(int size) {
 		histogram = new int[size];
+	}
+
+	public void generateRangesFromStatistics(int numberOfRanges) {
+		this.ranges = new double[numberOfRanges];
+		long sum = 0;
+		//		int max = 0;
+		for (int i = 0; i < histogram.length; i++) {
+			sum += histogram[i];
+			//			if(histogram[i] > max)
+			//				max = histogram[i];
+			ranges[(int) ((i*numberOfRanges)/((double)histogram.length))] += histogram[i];
+		}
+		for (int i = 0; i < ranges.length; i++) {
+			ranges[i] /= sum;
+		}
+	}
+
+	public double[] getRanges() {
+		return ranges;
 	}
 
 	public void increaseLuminancePosition(double value, boolean useAutofill) {
@@ -195,7 +215,7 @@ public class Histogram {
 			}
 		}
 	}
-	
+
 	public void filterFigureByGrayProfile(int gray, int range, double[] matchColor, double[] notMatchColor) {
 		if(matchColor != null || notMatchColor != null) {
 			int max = gray + range;
