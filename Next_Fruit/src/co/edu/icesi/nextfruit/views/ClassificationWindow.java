@@ -19,6 +19,11 @@ import visualkey.KFrame;
  */
 public class ClassificationWindow extends KFrame implements Initializable, Updateable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private Model model;
 	
 	private JLabel lbLoadImage, lbLoadClassifier;
@@ -47,7 +52,7 @@ public class ClassificationWindow extends KFrame implements Initializable, Updat
 
 		//	Attach to model
 		this.model = (Model) model;
-		model.attach(this);
+		this.model.attach(this);
 		
 		addComponent(lbLoadClassifier, 0, 0, 1, 1, false);
 		addComponent(btLoadClassifier, 1, 0, 1, 1, false);
