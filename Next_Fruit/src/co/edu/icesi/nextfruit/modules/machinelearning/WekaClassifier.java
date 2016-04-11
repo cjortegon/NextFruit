@@ -33,7 +33,7 @@ public abstract class WekaClassifier {
 	private ArrayList<Attribute> features;
 	protected Instances trainingSet;
 	protected Instances testSet;
-		
+
 	/**
 	 * Class constructor.
 	 */
@@ -51,7 +51,7 @@ public abstract class WekaClassifier {
 
 		features = defineFeaturesVector();
 	}
-	
+
 
 	/**
 	 * Classify a given unknown instance, which is the first element in an Instances object
@@ -100,7 +100,7 @@ public abstract class WekaClassifier {
 			throw e;
 		}
 	}
-	
+
 	public void saveTrainningSetIntoFile(File file) throws FileNotFoundException {
 		saveDataSetIntoFile(trainingSet, file);
 	}
@@ -145,8 +145,11 @@ public abstract class WekaClassifier {
 	 */
 	public void trainClassifier(Classifier classificationModel, File trainingSetFileName, File classifierSaveFile) throws Exception {
 		try {
-			if(trainingSet == null)
+			if(trainingSet == null) {
 				loadDataSetFromFile(trainingSetFileName);
+				if(trainingSetFileName == null)
+					throw new Exception("No trainning file loaded.");
+			}
 
 			classificationModel.buildClassifier(trainingSet);
 
@@ -190,9 +193,9 @@ public abstract class WekaClassifier {
 	 */
 	public Evaluation testClassifierModel(Classifier classificationModel, File trainingSetFile, 
 			File testSetFile, File testResults){
-		
+
 		Evaluation ev = null;
-		
+
 		try {
 			if(trainingSet == null){
 				trainingSet = getDataSetFromFile(trainingSetFile);
@@ -208,38 +211,38 @@ public abstract class WekaClassifier {
 				saveEvaluationData(ev, testResults);
 				writeLog("[testClassifierModel]: Se finalizo correctamente la evaluacion del modelo " +
 						classificationModel.getClass().getSimpleName());
-				
+
 			} else {
 				writeLog("[testClassifierModel]: No se pudo evaluar el modelo");
 			}
-			
+
 		} catch (Exception e) {
 
 			writeLog("[testClassifierModel]: No se pudo evaluar el modelo");
 			e.printStackTrace();
 		}	
-		
+
 		return ev;
 	}
 
 	public ArrayList<Attribute> getFeatures() {
 		return features;
 	}
-	
-	
+
+
 	/**
 	 * Initialize the features vector.
 	 */
 	protected abstract ArrayList<Attribute> defineFeaturesVector();
-	
+
 	/**
 	 * Given an evaluation of a classifier, saves the results to a file in disk.
 	 * @param ev, evaluation object with the results data.
 	 * @param file, file in which the data is going to be saved.
 	 */
 	protected abstract void saveEvaluationData(Evaluation ev, File file);
-	
-	
+
+
 	/**
 	 * Auxiliary method to write a message into a log file. 
 	 * @param message, the string to write into the file.

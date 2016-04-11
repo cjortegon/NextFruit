@@ -249,9 +249,9 @@ public class Model implements Attachable {
 	 * @param destinationFile The file where the model will be saved.
 	 * @param type The type of machine learning to use for building the new model.
 	 */
-	public boolean trainClassifier(File destinationFile, String type) {
+	public boolean trainClassifier(File destinationFile, String technique, String classifier) {
 		if(modelBuilder != null) {
-			this.modelBuilder.trainClassifier(destinationFile, type);
+			this.modelBuilder.trainClassifier(destinationFile, technique, classifier);
 			return true;
 		}
 		return false;

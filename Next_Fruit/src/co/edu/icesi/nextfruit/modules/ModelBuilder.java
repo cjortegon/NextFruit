@@ -37,7 +37,7 @@ public class ModelBuilder {
 	public static final String SIZE_CLASSIFIER = "SIZE";
 	public static final String CLASS_CLASSIFIER = "CLASS";
 	public static final String RIPENESS_CLASSIFIER = "RIPENESS";
-	
+
 	private ArrayList<File> images;
 
 	private WekaClassifierAdapter classifiers[];
@@ -131,17 +131,17 @@ public class ModelBuilder {
 	 * @param type The type of machine learning that will be created.
 	 * @return If the operation was successfully finished.
 	 */
-	public boolean trainClassifier(File classifierDestination, String type) {
+	public boolean trainClassifier(File classifierDestination, String technique, String classifier) {
 		if(hasLoadedTrainingSet) {
 			Classifier classifierType = null;
-			switch (type) {
+			switch (technique) {
 			case NAIVE_BAYES:
 				classifierType = new NaiveBayes();
 				break;
 			}
 			if(classifierType != null) {
 				try {
-					trainAll(classifierType, classifierDestination);
+					trainOneClassifier(classifierType, classifierDestination, classifier);
 				} catch (Exception e) {
 					return false;
 				}
@@ -149,6 +149,26 @@ public class ModelBuilder {
 			}
 		}
 		return false;
+	}
+
+	private void trainOneClassifier(Classifier classifierType, File destinationFile, String classifier) throws Exception {
+		switch (classifier) {
+		case QUALITY_CLASSIFIER:
+			classifiers[0].trainClassifier(classifierType, null, destinationFile);
+			break;
+
+		case SIZE_CLASSIFIER:
+			classifiers[1].trainClassifier(classifierType, null, destinationFile);
+			break;
+
+		case CLASS_CLASSIFIER:
+			classifiers[2].trainClassifier(classifierType, null, destinationFile);
+			break;
+
+		case RIPENESS_CLASSIFIER:
+			classifiers[3].trainClassifier(classifierType, null, destinationFile);
+			break;
+		}
 	}
 
 	private void trainAll(Classifier classifierType, File destinationFile) throws Exception {
