@@ -19,6 +19,7 @@ import weka.core.Instance;
 
 public class QualityClassifier extends WekaClassifierAdapter {
 
+	private final int LUMINANCE_RANGE = 6;
 	private final String[] matchingColors = new String[] {
 			"0.30;0.30;0.025",
 			"0.35;0.30;0.025",
@@ -89,6 +90,7 @@ public class QualityClassifier extends WekaClassifierAdapter {
 	};
 
 	private CameraCalibration calibration;
+	private int definedAttributes;
 
 	public QualityClassifier(CameraCalibration calibration) {
 		super("strawberry-qualities");
@@ -117,30 +119,28 @@ public class QualityClassifier extends WekaClassifierAdapter {
 		Instance instance = new DenseInstance(12+colors.length);
 		ArrayList<Attribute> features = getFeatures();
 
-		// Adding features
+		// Adding defined attributes
 		instance.setValue(features.get(0), polygon.getArea());
-		instance.setValue(features.get(1), luminantStatistics.getMean());
-		instance.setValue(features.get(2), luminantStatistics.getStandardDeviation());
-		instance.setValue(features.get(3), luminantStatistics.getSkewness());
-		instance.setValue(features.get(4), luminantStatistics.getKurtosis());
+		instance.setValue(features.get(1), extracted.getEntropy());
+		instance.setValue(features.get(2), luminantStatistics.getMean());
+		instance.setValue(features.get(3), luminantStatistics.getStandardDeviation());
+		instance.setValue(features.get(4), luminantStatistics.getSkewness());
+		instance.setValue(features.get(5), luminantStatistics.getKurtosis());
+		definedAttributes = 6; // Make sure this value is correct
 
 		// Adding luminance ranges
 		double[] ranges = extracted.getHistogram().getRanges();
-		instance.setValue(features.get(5), ranges[0]);
-		instance.setValue(features.get(6), ranges[1]);
-		instance.setValue(features.get(7), ranges[2]);
-		instance.setValue(features.get(8), ranges[3]);
-		instance.setValue(features.get(9), ranges[4]);
-		instance.setValue(features.get(10), ranges[5]);
+		for (int i = 0; i < LUMINANCE_RANGE; i++) {
+			instance.setValue(features.get(definedAttributes+i), ranges[i]);
+		}
 
 		// Adding colors
 		for (int i = 0; i < colors.length; i++)
-			instance.setValue(features.get(i+11), colors[i]);
+			instance.setValue(features.get(definedAttributes+LUMINANCE_RANGE+i), colors[i]);
 
 		// Adding class name
-		instance.setValue(features.get(colors.length+5), className);
+		instance.setValue(features.get(colors.length+definedAttributes), className);
 		this.trainingSet.add(instance);
-
 	}
 
 	/**
@@ -154,15 +154,12 @@ public class QualityClassifier extends WekaClassifierAdapter {
 		qualityClassValues.add("t");
 		qualityClassValues.add("f");
 
+		// Defined attributes
 		Attribute area = new Attribute("area");
 		Attribute mean = new Attribute("mean");
 		Attribute sD = new Attribute("standard-deviation");
 		Attribute skewness = new Attribute("skewness");
 		Attribute kurtosis = new Attribute("kurtosis");
-		Attribute yellow = new Attribute("yellow-percentage");
-		Attribute brown = new Attribute("brown-percentage");
-		Attribute red = new Attribute("red-percentage");
-		Attribute green = new Attribute("green-percentage");
 		Attribute qualityClass = new Attribute("quality", qualityClassValues);
 
 		// Declare the feature vector
@@ -172,12 +169,23 @@ public class QualityClassifier extends WekaClassifierAdapter {
 		features.add(sD);
 		features.add(skewness);
 		features.add(kurtosis);
-		features.add(yellow);
-		features.add(brown);
-		features.add(red);
-		features.add(green);
+
+		// Luminance ranges
+		for (int i = 0; i < LUMINANCE_RANGE; i++) {
+			Attribute luminance = new Attribute("luminance"+i);
+			features.add(luminance);
+		}
+
+		// Colors ranges
+		for (int i = 0; i < matchingColors.length; i++) {
+			Attribute color = new Attribute("color"+i);
+			features.add(color);
+		}
+
+		// Class type
 		features.add(qualityClass);
 
+		System.out.println("Number of features for "+getClass().getName()+": "+features.size());
 		return features;
 	}
 

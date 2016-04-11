@@ -119,46 +119,67 @@ public class Histogram {
 			histogram[(int)((histogram.length-1)*value)] ++;
 	}
 
-	public void generateAllHistograms(boolean useAutoFill) {
-		generateHistogram(useAutoFill, true, true);
+	public int generateAllHistograms(boolean useAutoFill, PolygonWrapper polygon) {
+		return generateHistogram(useAutoFill, true, true, polygon);
 	}
 
-	public void generateGrayscaleHistogram(boolean useAutoFill) {
-		generateHistogram(useAutoFill, true, false);
+	public int generateGrayscaleHistogram(boolean useAutoFill, PolygonWrapper polygon) {
+		return generateHistogram(useAutoFill, true, false, polygon);
 	}
 
-	public void generateRGBHistogram(boolean useAutoFill) {
-		generateHistogram(useAutoFill, false, true);
+	public int generateRGBHistogram(boolean useAutoFill, PolygonWrapper polygon) {
+		return generateHistogram(useAutoFill, false, true, polygon);
 	}
 
-	private void generateHistogram(boolean useAutoFill, boolean gray, boolean rgb) {
+	public int generateAllHistograms(boolean useAutoFill) {
+		return generateHistogram(useAutoFill, true, true, null);
+	}
+
+	public int generateGrayscaleHistogram(boolean useAutoFill) {
+		return generateHistogram(useAutoFill, true, false, null);
+	}
+
+	public int generateRGBHistogram(boolean useAutoFill) {
+		return generateHistogram(useAutoFill, false, true, null);
+	}
+
+	private int generateHistogram(boolean useAutoFill, boolean gray, boolean rgb, PolygonWrapper polygon) {
 		if(gray)
 			histogram = new int[768];
 		if(rgb)
 			rgbHistogram = new int[3][256];
-		for (int i = 0; i < mat.height(); i++) {
-			for (int j = 0; j < mat.width(); j++) {
-				double d[] = mat.get(i, j);
-				int pos = (int) (d[0]+d[1]+d[2]);
-				if(useAutoFill) {
-					if(gray)
-						addToHistogram(pos, histogram);
-					if(rgb) {
-						addToHistogram((int)d[2], rgbHistogram[0]);
-						addToHistogram((int)d[1], rgbHistogram[1]);
-						addToHistogram((int)d[0], rgbHistogram[2]);
-					}
-				} else {
-					if(gray)
-						histogram[pos] ++;
-					if(rgb) {
-						rgbHistogram[0][(int)d[2]] ++;
-						rgbHistogram[1][(int)d[1]] ++;
-						rgbHistogram[2][(int)d[0]] ++;
+		int count = 0;
+		int top = polygon == null ? 0 : (int) Math.ceil(polygon.getTop());
+		int bottom = polygon == null ? mat.height() : (int) Math.floor(polygon.getBottom()) - 1;
+		int left = polygon == null ? 0 : (int) Math.ceil(polygon.getLeft());
+		int right = polygon == null ? mat.width() : (int) Math.floor(polygon.getRight()) - 1;
+		for (int i = top; i < bottom; i++) {
+			for (int j = left; j < right; j++) {
+				if(polygon == null || polygon.contains(new Point(j, i))) {
+					count ++;
+					double d[] = mat.get(i, j);
+					int pos = (int) (d[0]+d[1]+d[2]);
+					if(useAutoFill) {
+						if(gray)
+							addToHistogram(pos, histogram);
+						if(rgb) {
+							addToHistogram((int)d[2], rgbHistogram[0]);
+							addToHistogram((int)d[1], rgbHistogram[1]);
+							addToHistogram((int)d[0], rgbHistogram[2]);
+						}
+					} else {
+						if(gray)
+							histogram[pos] ++;
+						if(rgb) {
+							rgbHistogram[0][(int)d[2]] ++;
+							rgbHistogram[1][(int)d[1]] ++;
+							rgbHistogram[2][(int)d[0]] ++;
+						}
 					}
 				}
 			}
 		}
+		return count;
 	}
 
 	private void addToHistogram(int pos, int[] histogram) {
@@ -210,6 +231,22 @@ public class Histogram {
 						if(notMatchColor != null) {
 							mat.put(i, j, notMatchColor);
 						}
+					}
+				}
+			}
+		}
+	}
+	
+	public void filterFigureWithPolygon(PolygonWrapper polygon, double[] insideColor, double[] outsideColor) {
+		for (int i = 0; i < mat.height(); i++) {
+			for (int j = 0; j < mat.width(); j++) {
+				if(polygon.contains(new Point(j, i))) {
+					if(insideColor != null) {
+						mat.put(i, j, insideColor);
+					}
+				} else {
+					if(outsideColor != null) {
+						mat.put(i, j, outsideColor);
 					}
 				}
 			}

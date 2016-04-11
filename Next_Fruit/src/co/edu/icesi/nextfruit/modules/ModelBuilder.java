@@ -2,26 +2,14 @@ package co.edu.icesi.nextfruit.modules;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 import co.edu.icesi.nextfruit.modules.computervision.FeaturesExtract;
 import co.edu.icesi.nextfruit.modules.machinelearning.QualityClassifier;
-import co.edu.icesi.nextfruit.modules.machinelearning.WekaClassifier;
 import co.edu.icesi.nextfruit.modules.machinelearning.WekaClassifierAdapter;
 import co.edu.icesi.nextfruit.modules.model.CameraCalibration;
-import co.edu.icesi.nextfruit.modules.model.ColorDistribution;
-import co.edu.icesi.nextfruit.modules.model.MatchingColor;
-import co.edu.icesi.nextfruit.modules.model.PolygonWrapper;
-import co.edu.icesi.nextfruit.util.Statistics;
 import weka.classifiers.Classifier;
 import weka.classifiers.bayes.NaiveBayes;
-import weka.core.Attribute;
-import weka.core.DenseInstance;
-import weka.core.Instance;
-import weka.core.Instances;
 
 /**
  * This class gets all the features from the images loaded

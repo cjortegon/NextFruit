@@ -22,12 +22,14 @@ public class FeaturesExtract {
 	private PolygonWrapper polygon;
 	private Histogram histogram;
 	private int numberOfPixels;
+	private double entropy;
 	private Collection<ColorDistribution> colorStatistics;
 	private Collection<ColorDistribution> matchingColors;
 	private Statistics luminanceStatistics;
 
 	public FeaturesExtract(String imagePath) {
 		mat = Imgcodecs.imread(imagePath);
+		entropy = Double.NaN;
 	}
 
 	// ***************** PUBLIC METHODS *****************
@@ -121,6 +123,21 @@ public class FeaturesExtract {
 		return stat;
 	}
 
+	private void obtainEntropy() {
+		if(entropy == Double.NaN) {
+			Histogram histogram = new Histogram(mat);
+			final double total_size = polygon.getArea();
+			histogram.generateGrayscaleHistogram(false, polygon);
+			final double log2 = Math.log(2);
+			entropy = 0;
+			for (int i = 0; i < histogram.getHistogram().length; i++) {
+				double p = histogram.getHistogram()[i]/total_size;
+				if(p > 0)
+					entropy += (p*(Math.log(p)/log2));
+			}
+		}
+	}
+
 	// **************** PRIVATE METHODS *****************
 
 	// ******************** GETTERS *********************
@@ -151,6 +168,11 @@ public class FeaturesExtract {
 
 	public Statistics getLuminanceStatistics() {
 		return luminanceStatistics;
+	}
+
+	public double getEntropy() {
+		obtainEntropy();
+		return entropy;
 	}
 
 	// ******************** GETTERS *********************
