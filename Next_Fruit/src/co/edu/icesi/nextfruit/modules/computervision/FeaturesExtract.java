@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Size;
@@ -66,17 +67,53 @@ public class FeaturesExtract {
 
 	private PolygonWrapper getContours(Mat src, int sensibility) {
 
-		Imgproc.threshold(src, src, sensibility, 255, 1);
+		// Median blur
+		Mat mBlurred = new Mat();
+		int ksize = (int) (Math.sqrt(src.width()*src.height())/60);
+		if(ksize %2 == 0)
+			ksize ++;
+		Imgproc.medianBlur(src, mBlurred, ksize);
+
+		// Threshold
+		Mat thresh = new Mat();
+		Imgproc.threshold(mBlurred, thresh, 100, 255, CvType.CV_8UC1);
+
+		// Gray scale
 		Mat src_gray = new Mat();
-		Imgproc.cvtColor(src, src_gray, Imgproc.COLOR_BGR2GRAY);
-		Imgproc.blur( src_gray, src_gray, new Size(10, 10));
+		Imgproc.cvtColor(thresh, src_gray, Imgproc.COLOR_BGR2GRAY);
 
-		// Histogram
-		Histogram histogram2 = new Histogram(src_gray);
-		histogram2.filterFigureByGrayProfile(0, 10, new double[]{0}, new double[]{255});
-		src = histogram2.getImage();
+		// Cany
+		Mat canny = new Mat();
+		Imgproc.Canny(src_gray, canny, 0, 15);
 
-		List<MatOfPoint> contours = findContours(src);
+		// Kernel
+		Mat kernel;
+
+		// Close
+		kernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(3, 3));
+		Mat close = new Mat();
+		Imgproc.morphologyEx(canny, close, Imgproc.MORPH_CLOSE, kernel);
+
+		// Dilatation
+		kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(2, 2));
+		Mat dilatation = new Mat();
+		Imgproc.dilate(close, dilatation, kernel);
+
+		// Open
+		kernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(2, 2));
+		Mat open = new Mat();
+		Imgproc.morphologyEx(dilatation, open, Imgproc.MORPH_OPEN, kernel);
+
+		// Close
+		kernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(100, 100));
+		Mat close2 = new Mat();
+		Imgproc.morphologyEx(open, close2, Imgproc.MORPH_CLOSE, kernel);
+
+		// Getting contours
+		List<MatOfPoint> contours = new ArrayList<>();
+		Imgproc.findContours(close2, contours, close2, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+
+		// Selecting the polygon
 		ArrayList<PolygonWrapper> boxes = new ArrayList<>();
 		PolygonWrapper biggest = null;
 		double biggestArea = 0;
@@ -88,6 +125,7 @@ public class FeaturesExtract {
 				biggestArea = polygon.getArea();
 			}
 		}
+
 		return biggest;
 	}
 
