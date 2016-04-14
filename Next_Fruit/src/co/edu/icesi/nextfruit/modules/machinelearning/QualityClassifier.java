@@ -2,6 +2,7 @@ package co.edu.icesi.nextfruit.modules.machinelearning;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -20,74 +21,6 @@ import weka.core.Instance;
 public class QualityClassifier extends WekaClassifierAdapter {
 
 	private final int LUMINANCE_RANGE = 6;
-	private final String[] matchingColors = new String[] {
-			"0.30;0.30;0.025",
-			"0.35;0.30;0.025",
-			"0.40;0.30;0.025",
-			"0.45;0.30;0.025",
-			"0.50;0.30;0.025",
-			"0.55;0.30;0.025",
-			"0.60;0.30;0.025",
-
-			"0.325;0.325;0.025",
-			"0.375;0.325;0.025",
-			"0.425;0.325;0.025",
-			"0.475;0.325;0.025",
-			"0.525;0.325;0.025",
-			"0.575;0.325;0.025",
-			"0.625;0.325;0.025",
-
-			"0.30;0.35;0.025",
-			"0.35;0.35;0.025",
-			"0.40;0.35;0.025",
-			"0.45;0.35;0.025",
-			"0.50;0.35;0.025",
-			"0.55;0.35;0.025",
-			"0.60;0.35;0.025",
-
-			"0.325;0.375;0.025",
-			"0.375;0.375;0.025",
-			"0.425;0.375;0.025",
-			"0.475;0.375;0.025",
-			"0.525;0.375;0.025",
-			"0.575;0.375;0.025",
-
-			"0.30;0.40;0.025",
-			"0.35;0.40;0.025",
-			"0.40;0.40;0.025",
-			"0.45;0.40;0.025",
-			"0.50;0.40;0.025",
-			"0.55;0.40;0.025",
-
-			"0.325;0.425;0.025",
-			"0.375;0.425;0.025",
-			"0.425;0.425;0.025",
-			"0.475;0.425;0.025",
-			"0.525;0.425;0.025",
-
-			"0.30;0.45;0.025",
-			"0.35;0.45;0.025",
-			"0.40;0.45;0.025",
-			"0.45;0.45;0.025",
-			"0.50;0.45;0.025",
-
-			"0.325;0.475;0.025",
-			"0.375;0.475;0.025",
-			"0.425;0.475;0.025",
-			"0.475;0.475;0.025",
-
-			"0.30;0.50;0.025",
-			"0.35;0.50;0.025",
-			"0.40;0.50;0.025",
-			"0.45;0.50;0.025",
-
-			"0.325;0.525;0.025",
-			"0.375;0.525;0.025",
-			"0.425;0.525;0.025",
-
-			"0.35;0.55;0.025",
-			"0.40;0.55;0.025"
-	};
 
 	private CameraCalibration calibration;
 	private int definedAttributes;
@@ -97,7 +30,13 @@ public class QualityClassifier extends WekaClassifierAdapter {
 		this.calibration = calibration;
 
 		// Loading matching colors
-		this.loadMatchingColors(matchingColors, calibration.getInverseWorkingSpaceMatrix());
+		File file = new File("resources/matching_colors.txt");
+		try {
+			this.loadMatchingColors(file, calibration.getInverseWorkingSpaceMatrix());
+		} catch (IOException e) {
+			System.out.println("Could not load: "+file.getAbsolutePath());
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -177,7 +116,7 @@ public class QualityClassifier extends WekaClassifierAdapter {
 		}
 
 		// Colors ranges
-		for (int i = 0; i < matchingColors.length; i++) {
+		for (int i = 0; i < getMatchingColors().size(); i++) {
 			Attribute color = new Attribute("color"+i);
 			features.add(color);
 		}
