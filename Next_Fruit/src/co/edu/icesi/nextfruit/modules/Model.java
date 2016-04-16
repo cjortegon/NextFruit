@@ -18,20 +18,14 @@ import co.edu.icesi.nextfruit.modules.machinelearning.QualityClassifier;
 import co.edu.icesi.nextfruit.modules.machinelearning.WekaClassifier;
 import co.edu.icesi.nextfruit.modules.model.CameraCalibration;
 import co.edu.icesi.nextfruit.modules.model.CameraSettings;
-import co.edu.icesi.nextfruit.modules.model.ColorDistribution;
 import co.edu.icesi.nextfruit.modules.model.MatchingColor;
 import co.edu.icesi.nextfruit.modules.model.MatchingColorInterpreter;
-import co.edu.icesi.nextfruit.modules.model.PolygonWrapper;
 import co.edu.icesi.nextfruit.modules.persistence.CalibrationDataHandler;
 import co.edu.icesi.nextfruit.mvc.interfaces.Attachable;
 import co.edu.icesi.nextfruit.mvc.interfaces.Updateable;
 import co.edu.icesi.nextfruit.util.MatrixReader;
-import co.edu.icesi.nextfruit.util.Statistics;
 import weka.classifiers.Classifier;
-import weka.core.Attribute;
-import weka.core.DenseInstance;
-import weka.core.Instance;
-import weka.core.Instances;
+
 
 public class Model implements Attachable {
 	
@@ -258,28 +252,33 @@ public class Model implements Attachable {
 	}
 
 	
-	public void testClassifier(String type){
-		/*
+	public void testClassifier(String type, File classificationModel, File trainingSetFile, 
+			File testSetFile, File testResults) throws Exception{
+		
 		switch (type) {
 		
-		case QUALITY_CLASSIFIER:
-			
+		case ModelBuilder.QUALITY_CLASSIFIER:
+			weka = new QualityClassifier(getCameraCalibration());
 			break;
 			
-		case SIZE_CLASSIFIER:
-			
+		case ModelBuilder.SIZE_CLASSIFIER:
+			System.out.println("Implementar clasificador de tamaño");
 			break;
 			
-		case CLASS_CLASSIFIER:
-			
+		case ModelBuilder.CLASS_CLASSIFIER:
+			System.out.println("Implementar clasificador de clase");
 			break;
 			
-		case RIPENESS_CLASSIFIER:
-			
+		case ModelBuilder.RIPENESS_CLASSIFIER:
+			System.out.println("Implementar clasificador de madurez");
 			break;
 
 		}
-		*/
+		
+		Classifier param = weka.loadClassifierFromFile(classificationModel);
+		weka.testClassifierModel(param, trainingSetFile, 
+				testSetFile, testResults);
+		
 	}
 
 	

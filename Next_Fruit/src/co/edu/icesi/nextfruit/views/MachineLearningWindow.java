@@ -34,10 +34,11 @@ public class MachineLearningWindow extends KFrame implements Initializable, Upda
 	btLoadClassTrainingSet, btLoadRipenessTrainingSet, btTrainQualityClassifier, 
 	btTrainSizeClassifier, btTrainClassClassifier, btTrainRipenessClassifier,
 	btChooseImagesDir, btTestClassifier, btLoadQualityClassifier, btLoadSizeClassifier,
-	btLoadClassClassifier, btLoadRipenessClassifier, btTrainAllClassifiers;
+	btLoadClassClassifier, btLoadRipenessClassifier, btTrainAllClassifiers,
+	btLoadQualityTestSet, btLoadSizeTestSet, btLoadClassTestSet, btLoadRipenessTestSet;
 	private JComboBox<String> modelTypeComboBox;
 	private JLabel lbDirectory, lbPanelTrainingSetConfig, lbPanelClassifierConfig, lbClassifierDir,
-	lbPanelClassifierEval, lbTrainingSetDir, lbTestSet, lbTrainingSetDir2;
+	lbPanelClassifierEval, lbTrainingSetDir, lbTestSet, lbTrainingSetDir2, lbDataSetLoad;
 
 	@Override
 	public void update() {
@@ -51,15 +52,19 @@ public class MachineLearningWindow extends KFrame implements Initializable, Upda
 	public void init(Attachable model, Updateable view) {
 
 		//	Initializing objects
-		lbDirectory = new JLabel("Load images from directory: ");
-		lbClassifierDir = new JLabel("Classifier file: ");
-		lbTrainingSetDir = new JLabel("Training Set File: ");
-		lbTrainingSetDir2 = new JLabel("Training Set File: ");
-		lbTestSet = new JLabel("Test Set File: ");
+		lbDirectory = new JLabel("Load images from directory >> ");
+		lbClassifierDir = new JLabel("Classifier file >> ");
+		lbTrainingSetDir = new JLabel("Training Set File >> ");
+		lbTrainingSetDir2 = new JLabel("Training Set File >> ");
+		lbTestSet = new JLabel("Test Set File >> ");
 		
-		lbPanelTrainingSetConfig = new JLabel("TRAINING SET CONFIGURATION", SwingConstants.CENTER);
+		lbPanelTrainingSetConfig = new JLabel("DATA SET GENERATION", SwingConstants.CENTER);
 		lbPanelTrainingSetConfig.setPreferredSize(new Dimension(600, 100));
 		lbPanelTrainingSetConfig.setBorder(new EtchedBorder(EtchedBorder.LOWERED));
+		
+		lbDataSetLoad = new JLabel("LOAD DATA SETS", SwingConstants.CENTER);
+		lbDataSetLoad.setPreferredSize(new Dimension(600, 100));
+		lbDataSetLoad.setBorder(new EtchedBorder(EtchedBorder.LOWERED));
 		
 		lbPanelClassifierConfig = new JLabel("CLASSIFIER CONFIGURATION", SwingConstants.CENTER);
 		lbPanelClassifierConfig.setPreferredSize(new Dimension(600, 100));
@@ -69,6 +74,9 @@ public class MachineLearningWindow extends KFrame implements Initializable, Upda
 		lbPanelClassifierEval.setPreferredSize(new Dimension(600, 100));
 		lbPanelClassifierEval.setBorder(new EtchedBorder(EtchedBorder.LOWERED));
 		
+		JLabel a = new JLabel("-- Classifier Type --", SwingConstants.CENTER);
+		a.setBorder(new EtchedBorder(EtchedBorder.LOWERED));
+		
 		btChooseImagesDir = new JButton("Choose directory");
 		
 		btGenerateTrainingSet = new JButton("Generate Training Sets Files");
@@ -77,6 +85,11 @@ public class MachineLearningWindow extends KFrame implements Initializable, Upda
 		btLoadSizeTrainingSet = new JButton("Load Size TrainingSet File");
 		btLoadClassTrainingSet = new JButton("Load Class TrainingSet File");
 		btLoadRipenessTrainingSet = new JButton("Load Ripeness TrainingSet File");
+		
+		btLoadQualityTestSet = new JButton("Load Quality TestSet File");
+		btLoadSizeTestSet = new JButton("Load Size TestSet File");
+		btLoadClassTestSet = new JButton("Load Class TestSet File");
+		btLoadRipenessTestSet = new JButton("Load Ripeness TestSet File");
 		
 		btTrainQualityClassifier = new JButton("Train Quality Classifier");
 		btTrainSizeClassifier = new JButton("Train Size Classifier");
@@ -98,47 +111,56 @@ public class MachineLearningWindow extends KFrame implements Initializable, Upda
 		this.model.attach(this);
 
 		addComponent(lbPanelTrainingSetConfig, 0, 0, 2, 1, false);
+		
 		addComponent(lbDirectory, 1, 0, 4, 1, false);
 		addComponent(btChooseImagesDir, 2, 0, 1, 1, false);
 		addComponent(btGenerateTrainingSet, 2, 1, 1, 1, false);
 		
-		addComponent(lbPanelClassifierConfig, 3, 0, 2, 1, false);
 		
-		addLabel("-- Classifier Type --", 4, 0, 2, 1, true);
-		addComponent(modelTypeComboBox, 5, 0, 1, 1, false);
+		addComponent(lbDataSetLoad, 3, 0, 2, 1, false);
 		
-		addComponent(btTrainAllClassifiers, 5, 1, 1, 1, false);
-		addComponent(lbTrainingSetDir, 6, 0, 4, 1, false);
+		addComponent(btLoadQualityTrainingSet, 4, 0, 1, 1, false);
+		addComponent(btLoadSizeTrainingSet, 5, 0, 1, 1, false);
+		addComponent(btLoadClassTrainingSet, 6, 0, 1, 1, false);
+		addComponent(btLoadRipenessTrainingSet, 7, 0, 1, 1, false);
+
+		addComponent(btLoadQualityTestSet, 4, 1, 1, 1, false);
+		addComponent(btLoadSizeTestSet, 5, 1, 1, 1, false);
+		addComponent(btLoadClassTestSet, 6, 1, 1, 1, false);
+		addComponent(btLoadRipenessTestSet, 7, 1, 1, 1, false);
 		
-		addComponent(btLoadQualityTrainingSet, 7, 0, 1, 1, false);
-		addComponent(btTrainQualityClassifier, 7, 1, 1, 1, false);
 		
-		addComponent(btLoadSizeTrainingSet, 8, 0, 1, 1, false);
-		addComponent(btTrainSizeClassifier, 8, 1, 1, 1, false);
+		addComponent(lbPanelClassifierConfig, 8, 0, 2, 1, false);
 		
-		addComponent(btLoadClassTrainingSet, 9, 0, 1, 1, false);
-		addComponent(btTrainClassClassifier, 9, 1, 1, 1, false);
+		addComponent(lbTrainingSetDir, 9, 0, 4, 1, false);
+		addComponent(a, 10, 0, 1, 1, false);
+		addComponent(modelTypeComboBox, 10, 1, 1, 1, false);
 		
-		addComponent(btLoadRipenessTrainingSet, 10, 0, 1, 1, false);
-		addComponent(btTrainRipenessClassifier, 10, 1, 1, 1, false);
+		addComponent(btTrainQualityClassifier, 11, 0, 2, 1, false);
+		addComponent(btTrainSizeClassifier, 12, 0, 2, 1, false);
+		addComponent(btTrainClassClassifier, 13, 0, 2, 1, false);
+		addComponent(btTrainRipenessClassifier, 14, 0, 2, 1, false);
+		addComponent(btTrainAllClassifiers, 15, 0, 2, 1, false);
 		
-		addComponent(lbPanelClassifierEval, 11, 0, 2, 1, false);
-		addComponent(lbTrainingSetDir2, 12, 0, 4, 1, false);
-		addComponent(lbClassifierDir, 13, 0, 4, 1, false);
-		addComponent(lbTestSet, 14, 0, 4, 1, false);		
 		
-		addComponent(btLoadQualityClassifier, 15, 0, 1, 1, false);
-		addComponent(btLoadSizeClassifier, 15, 1, 1, 1, false);
-		addComponent(btLoadClassClassifier, 16, 0, 1, 1, false);
-		addComponent(btLoadRipenessClassifier, 16, 1, 1, 1, false);
+		addComponent(lbPanelClassifierEval, 16, 0, 2, 1, false);
 		
-		addComponent(btTestClassifier, 17, 0, 2, 1, false);
+		addComponent(lbTrainingSetDir2, 17, 0, 4, 1, false);
+		addComponent(lbClassifierDir, 18, 0, 4, 1, false);
+		addComponent(lbTestSet, 19, 0, 4, 1, false);		
+		
+		addComponent(btLoadQualityClassifier, 20, 0, 1, 1, false);
+		addComponent(btLoadSizeClassifier, 20, 1, 1, 1, false);
+		addComponent(btLoadClassClassifier, 21, 0, 1, 1, false);
+		addComponent(btLoadRipenessClassifier, 21, 1, 1, 1, false);
+		
+		addComponent(btTestClassifier, 22, 0, 2, 1, false);
 
 		//	Starting controller
 		new MachineLearningController().init(this.model, this);
 
 		//	End initialization
-		this.setPreferredSize(new Dimension(600, 400));
+		this.setPreferredSize(new Dimension(650, 550));
 		pack();
 		setResizable(false);
 	}
@@ -173,7 +195,7 @@ public class MachineLearningWindow extends KFrame implements Initializable, Upda
 	}
 
 	public void setLbDirectoryText(String lbDirectory) {
-		this.lbDirectory.setText("Load images from directory: " + lbDirectory);
+		this.lbDirectory.setText("Load images from directory >> " + lbDirectory);
 	}
 
 	public JLabel getLbClassifierDir() {
@@ -181,7 +203,7 @@ public class MachineLearningWindow extends KFrame implements Initializable, Upda
 	}
 
 	public void setLbClassifierDirText(String lbClassifierDir) {
-		this.lbClassifierDir.setText("Classifier file: " + lbClassifierDir);
+		this.lbClassifierDir.setText("Classifier file >> " + lbClassifierDir);
 	}
 
 	public JButton getBtTestClassifier() {
@@ -280,6 +302,38 @@ public class MachineLearningWindow extends KFrame implements Initializable, Upda
 		this.btLoadRipenessTrainingSet = btLoadRipenessTrainingSet;
 	}
 
+	public JButton getBtLoadQualityTestSet() {
+		return btLoadQualityTestSet;
+	}
+
+	public void setBtLoadQualityTestSet(JButton btLoadQualityTestSet) {
+		this.btLoadQualityTestSet = btLoadQualityTestSet;
+	}
+
+	public JButton getBtLoadSizeTestSet() {
+		return btLoadSizeTestSet;
+	}
+
+	public void setBtLoadSizeTestSet(JButton btLoadSizeTestSet) {
+		this.btLoadSizeTestSet = btLoadSizeTestSet;
+	}
+
+	public JButton getBtLoadClassTestSet() {
+		return btLoadClassTestSet;
+	}
+
+	public void setBtLoadClassTestSet(JButton btLoadClassTestSet) {
+		this.btLoadClassTestSet = btLoadClassTestSet;
+	}
+
+	public JButton getBtLoadRipenessTestSet() {
+		return btLoadRipenessTestSet;
+	}
+
+	public void setBtLoadRipenessTestSet(JButton btLoadRipenessTestSet) {
+		this.btLoadRipenessTestSet = btLoadRipenessTestSet;
+	}
+
 	public JButton getBtLoadQualityClassifier() {
 		return btLoadQualityClassifier;
 	}
@@ -317,8 +371,12 @@ public class MachineLearningWindow extends KFrame implements Initializable, Upda
 	}
 
 	public void setLbTrainingSetDirText(String lbTrainingSetDir) {
-		this.lbTrainingSetDir.setText("Training Set File: " + lbTrainingSetDir);
-		this.lbTrainingSetDir2.setText("Training Set File: " + lbTrainingSetDir);
+		this.lbTrainingSetDir.setText("Training Set File >> " + lbTrainingSetDir);
+		this.lbTrainingSetDir2.setText("Training Set File >> " + lbTrainingSetDir);
+	}
+
+	public void setLbTestSetText(String lbTestSet) {
+		this.lbTestSet.setText("Test Set File >> " + lbTestSet);
 	}
 
 }

@@ -27,6 +27,11 @@ public class MachineLearningController implements Initializable, ActionListener{
 	private static final String LOAD_CLASS_TRAINING_SET = "LoadClassTrainingSet";
 	private static final String LOAD_RIPENESS_TRAINING_SET = "LoadRipenessTrainingSet";
 	
+	private static final String LOAD_QUALITY_TEST_SET = "LoadQualityTestgSet";
+	private static final String LOAD_SIZE_TEST_SET = "LoadSizeTestSet";
+	private static final String LOAD_CLASS_TEST_SET = "LoadClassTestSet";
+	private static final String LOAD_RIPENESS_TEST_SET = "LoadRipenessTestSet";
+	
 	private static final String TRAIN_QUALITY_CLASSIFIER = "TrainQualityClassifier";
 	private static final String TRAIN_SIZE_CLASSIFIER = "TrainSizeClassifier";
 	private static final String TRAIN_CLASS_CLASSIFIER = "TrainClassClassifier";
@@ -45,6 +50,7 @@ public class MachineLearningController implements Initializable, ActionListener{
 	
 	private File savedClassifier;
 	private File savedTrainingSet;
+	private File savedTestSet;
 	private String modelType;
 
 	@Override
@@ -85,6 +91,8 @@ public class MachineLearningController implements Initializable, ActionListener{
 				view.setLbTrainingSetDirText(file.getAbsolutePath());
 				deactivateBtns();
 				view.getBtTrainQualityClassifier().setEnabled(true);
+				view.getBtLoadQualityTestSet().setEnabled(true);
+				view.getBtLoadQualityClassifier().setEnabled(true);
 			}
 			break;
 			
@@ -95,6 +103,8 @@ public class MachineLearningController implements Initializable, ActionListener{
 				view.setLbTrainingSetDirText(file.getAbsolutePath());
 				deactivateBtns();
 				view.getBtTrainSizeClassifier().setEnabled(true);
+				view.getBtLoadSizeTestSet().setEnabled(true);
+				view.getBtLoadSizeClassifier().setEnabled(true);
 			}
 			break;
 			
@@ -105,6 +115,8 @@ public class MachineLearningController implements Initializable, ActionListener{
 				view.setLbTrainingSetDirText(file.getAbsolutePath());
 				deactivateBtns();
 				view.getBtTrainClassClassifier().setEnabled(true);
+				view.getBtLoadClassTestSet().setEnabled(true);
+				view.getBtLoadClassClassifier().setEnabled(true);
 			}
 			break;
 			
@@ -115,7 +127,25 @@ public class MachineLearningController implements Initializable, ActionListener{
 				view.setLbTrainingSetDirText(file.getAbsolutePath());
 				deactivateBtns();
 				view.getBtTrainRipenessClassifier().setEnabled(true);
+				view.getBtLoadRipenessTestSet().setEnabled(true);
+				view.getBtLoadRipenessClassifier().setEnabled(true);
 			}
+			break;
+			
+		case LOAD_QUALITY_TEST_SET:
+			loadTestSetFile("quality");
+			break;
+			
+		case LOAD_SIZE_TEST_SET:
+			loadTestSetFile("size");
+			break;
+			
+		case LOAD_CLASS_TEST_SET:
+			loadTestSetFile("size");
+			break;
+			
+		case LOAD_RIPENESS_TEST_SET:
+			loadTestSetFile("ripeness");
 			break;
 
 		case TRAIN_QUALITY_CLASSIFIER:
@@ -200,7 +230,7 @@ public class MachineLearningController implements Initializable, ActionListener{
 				modelType = ModelBuilder.QUALITY_CLASSIFIER;
 				savedClassifier = file;
 				view.setLbClassifierDirText(file.getAbsolutePath().toString());
-				view.getBtTestClassifier().setEnabled(true);
+				testClassifActivation();
 			}
 			break;
 			
@@ -210,7 +240,7 @@ public class MachineLearningController implements Initializable, ActionListener{
 				modelType = ModelBuilder.SIZE_CLASSIFIER;
 				savedClassifier = file;
 				view.setLbClassifierDirText(file.getAbsolutePath().toString());
-				view.getBtTestClassifier().setEnabled(true);
+				testClassifActivation();
 			}
 			break;
 		case CHOOSE_CLASS_CLASSIFIER_FILE:
@@ -219,7 +249,7 @@ public class MachineLearningController implements Initializable, ActionListener{
 				modelType = ModelBuilder.CLASS_CLASSIFIER;
 				savedClassifier = file;
 				view.setLbClassifierDirText(file.getAbsolutePath().toString());
-				view.getBtTestClassifier().setEnabled(true);
+				testClassifActivation();
 			}
 			break;
 		case CHOOSE_RIPENESS_CLASSIFIER_FILE:
@@ -229,24 +259,32 @@ public class MachineLearningController implements Initializable, ActionListener{
 				savedClassifier = file;
 				view.setLbClassifierDirText(file.getAbsolutePath().toString());
 				view.getBtTestClassifier().setEnabled(true);
+				testClassifActivation();
 			}
 			break;
 			
 		case TEST_LOADED_CLASSIFIER:
-			if(savedClassifier != null && modelType != null){
+			if(savedClassifier != null && modelType != null && savedTrainingSet != null &&
+			savedTestSet != null){
 				
-				//
-				//	LLAMAR AL METODO EVALUATE AQUÍ
-				// -- PENDIENTE DE TERMINAR --
-				//
-				model.testClassifier("");
-				//
-				//	LLAMAR AL METODO EVALUATE AQUÍ
-				// -- PENDIENTE DE TERMINAR --
-				//
-				view.showMessage("<html>Evaluation executed successfully!<br>"
-						+ "Check the Log for more information.</html>");
-				view.getBtTestClassifier().setEnabled(false);
+				try {
+					
+					file = FilesUtility.loadFile(view, "Save test results to file...");
+					
+					if(file != null){
+						model.testClassifier(modelType, savedClassifier, savedTrainingSet, savedTestSet,
+								file);
+					}
+					
+					view.showMessage("<html>Evaluation executed successfully!<br>"
+							+ "Check the Log for more information.</html>");
+					view.getBtTestClassifier().setEnabled(false);
+					
+				} catch (Exception e1) {
+					
+					view.showMessage("<html>Error: Couldn't evaluate model!<br>"
+							+ "Check the Log for more information.</html>");
+				}
 			}
 			break;
 			
@@ -283,7 +321,24 @@ public class MachineLearningController implements Initializable, ActionListener{
 		
 		view.getBtLoadRipenessTrainingSet().setActionCommand(LOAD_RIPENESS_TRAINING_SET);
 		view.getBtLoadRipenessTrainingSet().addActionListener(this);
-
+		
+		
+		view.getBtLoadQualityTestSet().setActionCommand(LOAD_QUALITY_TEST_SET);
+		view.getBtLoadQualityTestSet().addActionListener(this);
+		view.getBtLoadQualityTestSet().setEnabled(false);
+		
+		view.getBtLoadSizeTestSet().setActionCommand(LOAD_SIZE_TEST_SET);
+		view.getBtLoadSizeTestSet().addActionListener(this);
+		view.getBtLoadSizeTestSet().setEnabled(false);
+		
+		view.getBtLoadClassTestSet().setActionCommand(LOAD_CLASS_TEST_SET);
+		view.getBtLoadClassTestSet().addActionListener(this);
+		view.getBtLoadClassTestSet().setEnabled(false);
+		
+		view.getBtLoadRipenessTestSet().setActionCommand(LOAD_RIPENESS_TEST_SET);
+		view.getBtLoadRipenessTestSet().addActionListener(this);
+		view.getBtLoadRipenessTestSet().setEnabled(false);
+		
 		
 		view.getBtTrainQualityClassifier().setActionCommand(TRAIN_QUALITY_CLASSIFIER);
 		view.getBtTrainQualityClassifier().addActionListener(this);
@@ -330,10 +385,42 @@ public class MachineLearningController implements Initializable, ActionListener{
 	
 	
 	private void deactivateBtns(){
+		savedClassifier = null;
+		savedTestSet = null;
+		view.setLbClassifierDirText("");
+		view.setLbTestSetText("");
+		
 		view.getBtTrainQualityClassifier().setEnabled(false);
 		view.getBtTrainSizeClassifier().setEnabled(false);
 		view.getBtTrainClassClassifier().setEnabled(false);
 		view.getBtTrainRipenessClassifier().setEnabled(false);
+		
+		view.getBtLoadQualityTestSet().setEnabled(false);
+		view.getBtLoadSizeTestSet().setEnabled(false);
+		view.getBtLoadClassTestSet().setEnabled(false);
+		view.getBtLoadRipenessTestSet().setEnabled(false);
+		
+		view.getBtLoadQualityClassifier().setEnabled(false);
+		view.getBtLoadSizeClassifier().setEnabled(false);
+		view.getBtLoadClassClassifier().setEnabled(false);
+		view.getBtLoadRipenessClassifier().setEnabled(false);
+		
+		view.getBtTestClassifier().setEnabled(false);
+	}
+	
+	private void loadTestSetFile(String string){
+		File file = FilesUtility.loadFile(view, "Load " + string + " test set");
+		if(file != null){
+			savedTestSet = file;
+			view.setLbTestSetText(file.getAbsolutePath());
+		}
+		testClassifActivation();
+	}
+	
+	private void testClassifActivation(){
+		if(savedTestSet != null && savedTestSet != null && savedClassifier != null){
+			view.getBtTestClassifier().setEnabled(true);
+		}
 	}
 
 }
