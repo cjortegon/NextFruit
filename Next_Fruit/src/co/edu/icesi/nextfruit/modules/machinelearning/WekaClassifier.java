@@ -154,6 +154,7 @@ public abstract class WekaClassifier {
 					throw new Exception("No trainning file loaded.");
 			}
 
+			trainingSet.setClassIndex(trainingSet.numAttributes() - 1);
 			classificationModel.buildClassifier(trainingSet);
 
 			SerializationHelper.write(classifierSaveFile.getAbsolutePath() + ".save", classificationModel);

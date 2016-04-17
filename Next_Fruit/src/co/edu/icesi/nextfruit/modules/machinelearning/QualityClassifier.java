@@ -42,7 +42,7 @@ public class QualityClassifier extends WekaClassifierAdapter {
 			colors[index++] = color.getRepeat()/(double)extracted.getNumberOfPixels();
 
 		// Creating instance
-		Instance instance = new DenseInstance(8+LUMINANCE_RANGE+colors.length);
+		Instance instance = new DenseInstance(7+LUMINANCE_RANGE+colors.length);
 		ArrayList<Attribute> features = getFeatures();
 
 		// Adding defined attributes
@@ -93,7 +93,7 @@ public class QualityClassifier extends WekaClassifierAdapter {
 		}
 
 		// Create and Initialize Attributes
-		ArrayList<String> qualityClassValues = new ArrayList<String>(4);
+		ArrayList<String> qualityClassValues = new ArrayList<String>();
 		qualityClassValues.add("t");
 		qualityClassValues.add("f");
 
