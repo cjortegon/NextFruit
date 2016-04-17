@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import co.edu.icesi.nextfruit.modules.computervision.FeaturesExtract;
-import co.edu.icesi.nextfruit.modules.computervision.Histogram;
 import co.edu.icesi.nextfruit.modules.model.CameraCalibration;
 import co.edu.icesi.nextfruit.modules.model.ColorDistribution;
 import co.edu.icesi.nextfruit.modules.model.PolygonWrapper;
@@ -22,21 +21,9 @@ public class QualityClassifier extends WekaClassifierAdapter {
 
 	private final int LUMINANCE_RANGE = 6;
 
-	private CameraCalibration calibration;
-	private int definedAttributes;
-
 	public QualityClassifier(CameraCalibration calibration) {
-		super("strawberry-qualities");
+		super("strawberry-qualities", calibration);
 		this.calibration = calibration;
-
-		// Loading matching colors
-		File file = new File("resources/matching_colors.txt");
-		try {
-			this.loadMatchingColors(file, calibration.getInverseWorkingSpaceMatrix());
-		} catch (IOException e) {
-			System.out.println("Could not load: "+file.getAbsolutePath());
-			e.printStackTrace();
-		}
 	}
 
 	@Override
@@ -50,12 +37,13 @@ public class QualityClassifier extends WekaClassifierAdapter {
 		Statistics luminantStatistics = extracted.getLuminanceStatistics();
 		PolygonWrapper polygon = extracted.getPolygon();
 		int index = 0;
-		double colors[] = new double[3];
+		double colors[] = new double[matchs.size()];
 		for (ColorDistribution color : matchs)
 			colors[index++] = color.getRepeat()/(double)extracted.getNumberOfPixels();
 
 		// Creating instance
-		Instance instance = new DenseInstance(12+colors.length);
+//		System.out.println("Total de atributos: "+(8+LUMINANCE_RANGE+colors.length));
+		Instance instance = new DenseInstance(8+LUMINANCE_RANGE+colors.length);
 		ArrayList<Attribute> features = getFeatures();
 
 		// Adding defined attributes
@@ -65,20 +53,23 @@ public class QualityClassifier extends WekaClassifierAdapter {
 		instance.setValue(features.get(3), luminantStatistics.getStandardDeviation());
 		instance.setValue(features.get(4), luminantStatistics.getSkewness());
 		instance.setValue(features.get(5), luminantStatistics.getKurtosis());
-		definedAttributes = 6; // Make sure this value is correct
+		int definedAttributes = 6; // Make sure this value is correct
 
 		// Adding luminance ranges
 		double[] ranges = extracted.getHistogram().getRanges();
 		for (int i = 0; i < LUMINANCE_RANGE; i++) {
 			instance.setValue(features.get(definedAttributes+i), ranges[i]);
 		}
+		definedAttributes += LUMINANCE_RANGE;
 
 		// Adding colors
 		for (int i = 0; i < colors.length; i++)
-			instance.setValue(features.get(definedAttributes+LUMINANCE_RANGE+i), colors[i]);
+			instance.setValue(features.get(definedAttributes+i), colors[i]);
+		definedAttributes += colors.length;
 
 		// Adding class name
-		instance.setValue(features.get(colors.length+definedAttributes), className);
+//		System.out.println("La clase va en: "+definedAttributes);
+		instance.setValue(features.get(definedAttributes), className);
 		this.trainingSet.add(instance);
 	}
 
@@ -88,6 +79,15 @@ public class QualityClassifier extends WekaClassifierAdapter {
 	@Override
 	protected ArrayList<Attribute> defineFeaturesVector() {
 
+		// Loading matching colors
+		File file = new File("resources/matching_colors.txt");
+		try {
+			this.loadMatchingColors(file, calibration.getInverseWorkingSpaceMatrix());
+		} catch (IOException e) {
+			System.out.println("Could not load: "+file.getAbsolutePath());
+			e.printStackTrace();
+		}
+
 		// Create and Initialize Attributes
 		ArrayList<String> qualityClassValues = new ArrayList<String>(4);
 		qualityClassValues.add("t");
@@ -95,6 +95,7 @@ public class QualityClassifier extends WekaClassifierAdapter {
 
 		// Defined attributes
 		Attribute area = new Attribute("area");
+		Attribute entropy = new Attribute("entropy");
 		Attribute mean = new Attribute("mean");
 		Attribute sD = new Attribute("standard-deviation");
 		Attribute skewness = new Attribute("skewness");
@@ -104,6 +105,7 @@ public class QualityClassifier extends WekaClassifierAdapter {
 		// Declare the feature vector
 		ArrayList<Attribute> features = new ArrayList<Attribute>(9);
 		features.add(area);
+		features.add(entropy);
 		features.add(mean);
 		features.add(sD);
 		features.add(skewness);

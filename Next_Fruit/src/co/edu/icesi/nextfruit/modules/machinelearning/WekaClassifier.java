@@ -14,6 +14,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
+import co.edu.icesi.nextfruit.modules.model.CameraCalibration;
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
 import weka.core.Attribute;
@@ -33,12 +34,14 @@ public abstract class WekaClassifier {
 	private ArrayList<Attribute> features;
 	protected Instances trainingSet;
 	protected Instances testSet;
+	protected CameraCalibration calibration;
 
 	/**
 	 * Class constructor.
 	 */
-	public WekaClassifier() {
-
+	public WekaClassifier(CameraCalibration calibration) {
+		
+		this.calibration = calibration;
 		File temp = new File(LOG_PATH);
 
 		if(!temp.exists()){

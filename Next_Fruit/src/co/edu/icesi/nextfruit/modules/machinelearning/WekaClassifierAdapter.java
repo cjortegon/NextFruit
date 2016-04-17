@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import co.edu.icesi.nextfruit.modules.computervision.FeaturesExtract;
+import co.edu.icesi.nextfruit.modules.model.CameraCalibration;
 import co.edu.icesi.nextfruit.modules.model.MatchingColor;
 import co.edu.icesi.nextfruit.modules.model.MatchingColorInterpreter;
 import weka.core.Instances;
@@ -18,8 +19,8 @@ public abstract class WekaClassifierAdapter extends WekaClassifier {
 
 	private List<MatchingColor> matchingColors;
 
-	public WekaClassifierAdapter(String name) {
-		super();
+	public WekaClassifierAdapter(String name, CameraCalibration calibration) {
+		super(calibration);
 		this.trainingSet = new Instances(name, getFeatures(), 0);
 	}
 
