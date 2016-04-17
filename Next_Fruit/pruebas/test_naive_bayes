@@ -1,0 +1,26 @@
+**************
+
+ Test Results
+
+**************
+
+
+-- SUMMARY --
+
+Correctly Classified Instances          13               92.8571 %
+Incorrectly Classified Instances         1                7.1429 %
+Kappa statistic                          0.8511
+Mean absolute error                      0.0714
+Root mean squared error                  0.2673
+Relative absolute error                 14.2857 %
+Root relative squared error             53.4522 %
+Coverage of cases (0.95 level)          92.8571 %
+Mean rel. region size (0.95 level)      50      %
+Total Number of Instances               14     
+
+
+-- CONFUSION MATRIX --
+
+Approved   Rejected   -> Classified as
+(5.0) (1.0)   | Approved (Real Value)
+(0.0) (8.0)   | Rejected (Rela Value)
