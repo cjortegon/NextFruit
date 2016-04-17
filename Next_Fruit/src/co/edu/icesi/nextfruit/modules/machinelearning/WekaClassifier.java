@@ -210,6 +210,8 @@ public abstract class WekaClassifier {
 
 			if(trainingSet != null && testSet != null){
 
+				trainingSet.setClassIndex(trainingSet.numAttributes()-1);
+				testSet.setClassIndex(testSet.numAttributes()-1);
 				ev = new Evaluation(trainingSet);
 				ev.evaluateModel(classificationModel, testSet);
 				saveEvaluationData(ev, testResults);

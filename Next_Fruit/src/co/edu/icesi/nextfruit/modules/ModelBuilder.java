@@ -2,6 +2,7 @@ package co.edu.icesi.nextfruit.modules;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import co.edu.icesi.nextfruit.modules.computervision.FeaturesExtract;
@@ -35,6 +36,7 @@ public class ModelBuilder {
 	 * Starts a new classifier class
 	 */
 	public ModelBuilder() {
+		this.classifiers = new WekaClassifierAdapter[4];
 	}
 
 	/**
@@ -64,7 +66,6 @@ public class ModelBuilder {
 	public void processTrainingSet(String classSeparator, File destinationFile, CameraCalibration calibration) {
 
 		// Starting classifiers
-		this.classifiers = new WekaClassifierAdapter[1];
 		this.classifiers[0] = new QualityClassifier(calibration);
 
 		// Extracting features from images and creating new instances from that
@@ -102,15 +103,35 @@ public class ModelBuilder {
 	 * Loads a training set from the given file.
 	 * @param file Location of the file that contains the training set.
 	 */
-	public boolean loadTrainingSet(File file) {
-		//		try {
-		//			this.classifier.loadDataSetFromFile(file);
-		//			this.hasLoadedTrainingSet = true;
-		//			return true;
-		//		} catch (IOException e) {
-		//			this.hasLoadedTrainingSet = false;
-		return false;
-		//		}
+	public boolean loadTrainingSet(File file, String classifier, CameraCalibration calibration) {
+		try {
+			switch (classifier) {
+			case QUALITY_CLASSIFIER:
+				this.classifiers[0] = new QualityClassifier(calibration);
+				this.classifiers[0].loadDataSetFromFile(file);
+				break;
+
+			case SIZE_CLASSIFIER:
+				this.classifiers[1] = new QualityClassifier(calibration);
+				this.classifiers[1].loadDataSetFromFile(file);
+				break;
+
+			case CLASS_CLASSIFIER:
+				this.classifiers[2] = new QualityClassifier(calibration);
+				this.classifiers[2].loadDataSetFromFile(file);
+				break;
+
+			case RIPENESS_CLASSIFIER:
+				this.classifiers[3] = new QualityClassifier(calibration);
+				this.classifiers[3].loadDataSetFromFile(file);
+				break;
+			}
+			this.hasLoadedTrainingSet = true;
+			return true;
+		} catch (IOException e) {
+			this.hasLoadedTrainingSet = false;
+			return false;
+		}
 	}
 
 	/**

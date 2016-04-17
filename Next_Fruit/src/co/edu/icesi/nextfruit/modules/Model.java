@@ -3,7 +3,6 @@ package co.edu.icesi.nextfruit.modules;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -208,14 +207,10 @@ public class Model implements Attachable {
 	 * Loads a training set previously saved.
 	 * @param file The location of the file with the training set.
 	 */
-	public boolean loadTrainingSet(File file) {
+	public boolean loadTrainingSet(File file, String classifierType) {
 		this.modelBuilder = new ModelBuilder();
-		return this.modelBuilder.loadTrainingSet(file);
+		return this.modelBuilder.loadTrainingSet(file, classifierType, getCameraCalibration());
 	}
-
-	// ******************* CHARACTERIZATION MODULE ********************
-
-	// ******************* MACHINE LEARNING MODULE ********************
 
 	/**
 	 * Loads the image file names from the given folder.
@@ -262,7 +257,7 @@ public class Model implements Attachable {
 			break;
 			
 		case ModelBuilder.SIZE_CLASSIFIER:
-			System.out.println("Implementar clasificador de tamaño");
+			System.out.println("Implementar clasificador de tamaï¿½o");
 			break;
 			
 		case ModelBuilder.CLASS_CLASSIFIER:
