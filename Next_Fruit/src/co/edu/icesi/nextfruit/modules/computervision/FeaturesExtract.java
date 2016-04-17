@@ -30,7 +30,7 @@ public class FeaturesExtract {
 
 	public FeaturesExtract(String imagePath) {
 		mat = Imgcodecs.imread(imagePath);
-		entropy = Double.NaN;
+		entropy = -1;
 	}
 
 	// ***************** PUBLIC METHODS *****************
@@ -162,7 +162,7 @@ public class FeaturesExtract {
 	}
 
 	private void obtainEntropy() {
-		if(entropy == Double.NaN) {
+		if(entropy < 0) {
 			Histogram histogram = new Histogram(mat);
 			final double total_size = polygon.getArea();
 			histogram.generateGrayscaleHistogram(false, polygon);
@@ -171,7 +171,7 @@ public class FeaturesExtract {
 			for (int i = 0; i < histogram.getHistogram().length; i++) {
 				double p = histogram.getHistogram()[i]/total_size;
 				if(p > 0)
-					entropy += (p*(Math.log(p)/log2));
+					entropy -= (p*(Math.log(p)/log2));
 			}
 		}
 	}
