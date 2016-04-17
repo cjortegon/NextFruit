@@ -42,11 +42,16 @@ public class QualityClassifier extends WekaClassifierAdapter {
 			colors[index++] = color.getRepeat()/(double)extracted.getNumberOfPixels();
 
 		// Creating instance
-//		System.out.println("Total de atributos: "+(8+LUMINANCE_RANGE+colors.length));
 		Instance instance = new DenseInstance(8+LUMINANCE_RANGE+colors.length);
 		ArrayList<Attribute> features = getFeatures();
 
 		// Adding defined attributes
+		System.out.println("Area="+polygon.getArea()
+		+" Entropy="+extracted.getEntropy()
+		+" Mean="+luminantStatistics.getMean()
+		+" SD="+luminantStatistics.getStandardDeviation()
+		+" Skewness="+luminantStatistics.getSkewness()
+		+" Kurtosis="+luminantStatistics.getKurtosis());
 		instance.setValue(features.get(0), polygon.getArea());
 		instance.setValue(features.get(1), extracted.getEntropy());
 		instance.setValue(features.get(2), luminantStatistics.getMean());
@@ -68,7 +73,6 @@ public class QualityClassifier extends WekaClassifierAdapter {
 		definedAttributes += colors.length;
 
 		// Adding class name
-//		System.out.println("La clase va en: "+definedAttributes);
 		instance.setValue(features.get(definedAttributes), className);
 		this.trainingSet.add(instance);
 	}
@@ -103,7 +107,7 @@ public class QualityClassifier extends WekaClassifierAdapter {
 		Attribute qualityClass = new Attribute("quality", qualityClassValues);
 
 		// Declare the feature vector
-		ArrayList<Attribute> features = new ArrayList<Attribute>(9);
+		ArrayList<Attribute> features = new ArrayList<Attribute>();
 		features.add(area);
 		features.add(entropy);
 		features.add(mean);
