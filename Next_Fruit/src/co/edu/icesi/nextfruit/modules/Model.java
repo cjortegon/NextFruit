@@ -13,7 +13,10 @@ import org.opencv.core.Core;
 import co.edu.icesi.nextfruit.modules.callibrator.ColorChecker;
 import co.edu.icesi.nextfruit.modules.callibrator.SizeCalibrator;
 import co.edu.icesi.nextfruit.modules.computervision.FeaturesExtract;
+import co.edu.icesi.nextfruit.modules.machinelearning.ClassClassifier;
 import co.edu.icesi.nextfruit.modules.machinelearning.QualityClassifier;
+import co.edu.icesi.nextfruit.modules.machinelearning.RipenessClassifier;
+import co.edu.icesi.nextfruit.modules.machinelearning.SizeClassifier;
 import co.edu.icesi.nextfruit.modules.machinelearning.WekaClassifier;
 import co.edu.icesi.nextfruit.modules.model.CameraCalibration;
 import co.edu.icesi.nextfruit.modules.model.CameraSettings;
@@ -238,15 +241,24 @@ public class Model implements Attachable {
 	 * @param destinationFile The file where the model will be saved.
 	 * @param type The type of machine learning to use for building the new model.
 	 */
-	public boolean trainClassifier(File destinationFile, String technique, String classifier) {
+	public boolean trainClassifier(File savedTrainingSet, File destinationFile, String technique, String classifier) {
 		if(modelBuilder != null) {
-			this.modelBuilder.trainClassifier(destinationFile, technique, classifier);
+			this.modelBuilder.trainClassifier(savedTrainingSet, destinationFile, technique, classifier);
 			return true;
 		}
 		return false;
 	}
 
 	
+	/**
+	 * Test a classifier.
+	 * @param type
+	 * @param classificationModel
+	 * @param trainingSetFile
+	 * @param testSetFile
+	 * @param testResults
+	 * @throws Exception
+	 */
 	public void testClassifier(String type, File classificationModel, File trainingSetFile, 
 			File testSetFile, File testResults) throws Exception{
 		
@@ -257,15 +269,15 @@ public class Model implements Attachable {
 			break;
 			
 		case ModelBuilder.SIZE_CLASSIFIER:
-			System.out.println("Implementar clasificador de tama�o");
+			weka = new SizeClassifier(getCameraCalibration());
 			break;
 			
 		case ModelBuilder.CLASS_CLASSIFIER:
-			System.out.println("Implementar clasificador de clase");
+			weka = new ClassClassifier(getCameraCalibration());
 			break;
 			
 		case ModelBuilder.RIPENESS_CLASSIFIER:
-			System.out.println("Implementar clasificador de madurez");
+			weka = new RipenessClassifier(getCameraCalibration());
 			break;
 
 		}

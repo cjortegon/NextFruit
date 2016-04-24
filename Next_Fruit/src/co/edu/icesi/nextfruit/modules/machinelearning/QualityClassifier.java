@@ -22,8 +22,8 @@ public class QualityClassifier extends WekaClassifierAdapter {
 	private final int LUMINANCE_RANGE = 6;
 
 	public QualityClassifier(CameraCalibration calibration) {
-		super("strawberry-qualities", calibration);
-		this.calibration = calibration;
+		super("strawberry-quality", calibration);
+		//this.calibration = calibration;
 	}
 
 	@Override
@@ -147,14 +147,9 @@ public class QualityClassifier extends WekaClassifierAdapter {
 					ev.toSummaryString() + separator +
 					separator + "-- CONFUSION MATRIX --" + separator + 
 
-					//********************************************************
-					//	Modificar la matriz de confusion para que se ajuste a 
-					//	nuestro problema.
-					//********************************************************
-
-					separator + "Approved" + "   " + "" + "Rejected"+ "   -> Classified as" + separator +
+					separator + "Approved" + "   " + "Rejected"+ "   -> Classified as" + separator +
 					"(" + cmMatrix[0][0] + ")" + " (" + cmMatrix[0][1] + ")" + "   | Approved (Real Value)" + separator +
-					"(" + cmMatrix[1][0] + ")" + " (" + cmMatrix[1][1] + ")" + "   | Rejected (Rela Value)");
+					"(" + cmMatrix[1][0] + ")" + " (" + cmMatrix[1][1] + ")" + "   | Rejected (Real Value)");
 
 			PrintWriter writer = new PrintWriter(file);
 			writer.println(s);
@@ -163,7 +158,7 @@ public class QualityClassifier extends WekaClassifierAdapter {
 					"el archivo " + file.getName() + ".");
 
 		} catch (FileNotFoundException e) {
-			writeLog("[saveEvaluationData]: No se pudo guardar el resultado de la evaluacion ");
+			writeLog("[saveEvaluationData]: No se pudo guardar el resultado de la evaluacion.");
 			e.printStackTrace();
 		}		
 	}

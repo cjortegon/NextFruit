@@ -15,7 +15,6 @@ import co.edu.icesi.nextfruit.views.MachineLearningWindow;
 
 /**
  * @author JuanD
- * -----El panel de evaluacion esta incompleto-----
  */
 public class MachineLearningController implements Initializable, ActionListener{
 
@@ -172,7 +171,7 @@ public class MachineLearningController implements Initializable, ActionListener{
 				new Thread(new Runnable() {
 					@Override
 					public void run() {
-						if(model.trainClassifier(file, classifierType, ModelBuilder.QUALITY_CLASSIFIER)){
+						if(model.trainClassifier(savedTrainingSet, file, classifierType, ModelBuilder.QUALITY_CLASSIFIER)){
 							view.showMessage("Model successfully generated");
 						}else{
 							view.showMessage("Failed generating model");
@@ -191,7 +190,7 @@ public class MachineLearningController implements Initializable, ActionListener{
 				new Thread(new Runnable() {
 					@Override
 					public void run() {
-						if(model.trainClassifier(file, classifierType, ModelBuilder.SIZE_CLASSIFIER)){
+						if(model.trainClassifier(savedTrainingSet, file, classifierType, ModelBuilder.SIZE_CLASSIFIER)){
 							view.showMessage("Model successfully generated");
 						}else{
 							view.showMessage("Failed generating model");
@@ -210,7 +209,7 @@ public class MachineLearningController implements Initializable, ActionListener{
 				new Thread(new Runnable() {
 					@Override
 					public void run() {
-						if(model.trainClassifier(file, classifierType, ModelBuilder.CLASS_CLASSIFIER)){
+						if(model.trainClassifier(savedTrainingSet, file, classifierType, ModelBuilder.CLASS_CLASSIFIER)){
 							view.showMessage("Model successfully generated");
 						}else{
 							view.showMessage("Failed generating model");
@@ -229,7 +228,7 @@ public class MachineLearningController implements Initializable, ActionListener{
 				new Thread(new Runnable() {
 					@Override
 					public void run() {
-						if(model.trainClassifier(file, classifierType, ModelBuilder.RIPENESS_CLASSIFIER)){
+						if(model.trainClassifier(savedTrainingSet, file, classifierType, ModelBuilder.RIPENESS_CLASSIFIER)){
 							view.showMessage("Model successfully generated");
 						}else{
 							view.showMessage("Failed generating model");

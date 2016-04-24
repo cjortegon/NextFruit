@@ -6,7 +6,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import co.edu.icesi.nextfruit.modules.computervision.FeaturesExtract;
+import co.edu.icesi.nextfruit.modules.machinelearning.ClassClassifier;
 import co.edu.icesi.nextfruit.modules.machinelearning.QualityClassifier;
+import co.edu.icesi.nextfruit.modules.machinelearning.RipenessClassifier;
+import co.edu.icesi.nextfruit.modules.machinelearning.SizeClassifier;
 import co.edu.icesi.nextfruit.modules.machinelearning.WekaClassifierAdapter;
 import co.edu.icesi.nextfruit.modules.model.CameraCalibration;
 import weka.classifiers.Classifier;
@@ -67,6 +70,9 @@ public class ModelBuilder {
 
 		// Starting classifiers
 		this.classifiers[0] = new QualityClassifier(calibration);
+		this.classifiers[1] = new SizeClassifier(calibration);
+		this.classifiers[2] = new ClassClassifier(calibration);
+		this.classifiers[3] = new RipenessClassifier(calibration);
 
 		// Extracting features from images and creating new instances from that
 		for (File file : images) {
@@ -112,17 +118,17 @@ public class ModelBuilder {
 				break;
 
 			case SIZE_CLASSIFIER:
-				this.classifiers[1] = new QualityClassifier(calibration);
+				this.classifiers[1] = new SizeClassifier(calibration);
 				this.classifiers[1].loadDataSetFromFile(file);
 				break;
 
 			case CLASS_CLASSIFIER:
-				this.classifiers[2] = new QualityClassifier(calibration);
+				this.classifiers[2] = new ClassClassifier(calibration);
 				this.classifiers[2].loadDataSetFromFile(file);
 				break;
 
 			case RIPENESS_CLASSIFIER:
-				this.classifiers[3] = new QualityClassifier(calibration);
+				this.classifiers[3] = new RipenessClassifier(calibration);
 				this.classifiers[3].loadDataSetFromFile(file);
 				break;
 			}
@@ -140,7 +146,7 @@ public class ModelBuilder {
 	 * @param type The type of machine learning that will be created.
 	 * @return If the operation was successfully finished.
 	 */
-	public boolean trainClassifier(File classifierDestination, String technique, String classifier) {
+	public boolean trainClassifier(File savedTrainingSet, File classifierDestination, String technique, String classifier) {
 		if(hasLoadedTrainingSet) {
 			Classifier classifierType = null;
 			switch (technique) {
@@ -150,7 +156,7 @@ public class ModelBuilder {
 			}
 			if(classifierType != null) {
 				try {
-					trainOneClassifier(classifierType, classifierDestination, classifier);
+					trainOneClassifier(savedTrainingSet, classifierType, classifierDestination, classifier);
 				} catch (Exception e) {
 					return false;
 				}
@@ -160,22 +166,22 @@ public class ModelBuilder {
 		return false;
 	}
 
-	private void trainOneClassifier(Classifier classifierType, File destinationFile, String classifier) throws Exception {
+	private void trainOneClassifier(File savedTrainingSet, Classifier classifierType, File destinationFile, String classifier) throws Exception {
 		switch (classifier) {
 		case QUALITY_CLASSIFIER:
-			classifiers[0].trainClassifier(classifierType, null, destinationFile);
+			classifiers[0].trainClassifier(classifierType, savedTrainingSet, destinationFile);
 			break;
 
 		case SIZE_CLASSIFIER:
-			classifiers[1].trainClassifier(classifierType, null, destinationFile);
+			classifiers[1].trainClassifier(classifierType, savedTrainingSet, destinationFile);
 			break;
 
 		case CLASS_CLASSIFIER:
-			classifiers[2].trainClassifier(classifierType, null, destinationFile);
+			classifiers[2].trainClassifier(classifierType, savedTrainingSet, destinationFile);
 			break;
 
 		case RIPENESS_CLASSIFIER:
-			classifiers[3].trainClassifier(classifierType, null, destinationFile);
+			classifiers[3].trainClassifier(classifierType, savedTrainingSet, destinationFile);
 			break;
 		}
 	}

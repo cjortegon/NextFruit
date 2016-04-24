@@ -150,8 +150,10 @@ public abstract class WekaClassifier {
 		try {
 			if(trainingSet == null) {
 				loadDataSetFromFile(trainingSetFileName);
-				if(trainingSetFileName == null)
+				if(trainingSetFileName == null){
+					writeLog("No trainning file loaded.");
 					throw new Exception("No trainning file loaded.");
+				}
 			}
 
 			trainingSet.setClassIndex(trainingSet.numAttributes() - 1);
