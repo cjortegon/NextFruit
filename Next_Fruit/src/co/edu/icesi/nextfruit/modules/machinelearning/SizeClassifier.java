@@ -7,8 +7,11 @@ import java.util.ArrayList;
 
 import co.edu.icesi.nextfruit.modules.computervision.FeaturesExtract;
 import co.edu.icesi.nextfruit.modules.model.CameraCalibration;
+import co.edu.icesi.nextfruit.modules.model.PolygonWrapper;
 import weka.classifiers.Evaluation;
 import weka.core.Attribute;
+import weka.core.DenseInstance;
+import weka.core.Instance;
 
 public class SizeClassifier extends WekaClassifierAdapter{
 
@@ -18,41 +21,46 @@ public class SizeClassifier extends WekaClassifierAdapter{
 
 	@Override
 	public void insertInstanceFromFeatures(FeaturesExtract extracted, String className) {
-		// TODO Auto-generated method stub
-		
+		// Analyzing data
+		extracted.analizeData(calibration, getMatchingColors());
+
+		// Getting results
+		PolygonWrapper polygon = extracted.getPolygon();
+
+		// Creating instance
+		Instance instance = new DenseInstance(2);
+		ArrayList<Attribute> features = getFeatures();
+
+		// Adding defined attributes
+		System.out.println("Area="+polygon.getArea());
+		int definedAttributes = 1; // Make sure this value is correct
+
+		// Adding class name
+		instance.setValue(features.get(definedAttributes), className);
+		this.trainingSet.add(instance);		
 	}
 
 	@Override
 	protected ArrayList<Attribute> defineFeaturesVector() {
 
 		// Create and Initialize Attributes
-		ArrayList<String> qualityClassValues = new ArrayList<String>();
-		qualityClassValues.add("a");
-		qualityClassValues.add("b");
-		qualityClassValues.add("c");
-		qualityClassValues.add("d");
-		qualityClassValues.add("e");
+		ArrayList<String> sizeClassValues = new ArrayList<String>();
+		sizeClassValues.add("a");
+		sizeClassValues.add("b");
+		sizeClassValues.add("c");
+		sizeClassValues.add("d");
+		sizeClassValues.add("e");
 
 		// Defined attributes
 		Attribute area = new Attribute("area");
-		Attribute entropy = new Attribute("entropy");
-		Attribute mean = new Attribute("mean");
-		Attribute sD = new Attribute("standard-deviation");
-		Attribute skewness = new Attribute("skewness");
-		Attribute kurtosis = new Attribute("kurtosis");
-		Attribute qualityClass = new Attribute("size", qualityClassValues);
+		Attribute sizeClass = new Attribute("size", sizeClassValues);
 
 		// Declare the feature vector
 		ArrayList<Attribute> features = new ArrayList<Attribute>();
 		features.add(area);
-		features.add(entropy);
-		features.add(mean);
-		features.add(sD);
-		features.add(skewness);
-		features.add(kurtosis);
 
 		// Class type
-		features.add(qualityClass);
+		features.add(sizeClass);
 
 		System.out.println("Number of features for "+getClass().getName()+": "+features.size());
 		return features;

@@ -18,17 +18,20 @@ public class ClassClassifier extends WekaClassifierAdapter{
 
 	@Override
 	public void insertInstanceFromFeatures(FeaturesExtract extracted, String className) {
-		// TODO Auto-generated method stub
+
+		//
+		//	implementar features para la forma.
+		//
 		
 	}
 
 	@Override
 	protected ArrayList<Attribute> defineFeaturesVector() {
 		// Create and Initialize Attributes
-		ArrayList<String> qualityClassValues = new ArrayList<String>();
-		qualityClassValues.add("e");
-		qualityClassValues.add("i");
-		qualityClassValues.add("ii");
+		ArrayList<String> classClassValues = new ArrayList<String>();
+		classClassValues.add("e");
+		classClassValues.add("i");
+		classClassValues.add("ii");
 
 		// Defined attributes
 		Attribute area = new Attribute("area");
@@ -37,7 +40,7 @@ public class ClassClassifier extends WekaClassifierAdapter{
 		Attribute sD = new Attribute("standard-deviation");
 		Attribute skewness = new Attribute("skewness");
 		Attribute kurtosis = new Attribute("kurtosis");
-		Attribute qualityClass = new Attribute("size", qualityClassValues);
+		Attribute classClass = new Attribute("size", classClassValues);
 
 		// Declare the feature vector
 		ArrayList<Attribute> features = new ArrayList<Attribute>();
@@ -49,7 +52,7 @@ public class ClassClassifier extends WekaClassifierAdapter{
 		features.add(kurtosis);
 
 		// Class type
-		features.add(qualityClass);
+		features.add(classClass);
 
 		System.out.println("Number of features for " + getClass().getName() + ": " + features.size());
 		return features;

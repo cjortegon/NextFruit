@@ -5,15 +5,17 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collection;
 
 import co.edu.icesi.nextfruit.modules.computervision.FeaturesExtract;
 import co.edu.icesi.nextfruit.modules.model.CameraCalibration;
+import co.edu.icesi.nextfruit.modules.model.ColorDistribution;
 import weka.classifiers.Evaluation;
 import weka.core.Attribute;
+import weka.core.DenseInstance;
+import weka.core.Instance;
 
 public class RipenessClassifier extends WekaClassifierAdapter{
-
-	private final int LUMINANCE_RANGE = 6;
 	
 	
 	public RipenessClassifier(CameraCalibration calibration) {
@@ -22,10 +24,33 @@ public class RipenessClassifier extends WekaClassifierAdapter{
 
 	@Override
 	public void insertInstanceFromFeatures(FeaturesExtract extracted, String className) {
-		// TODO Auto-generated method stub
+		// Analyzing data
+		extracted.analizeData(calibration, getMatchingColors());
+
+		// Getting results
+		Collection<ColorDistribution> matchs = extracted.getMatchingColors();
+		int index = 0;
+		double colors[] = new double[matchs.size()];
+		for (ColorDistribution color : matchs)
+			colors[index++] = color.getRepeat()/(double)extracted.getNumberOfPixels();
+
+		// Creating instance
+		Instance instance = new DenseInstance(1+colors.length);
+		ArrayList<Attribute> features = getFeatures();
+		int definedAttributes = 0; // Make sure this value is correct
+
+		// Adding colors
+		for (int i = 0; i < colors.length; i++)
+			instance.setValue(features.get(definedAttributes+i), colors[i]);
+		definedAttributes += colors.length;
+
+		// Adding class name
+		instance.setValue(features.get(definedAttributes), className);
+		this.trainingSet.add(instance);
 		
 	}
 
+	
 	@Override
 	protected ArrayList<Attribute> defineFeaturesVector() {
 		
@@ -39,38 +64,20 @@ public class RipenessClassifier extends WekaClassifierAdapter{
 		}
 
 		// Create and Initialize Attributes
-		ArrayList<String> qualityClassValues = new ArrayList<String>();
-		qualityClassValues.add("0");
-		qualityClassValues.add("1");
-		qualityClassValues.add("2");
-		qualityClassValues.add("3");
-		qualityClassValues.add("4");
-		qualityClassValues.add("5");
-		qualityClassValues.add("6");
+		ArrayList<String> ripenessClassValues = new ArrayList<String>();
+		ripenessClassValues.add("0");
+		ripenessClassValues.add("1");
+		ripenessClassValues.add("2");
+		ripenessClassValues.add("3");
+		ripenessClassValues.add("4");
+		ripenessClassValues.add("5");
+		ripenessClassValues.add("6");
 
 		// Defined attributes
-		Attribute area = new Attribute("area");
-		Attribute entropy = new Attribute("entropy");
-		Attribute mean = new Attribute("mean");
-		Attribute sD = new Attribute("standard-deviation");
-		Attribute skewness = new Attribute("skewness");
-		Attribute kurtosis = new Attribute("kurtosis");
-		Attribute qualityClass = new Attribute("quality", qualityClassValues);
+		Attribute ripenessClass = new Attribute("quality", ripenessClassValues);
 
 		// Declare the feature vector
 		ArrayList<Attribute> features = new ArrayList<Attribute>();
-		features.add(area);
-		features.add(entropy);
-		features.add(mean);
-		features.add(sD);
-		features.add(skewness);
-		features.add(kurtosis);
-
-		// Luminance ranges
-		for (int i = 0; i < LUMINANCE_RANGE; i++) {
-			Attribute luminance = new Attribute("luminance" + i);
-			features.add(luminance);
-		}
 
 		// Colors ranges
 		for (int i = 0; i < getMatchingColors().size(); i++) {
@@ -79,12 +86,13 @@ public class RipenessClassifier extends WekaClassifierAdapter{
 		}
 
 		// Class type
-		features.add(qualityClass);
+		features.add(ripenessClass);
 
 		System.out.println("Number of features for " + getClass().getName() + ": " + features.size());
 		return features;
 	}
 
+	
 	@Override
 	protected void saveEvaluationData(Evaluation ev, File file) {
 		try {
