@@ -16,8 +16,7 @@ import weka.core.DenseInstance;
 import weka.core.Instance;
 
 public class RipenessClassifier extends WekaClassifierAdapter{
-	
-	
+
 	public RipenessClassifier(CameraCalibration calibration) {
 		super("strawberry-ripeness", calibration);
 	}
@@ -47,13 +46,11 @@ public class RipenessClassifier extends WekaClassifierAdapter{
 		// Adding class name
 		instance.setValue(features.get(definedAttributes), className);
 		this.trainingSet.add(instance);
-		
 	}
 
-	
 	@Override
 	protected ArrayList<Attribute> defineFeaturesVector() {
-		
+
 		// Loading matching colors
 		File file = new File("resources/matching_colors.txt");
 		try {
@@ -92,7 +89,6 @@ public class RipenessClassifier extends WekaClassifierAdapter{
 		return features;
 	}
 
-	
 	@Override
 	protected void saveEvaluationData(Evaluation ev, File file) {
 		try {
@@ -126,5 +122,4 @@ public class RipenessClassifier extends WekaClassifierAdapter{
 			e.printStackTrace();
 		}					
 	}
-
 }

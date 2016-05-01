@@ -22,18 +22,19 @@ public class SizeClassifier extends WekaClassifierAdapter{
 	@Override
 	public void insertInstanceFromFeatures(FeaturesExtract extracted, String className) {
 		// Analyzing data
-		extracted.analizeData(calibration, getMatchingColors());
+		// Not needed, cause this classifier doesn't use colors or luminant values
+		//extracted.analizeData(calibration, getMatchingColors());
 
 		// Getting results
 		PolygonWrapper polygon = extracted.getPolygon();
 
 		// Creating instance
-		Instance instance = new DenseInstance(2);
+		int definedAttributes = 1; // Make sure this value is correct
+		Instance instance = new DenseInstance(definedAttributes+1);
 		ArrayList<Attribute> features = getFeatures();
 
 		// Adding defined attributes
-		System.out.println("Area="+polygon.getArea());
-		int definedAttributes = 1; // Make sure this value is correct
+		instance.setValue(features.get(0), polygon.getArea());
 
 		// Adding class name
 		instance.setValue(features.get(definedAttributes), className);

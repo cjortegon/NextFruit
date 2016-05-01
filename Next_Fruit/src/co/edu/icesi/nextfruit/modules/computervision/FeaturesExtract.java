@@ -59,7 +59,9 @@ public class FeaturesExtract {
 	}
 
 	public void analizeData(CameraCalibration calibration, List<MatchingColor> colors) {
-		processColorAnalysis(calibration, colors);
+		if(colors != null) {
+			processColorAnalysis(calibration, colors);
+		}
 		processLuminanceAnalysis();
 	}
 

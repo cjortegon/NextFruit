@@ -46,12 +46,12 @@ public class QualityClassifier extends WekaClassifierAdapter {
 		ArrayList<Attribute> features = getFeatures();
 
 		// Adding defined attributes
-		System.out.println("Area="+polygon.getArea()
-		+" Entropy="+extracted.getEntropy()
-		+" Mean="+luminantStatistics.getMean()
-		+" SD="+luminantStatistics.getStandardDeviation()
-		+" Skewness="+luminantStatistics.getSkewness()
-		+" Kurtosis="+luminantStatistics.getKurtosis());
+		//		System.out.println("Area="+polygon.getArea()
+		//		+" Entropy="+extracted.getEntropy()
+		//		+" Mean="+luminantStatistics.getMean()
+		//		+" SD="+luminantStatistics.getStandardDeviation()
+		//		+" Skewness="+luminantStatistics.getSkewness()
+		//		+" Kurtosis="+luminantStatistics.getKurtosis());
 		instance.setValue(features.get(0), polygon.getArea());
 		instance.setValue(features.get(1), extracted.getEntropy());
 		instance.setValue(features.get(2), luminantStatistics.getMean());

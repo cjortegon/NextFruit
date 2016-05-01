@@ -89,8 +89,12 @@ public class ModelBuilder {
 
 			// Extracting features for each classifier
 			for (int i = 0; i < classifiers.length; i++) {
-				System.out.println("Extracting features for instance type: "+classNames[i]);
-				classifiers[i].insertInstanceFromFeatures(extracted, classNames[i]);
+				if(i < classNames.length - 1) {
+					System.out.println("Extracting features for instance type: "+classNames[i]);
+					classifiers[i].insertInstanceFromFeatures(extracted, classNames[i]);
+				} else {
+					System.err.println("Instance not available for this classifier.");
+				}
 			}
 		}
 
