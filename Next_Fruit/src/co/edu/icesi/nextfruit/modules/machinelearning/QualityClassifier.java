@@ -19,7 +19,7 @@ import weka.core.Instance;
 
 public class QualityClassifier extends WekaClassifierAdapter {
 
-	private final int LUMINANCE_RANGE = 6;
+	private final int LUMINANCE_RANGE = 12;
 
 	public QualityClassifier(CameraCalibration calibration) {
 		super("strawberry-quality", calibration);

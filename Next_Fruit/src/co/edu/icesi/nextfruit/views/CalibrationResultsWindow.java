@@ -181,12 +181,4 @@ public class CalibrationResultsWindow extends KFrame implements Initializable, U
 		this.btSaveSettings = btSaveSettings;
 	}
 
-	public int[][][] getRgbs() {
-		return rgbs;
-	}
-
-	public double getPixelsxCm() {
-		return pixelsxCm;
-	}
-
 }

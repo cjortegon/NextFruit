@@ -30,7 +30,7 @@ import weka.classifiers.Classifier;
 
 
 public class Model implements Attachable {
-	
+
 	private static final int CALIBRATE = 0;
 	private static final int EXTRACT = 1;
 
@@ -130,9 +130,12 @@ public class Model implements Attachable {
 	 * @param rgbs array containing the information about the RGB colors from each box in the colorchecker.
 	 * @return boolean, represents if file was saved correctly or not.
 	 */
-	public boolean saveCalibrationData(File file, int[][][] rgbs, double pixelsxCm){			
+	public boolean saveCalibrationData(File file) {
+		int[][][] rgbs = double2Int(colorChecker.getReadRGB());
+		double pixelsxCm = getSizeCalibrator().getPixelsForCentimeter();
 		CameraSettings cS = colorChecker.getCameraSettings();
 		try {
+			CalibrationDataHandler calibrationDataHandler = new CalibrationDataHandler();
 			calibrationDataHandler.saveCalibrationData(file, rgbs, pixelsxCm, cS.getIlluminant(),
 					cS.getWorkingSpaceMatrix(), cS.getWhiteX(), cS.getWhiteY(), cS.getWhiteZ());
 			return true;
@@ -142,6 +145,17 @@ public class Model implements Attachable {
 		}
 	}
 
+	private int[][][] double2Int(double[][][] values) {
+		int[][][] result = new int[values.length][values[0].length][values[0][0].length];
+		for (int i = 0; i < result.length; i++) {
+			for (int j = 0; j < result[0].length; j++) {
+				for (int k = 0; k < result[0][0].length; k++) {
+					result[i][j][k] = (int) values[i][j][k];
+				}
+			}
+		}
+		return result;
+	}
 
 	/**
 	 * This method loads, to the application, the calibration data of a particular camera,
@@ -249,7 +263,7 @@ public class Model implements Attachable {
 		return false;
 	}
 
-	
+
 	/**
 	 * Test a classifier.
 	 * @param type
@@ -261,34 +275,34 @@ public class Model implements Attachable {
 	 */
 	public void testClassifier(String type, File classificationModel, File trainingSetFile, 
 			File testSetFile, File testResults) throws Exception{
-		
+
 		switch (type) {
-		
+
 		case ModelBuilder.QUALITY_CLASSIFIER:
 			weka = new QualityClassifier(getCameraCalibration());
 			break;
-			
+
 		case ModelBuilder.SIZE_CLASSIFIER:
 			weka = new SizeClassifier(getCameraCalibration());
 			break;
-			
+
 		case ModelBuilder.CLASS_CLASSIFIER:
 			weka = new ClassClassifier(getCameraCalibration());
 			break;
-			
+
 		case ModelBuilder.RIPENESS_CLASSIFIER:
 			weka = new RipenessClassifier(getCameraCalibration());
 			break;
 
 		}
-		
+
 		Classifier param = weka.loadClassifierFromFile(classificationModel);
 		weka.testClassifierModel(param, trainingSetFile, 
 				testSetFile, testResults);
-		
+
 	}
 
-	
+
 	/**
 	 * NOT IMPLEMENTED YET
 	 * NOT IMPLEMENTED YET
@@ -313,64 +327,64 @@ public class Model implements Attachable {
 	 */
 	public double[] classifyImage(File image, File classifier) throws Exception{
 
-//		weka = new QualityFeaturesAdapter(getCameraCalibration(), 1);
-//		Classifier model = weka.loadClassifierFromFile(classifier);
-//		ArrayList<Attribute> features = weka.getFeatures();
-//		Instances dataUnlabeled = new Instances("test-instances", features, 0);
-//		CameraCalibration calibration = getCameraCalibration();
-//
-//		// Creating temporal matching colors
-//		matchingColors = new ArrayList<>();
-//		for (double[] color : definedColors){
-//			matchingColors.add(new MatchingColor(new double[]{color[0], color[1], 0.75}, color[2], calibration.getInverseWorkingSpaceMatrix()));
-//		}
-//
-//		// Getting class name
-//		String fileName = image.getName();
-//		String className = null;
-//		try {
-//			className = fileName.substring(0, fileName.indexOf("-"));
-//		} catch(Exception e1) {
-//			try {
-//				className = fileName.substring(0, fileName.indexOf("."));
-//			} catch(Exception e2) {
-//				className = fileName;
-//			}
-//		}
-//
-//		System.out.println("Extracting features... ("+className+")");
-//
-//		// Processing features
-//		FeaturesExtract ft = new FeaturesExtract(image.getAbsolutePath());
-//		ft.extractFeatures(calibration);
-//		ft.analizeData(calibration, matchingColors);
-//
-//		// Getting results
-//		Collection<ColorDistribution> matchs = ft.getMatchingColors();
-//		Statistics luminantStatistics = ft.getLuminanceStatistics();
-//		PolygonWrapper polygon = ft.getPolygon();
-//		int index = 0;
-//		double colors[] = new double[3];
-//		for (ColorDistribution color : matchs)
-//			colors[index++] = color.getRepeat()/(double)ft.getNumberOfPixels();
-//
-//		// Creating instances
-//		Instance unknown = new DenseInstance(8);
-//
-//		unknown.setValue(features.get(0), polygon.getArea());
-//		unknown.setValue(features.get(1), luminantStatistics.getMean());
-//		unknown.setValue(features.get(2), luminantStatistics.getStandardDeviation());
-//		unknown.setValue(features.get(3), luminantStatistics.getSkewness());
-//		unknown.setValue(features.get(4), luminantStatistics.getKurtosis());
-//		unknown.setValue(features.get(5), colors[0]);
-//		unknown.setValue(features.get(6), colors[1]);
-//		unknown.setValue(features.get(7), colors[2]);
-//
-//		dataUnlabeled.add(unknown);
-//
-//		double[] fDistribution = weka.classify(model, dataUnlabeled);
-//		return fDistribution;
-		
+		//		weka = new QualityFeaturesAdapter(getCameraCalibration(), 1);
+		//		Classifier model = weka.loadClassifierFromFile(classifier);
+		//		ArrayList<Attribute> features = weka.getFeatures();
+		//		Instances dataUnlabeled = new Instances("test-instances", features, 0);
+		//		CameraCalibration calibration = getCameraCalibration();
+		//
+		//		// Creating temporal matching colors
+		//		matchingColors = new ArrayList<>();
+		//		for (double[] color : definedColors){
+		//			matchingColors.add(new MatchingColor(new double[]{color[0], color[1], 0.75}, color[2], calibration.getInverseWorkingSpaceMatrix()));
+		//		}
+		//
+		//		// Getting class name
+		//		String fileName = image.getName();
+		//		String className = null;
+		//		try {
+		//			className = fileName.substring(0, fileName.indexOf("-"));
+		//		} catch(Exception e1) {
+		//			try {
+		//				className = fileName.substring(0, fileName.indexOf("."));
+		//			} catch(Exception e2) {
+		//				className = fileName;
+		//			}
+		//		}
+		//
+		//		System.out.println("Extracting features... ("+className+")");
+		//
+		//		// Processing features
+		//		FeaturesExtract ft = new FeaturesExtract(image.getAbsolutePath());
+		//		ft.extractFeatures(calibration);
+		//		ft.analizeData(calibration, matchingColors);
+		//
+		//		// Getting results
+		//		Collection<ColorDistribution> matchs = ft.getMatchingColors();
+		//		Statistics luminantStatistics = ft.getLuminanceStatistics();
+		//		PolygonWrapper polygon = ft.getPolygon();
+		//		int index = 0;
+		//		double colors[] = new double[3];
+		//		for (ColorDistribution color : matchs)
+		//			colors[index++] = color.getRepeat()/(double)ft.getNumberOfPixels();
+		//
+		//		// Creating instances
+		//		Instance unknown = new DenseInstance(8);
+		//
+		//		unknown.setValue(features.get(0), polygon.getArea());
+		//		unknown.setValue(features.get(1), luminantStatistics.getMean());
+		//		unknown.setValue(features.get(2), luminantStatistics.getStandardDeviation());
+		//		unknown.setValue(features.get(3), luminantStatistics.getSkewness());
+		//		unknown.setValue(features.get(4), luminantStatistics.getKurtosis());
+		//		unknown.setValue(features.get(5), colors[0]);
+		//		unknown.setValue(features.get(6), colors[1]);
+		//		unknown.setValue(features.get(7), colors[2]);
+		//
+		//		dataUnlabeled.add(unknown);
+		//
+		//		double[] fDistribution = weka.classify(model, dataUnlabeled);
+		//		return fDistribution;
+
 		return null;
 	}
 

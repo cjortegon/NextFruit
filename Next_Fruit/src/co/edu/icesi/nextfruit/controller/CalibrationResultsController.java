@@ -46,9 +46,7 @@ public class CalibrationResultsController implements Initializable, ActionListen
 		case SAVE_SETTINGS:
 			File file = FilesUtility.chooseFileToSave(view, "Save calibration file");
 			if(file != null) {
-				int[][][] rgbs = this.view.getRgbs();
-				double pixelsxCm = this.view.getPixelsxCm();
-				boolean result = this.model.saveCalibrationData(file, rgbs, pixelsxCm);
+				boolean result = this.model.saveCalibrationData(file);
 				if(!result) {
 					JOptionPane.showMessageDialog(this.view,
 							"The calibration data couldn't be saved!");
