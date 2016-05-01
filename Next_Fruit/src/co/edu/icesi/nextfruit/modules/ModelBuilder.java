@@ -138,6 +138,7 @@ public class ModelBuilder {
 	private static final long MINUTE = 60000l;
 	private static final long SECOND = 1000l;
 	private String calculateTime(long startTime) {
+		startTime = System.currentTimeMillis()-startTime;
 		long hours = startTime/HOUR;
 		startTime -= hours*HOUR; 
 		long minutes = startTime/MINUTE;
