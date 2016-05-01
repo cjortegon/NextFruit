@@ -120,8 +120,8 @@ public class ModelBuilder {
 			} catch(Exception e) {
 				System.err.println("Error with file: "+file);
 			}
+			System.out.println("Time: "+calculateTime(startTime));
 		}
-		System.out.println("Time: "+calculateTime(startTime));
 
 		// Saving data
 		try {
