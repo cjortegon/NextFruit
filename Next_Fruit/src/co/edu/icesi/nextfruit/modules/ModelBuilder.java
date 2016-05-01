@@ -75,28 +75,53 @@ public class ModelBuilder {
 		this.classifiers[3] = new RipenessClassifier(calibration);
 
 		// Extracting features from images and creating new instances from that
+		int count = 0;
+		long startTime = System.currentTimeMillis();
 		for (File file : images) {
+			count ++;
 
-			// Getting class names
-			String fileName = file.getName();
-			fileName.substring(0, fileName.indexOf("."));
-			String classNames[] = fileName.split(classSeparator);
-			System.out.println("Processing file: "+file.getName());
+			try {
+				int percent = (int) ((count/((double)images.size()))*100);
+				System.out.println("Processing "+count+" of "+images.size()+" ("+percent+"%)");
 
-			// Processing features
-			FeaturesExtract extracted = new FeaturesExtract(file.getAbsolutePath());
-			extracted.extractFeatures(calibration);
+				// Getting class names
+				String fileName = file.getName();
+				fileName.substring(0, fileName.indexOf("."));
+				String classNames[] = fileName.split(classSeparator);
+				System.out.println("Processing file: "+file.getName());
 
-			// Extracting features for each classifier
-			for (int i = 0; i < classifiers.length; i++) {
-				if(i < classNames.length - 1) {
-					System.out.println("Extracting features for instance type: "+classNames[i]);
-					classifiers[i].insertInstanceFromFeatures(extracted, classNames[i]);
-				} else {
-					System.err.println("Instance not available for this classifier.");
+				// Processing features
+				try {
+					long time = System.currentTimeMillis();
+					FeaturesExtract extracted = new FeaturesExtract(file.getAbsolutePath());
+					extracted.extractFeatures(calibration);
+					long extractFeaturesTime = System.currentTimeMillis() - time;
+
+					// Extracting features for each classifier
+					for (int i = 0; i < classifiers.length; i++) {
+						if(i < classNames.length - 1 && classNames[i].length() < 4) {
+							System.out.println("Extracting features for instance type: "+classNames[i]);
+							try {
+								classifiers[i].insertInstanceFromFeatures(extracted, classNames[i]);
+							} catch(Exception e) {
+								try {
+									System.err.println("Error inserting the instance "+classNames[classNames.length]+" for the classifier: "+classifiers[i].getClass().getName());
+								} catch(Exception e1) {}
+							}
+						} else {
+							System.out.println("Not qualified for this classifier.");
+						}
+					}
+					long classifiersTime = System.currentTimeMillis() - time - extractFeaturesTime;
+					System.out.println("Processing time: "+extractFeaturesTime+" / "+classifiersTime);
+				} catch(Exception e) {
+					System.err.println("Error processing image: "+fileName);
 				}
+			} catch(Exception e) {
+				System.err.println("Error with file: "+file);
 			}
 		}
+		System.out.println("Time: "+calculateTime(startTime));
 
 		// Saving data
 		try {
@@ -107,6 +132,18 @@ public class ModelBuilder {
 		} catch (FileNotFoundException e) {
 		}
 		this.hasLoadedTrainingSet = true;
+	}
+
+	private static final long HOUR = 3600000l;
+	private static final long MINUTE = 60000l;
+	private static final long SECOND = 1000l;
+	private String calculateTime(long startTime) {
+		long hours = startTime/HOUR;
+		startTime -= hours*HOUR; 
+		long minutes = startTime/MINUTE;
+		startTime -= minutes*MINUTE;
+		long seconds = startTime/SECOND;
+		return hours+":"+(minutes < 10 ? "0"+minutes : ""+minutes)+":"+(seconds < 10 ? "0"+seconds : ""+seconds);
 	}
 
 	/**
