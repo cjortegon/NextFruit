@@ -35,6 +35,7 @@ public class SizeClassifier extends WekaClassifierAdapter{
 
 		// Adding defined attributes
 		instance.setValue(features.get(0), polygon.getArea());
+		instance.setValue(features.get(1), polygon.getPerimeter());
 
 		// Adding class name
 		instance.setValue(features.get(definedAttributes), className);
@@ -54,11 +55,13 @@ public class SizeClassifier extends WekaClassifierAdapter{
 
 		// Defined attributes
 		Attribute area = new Attribute("area");
+		Attribute perimeter = new Attribute("perimeter");
 		Attribute sizeClass = new Attribute("size", sizeClassValues);
 
 		// Declare the feature vector
 		ArrayList<Attribute> features = new ArrayList<Attribute>();
 		features.add(area);
+		features.add(perimeter);
 
 		// Class type
 		features.add(sizeClass);
