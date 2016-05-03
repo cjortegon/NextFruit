@@ -29,7 +29,7 @@ public class SizeClassifier extends WekaClassifierAdapter{
 		PolygonWrapper polygon = extracted.getPolygon();
 
 		// Creating instance
-		int definedAttributes = 1; // Make sure this value is correct
+		int definedAttributes = 2; // Make sure this value is correct
 		Instance instance = new DenseInstance(definedAttributes+1);
 		ArrayList<Attribute> features = getFeatures();
 

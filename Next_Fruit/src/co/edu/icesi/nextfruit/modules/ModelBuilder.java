@@ -106,6 +106,7 @@ public class ModelBuilder {
 							} catch(Exception e) {
 								try {
 									System.err.println("Error inserting the instance "+classNames[classNames.length]+" for the classifier: "+classifiers[i].getClass().getName());
+									e.printStackTrace();
 								} catch(Exception e1) {}
 							}
 						} else {
@@ -116,9 +117,11 @@ public class ModelBuilder {
 					System.out.println("Processing time: "+extractFeaturesTime+" / "+classifiersTime);
 				} catch(Exception e) {
 					System.err.println("Error processing image: "+fileName);
+					e.printStackTrace();
 				}
 			} catch(Exception e) {
 				System.err.println("Error with file: "+file);
+				e.printStackTrace();
 			}
 			System.out.println("Time: "+calculateTime(startTime));
 		}

@@ -2,11 +2,13 @@ package co.edu.icesi.nextfruit.modules.computervision;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
+import org.opencv.core.Point;
 import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
@@ -40,7 +42,8 @@ public class FeaturesExtract {
 	public void extractFeatures(CameraCalibration calibration) {
 		//		polygon = getContours(mat.clone(), calibration);
 		//		polygon = getContours2(calibration);
-		polygon = getContours3(calibration);
+		//		polygon = getContours3(calibration);
+		polygon = getContours4(calibration);
 		histogram = new Histogram(mat);
 		histogram.applyWhitePatch();
 		colorStatistics = histogram.getStatisticalColors(polygon);
@@ -264,6 +267,94 @@ public class FeaturesExtract {
 		double biggestArea = 0;
 		for (MatOfPoint cnt : contours) {
 			PolygonWrapper polygon = new PolygonWrapper(cnt.toArray(), false, null);
+			boxes.add(polygon);
+			if(polygon.getArea() > biggestArea) {
+				biggest = polygon;
+				biggestArea = polygon.getArea();
+			}
+		}
+		return biggest;
+	}
+
+	private PolygonWrapper getContours4(CameraCalibration calibration) {
+		int ksize = 0;
+		Mat kernel;
+
+		// Contrast
+		double contrast = 0.0625;
+		Mat contrasted = Mat.zeros(mat.height(), mat.width(), mat.type());
+		for (int i = 0; i < mat.width(); i++) {
+			for (int j = 0; j < mat.height(); j++) {
+				double[] bgr = mat.get(j, i);
+				double R = (int)(((((bgr[0] / 255.0) - 0.5) * contrast) + 0.5) * 255.0);
+				if(R < 0) { R = 0; }
+				else if(R > 255) { R = 255; }
+				double G = (int)(((((bgr[1] / 255.0) - 0.5) * contrast) + 0.5) * 255.0);
+				if(G < 0) { G = 0; }
+				else if(G > 255) { G = 255; }
+				double B = (int)(((((bgr[2] / 255.0) - 0.5) * contrast) + 0.5) * 255.0);
+				if(B < 0) { B = 0; }
+				else if(B > 255) { B = 255; }
+				contrasted.put(j, i, new double[]{B, G, R});
+			}
+		}
+
+		// Sobel
+		Mat sobel = Mat.zeros(mat.width(), mat.height(), CvType.CV_32F);
+		int ddepth = -1;
+		double delta = 0;
+		ksize = 5;
+		int scale = 3;
+		Imgproc.Sobel(contrasted, sobel, ddepth, 1, 1, ksize, scale, delta);
+
+		Histogram histogram = new Histogram(sobel);
+		histogram.filterFigureByGrayProfile(156, 100, null, new double[]{0,0,0});
+		sobel = histogram.getImage();
+
+		// Cany
+		Mat canny = new Mat();
+		Mat gray = sobel;
+		Imgproc.Canny(gray, canny, 0, 100);
+
+		// Dilatation
+		kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(6, 6));
+		Mat dilatation = new Mat();
+		Imgproc.dilate(canny, dilatation, kernel);
+
+		// Close
+		kernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(100, 100));
+		Mat close = new Mat();
+		Imgproc.morphologyEx(dilatation, close, Imgproc.MORPH_CLOSE, kernel);
+
+		// Fill spaces
+		List<MatOfPoint> spaces = new ArrayList<>();
+		Mat clone = close.clone();
+		Mat fill = close.clone();
+		Imgproc.findContours(clone, spaces, clone, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+		for (MatOfPoint cnt : spaces) {
+			PolygonWrapper polygon = new PolygonWrapper(cnt.toArray(), false, null);
+			Iterator<Point> it = polygon.getIterator();
+			while(it.hasNext()) {
+				Point p = it.next();
+				fill.put((int)p.y, (int)p.x, new double[]{255, 255, 255, 255});
+			}
+		}
+
+		// Open
+		kernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(30, 30));
+		Mat open2 = new Mat();
+		Imgproc.morphologyEx(fill, open2, Imgproc.MORPH_OPEN, kernel);
+
+		// Getting contours
+		List<MatOfPoint> contours = new ArrayList<>();
+		Imgproc.findContours(open2, contours, open2, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+
+		// Selecting the polygon
+		ArrayList<PolygonWrapper> boxes = new ArrayList<>();
+		PolygonWrapper biggest = null;
+		double biggestArea = 0;
+		for (MatOfPoint cnt : contours) {
+			PolygonWrapper polygon = new PolygonWrapper(cnt.toArray(), false, calibration);
 			boxes.add(polygon);
 			if(polygon.getArea() > biggestArea) {
 				biggest = polygon;

@@ -52,7 +52,7 @@ public class RipenessClassifier extends WekaClassifierAdapter{
 	protected ArrayList<Attribute> defineFeaturesVector() {
 
 		// Loading matching colors
-		File file = new File("resources/matching_colors.txt");
+		File file = new File("resources/custom_colors.txt");
 		try {
 			this.loadMatchingColors(file, calibration.getInverseWorkingSpaceMatrix());
 		} catch (IOException e) {
