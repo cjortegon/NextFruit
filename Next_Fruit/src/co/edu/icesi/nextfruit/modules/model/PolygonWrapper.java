@@ -31,7 +31,7 @@ public class PolygonWrapper implements Comparable<PolygonWrapper> {
 	 * @param box The list of points to start the polygon
 	 * @param reduceToRectangular True if you want to reduce the polygon into rectangular form.
 	 */
-	public PolygonWrapper(Point[] box, boolean reduceToRectangular) {
+	public PolygonWrapper(Point[] box, boolean reduceToRectangular, CameraCalibration calibration) {
 		this.box = box;
 		if(reduceToRectangular)
 			reduceToRectangular();
@@ -51,6 +51,10 @@ public class PolygonWrapper implements Comparable<PolygonWrapper> {
 		}
 		area += (last.x*cordY[0] - cordX[0]*last.y);
 		area = Math.abs(area/2);
+		if(calibration != null) {
+			area = Math.pow(Math.sqrt(area)/calibration.getPixelsXCm(),2);
+			perimeter /= calibration.getPixelsXCm();
+		}
 
 		Arrays.sort(cordX);
 		Arrays.sort(cordY);

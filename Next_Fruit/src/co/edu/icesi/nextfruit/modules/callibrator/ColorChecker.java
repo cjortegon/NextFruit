@@ -83,7 +83,7 @@ public class ColorChecker {
 		boxes = new ArrayList<PolygonWrapper>();
 		int i = 0;
 		for (MatOfPoint cnt : contours) {
-			boxes.add(new PolygonWrapper(cnt.toArray(), true));
+			boxes.add(new PolygonWrapper(cnt.toArray(), true, null));
 		}
 	}
 
@@ -176,7 +176,7 @@ public class ColorChecker {
 				}
 				if(box == null) {
 					box = new PolygonWrapper(new Point[]{new Point(x-diff, y-diff), new Point(x+diff, y-diff),
-							new Point(x+diff, y+diff), new Point(x-diff, y+diff)}, true);
+							new Point(x+diff, y+diff), new Point(x-diff, y+diff)}, true, null);
 					boxes.add(box);
 				}
 				grid[i][j] = box;

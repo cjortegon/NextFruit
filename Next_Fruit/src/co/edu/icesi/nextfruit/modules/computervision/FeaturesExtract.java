@@ -37,8 +37,8 @@ public class FeaturesExtract {
 	// ***************** PUBLIC METHODS *****************
 
 	public void extractFeatures(CameraCalibration calibration) {
-		//		polygon = getContours(mat.clone());
-		polygon = getContours2();
+		//		polygon = getContours(mat.clone(), calibration);
+		polygon = getContours2(calibration);
 		histogram = new Histogram(mat);
 		histogram.applyWhitePatch();
 		colorStatistics = histogram.getStatisticalColors(polygon);
@@ -69,7 +69,7 @@ public class FeaturesExtract {
 
 	// **************** PRIVATE METHODS *****************
 
-	private PolygonWrapper getContours(Mat src) {
+	private PolygonWrapper getContours(Mat src, CameraCalibration calibration) {
 
 		// Median blur
 		Mat mBlurred = new Mat();
@@ -122,7 +122,7 @@ public class FeaturesExtract {
 		PolygonWrapper biggest = null;
 		double biggestArea = 0;
 		for (MatOfPoint cnt : contours) {
-			PolygonWrapper polygon = new PolygonWrapper(cnt.toArray(), false);
+			PolygonWrapper polygon = new PolygonWrapper(cnt.toArray(), false, calibration);
 			boxes.add(polygon);
 			if(polygon.getArea() > biggestArea) {
 				biggest = polygon;
@@ -133,7 +133,7 @@ public class FeaturesExtract {
 		return biggest;
 	}
 
-	private PolygonWrapper getContours2() {
+	private PolygonWrapper getContours2(CameraCalibration calibration) {
 
 		// Threshold
 		Mat thresh = new Mat();
@@ -187,7 +187,7 @@ public class FeaturesExtract {
 		PolygonWrapper biggest = null;
 		double biggestArea = 0;
 		for (MatOfPoint cnt : contours) {
-			PolygonWrapper polygon = new PolygonWrapper(cnt.toArray(), false);
+			PolygonWrapper polygon = new PolygonWrapper(cnt.toArray(), false, calibration);
 			boxes.add(polygon);
 			if(polygon.getArea() > biggestArea) {
 				biggest = polygon;
