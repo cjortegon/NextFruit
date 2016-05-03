@@ -19,7 +19,8 @@ import co.edu.icesi.nextfruit.util.Statistics;
 
 public class FeaturesExtract {
 
-	private Mat mat, CV_8UC1;
+	private Mat mat;
+	private Mat CV_8UC1;
 	private PolygonWrapper polygon;
 	private Histogram histogram;
 	private int numberOfPixels;
@@ -30,7 +31,7 @@ public class FeaturesExtract {
 
 	public FeaturesExtract(String imagePath) {
 		mat = Imgcodecs.imread(imagePath);
-		CV_8UC1 = Imgcodecs.imread(imagePath, CvType.CV_8UC1);
+		//		CV_8UC1 = Imgcodecs.imread(imagePath, CvType.CV_8UC1);
 		entropy = -1;
 	}
 
@@ -38,7 +39,8 @@ public class FeaturesExtract {
 
 	public void extractFeatures(CameraCalibration calibration) {
 		//		polygon = getContours(mat.clone(), calibration);
-		polygon = getContours2(calibration);
+		//		polygon = getContours2(calibration);
+		polygon = getContours3(calibration);
 		histogram = new Histogram(mat);
 		histogram.applyWhitePatch();
 		colorStatistics = histogram.getStatisticalColors(polygon);
@@ -195,6 +197,79 @@ public class FeaturesExtract {
 			}
 		}
 		CV_8UC1 = null;
+		return biggest;
+	}
+
+	private PolygonWrapper getContours3(CameraCalibration calibration) {
+		int ksize = 0;
+		int BORDER_DEFAULT = 4;
+		Mat kernel;
+
+		ksize = (int) (Math.sqrt(mat.width()*mat.height())/30);
+		if(ksize %2 == 0)
+			ksize ++;
+		Mat blur = new Mat();
+		Imgproc.GaussianBlur(mat, blur, new Size(ksize, ksize), BORDER_DEFAULT);
+
+		// Sobel
+		Mat sobel = Mat.zeros(mat.width(), mat.height(), CvType.CV_32F);
+		int ddepth = -1;
+		double delta = 0;
+		ksize = 7;
+		int scale = 1;
+		Imgproc.Sobel(blur, sobel, ddepth, 1, 1, ksize, scale, delta);
+
+		// Blur a sobel
+		ksize = (int) (Math.sqrt(mat.width()*mat.height())/15);
+		if(ksize %2 == 0)
+			ksize ++;
+		Mat blur2 = new Mat();
+		Imgproc.GaussianBlur(sobel, blur2, new Size(ksize, ksize), BORDER_DEFAULT);
+
+		// Median blur
+		Mat MBlurred = new Mat();
+		ksize = 25;
+		if(ksize %2 == 0)
+			ksize ++;
+		Imgproc.medianBlur(blur2, MBlurred, ksize);
+
+		// Cany
+		Mat canny = new Mat();
+		Mat gray = MBlurred;
+		Imgproc.Canny(gray, canny, 0, 60);
+
+		// Dilatation
+		kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 5));
+		Mat dilatation = new Mat();
+		Imgproc.dilate(canny, dilatation, kernel);
+
+		// Black
+		kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(20, 20));
+		Mat black = new Mat();
+		Imgproc.morphologyEx(dilatation, black, Imgproc.MORPH_BLACKHAT, kernel);
+
+		// Close
+		kernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(40, 40));
+		Mat close = new Mat();
+		Imgproc.morphologyEx(black, close, Imgproc.MORPH_CLOSE, kernel);
+
+		// Getting contours
+		List<MatOfPoint> contours = new ArrayList<>();
+		Imgproc.findContours(close, contours, close, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+		//		System.out.println("Number of contours: "+contours.size());
+
+		// Selecting the polygon
+		ArrayList<PolygonWrapper> boxes = new ArrayList<>();
+		PolygonWrapper biggest = null;
+		double biggestArea = 0;
+		for (MatOfPoint cnt : contours) {
+			PolygonWrapper polygon = new PolygonWrapper(cnt.toArray(), false, null);
+			boxes.add(polygon);
+			if(polygon.getArea() > biggestArea) {
+				biggest = polygon;
+				biggestArea = polygon.getArea();
+			}
+		}
 		return biggest;
 	}
 
