@@ -14,6 +14,7 @@ import co.edu.icesi.nextfruit.modules.model.CameraSettings;
 import co.edu.icesi.nextfruit.modules.model.PolygonWrapper;
 import co.edu.icesi.nextfruit.util.ColorConverter;
 import co.edu.icesi.nextfruit.util.Geometry;
+import co.edu.icesi.nextfruit.util.GroupManager;
 import co.edu.icesi.nextfruit.util.Statistics;
 
 public class ColorChecker {
@@ -70,7 +71,6 @@ public class ColorChecker {
 		// Getting colors
 		obtainBoxes(sensibility, gray.clone());
 		filterBoxes();
-		obtainColors();
 		defineGrid();
 	}
 
@@ -109,7 +109,7 @@ public class ColorChecker {
 		double[][] deviations = new double[groups.length][2];
 		for (int i = 0; i < groups.length; i++) {
 			groups[i] = groupManager.getGroups(i+1);
-			if(groups[i].size() > 1) {
+			if(groups[i].size() > 2) {
 				Statistics distances = new Statistics();
 				for (int j = 0; j < groups[i].size()-1; j++) {
 					double smallDist = Double.MAX_VALUE;
@@ -131,7 +131,7 @@ public class ColorChecker {
 		int index = 0;
 		distanceDeviation = Double.MAX_VALUE;
 		for (int i = 0; i < deviations.length; i++) {
-			if(groups[i].size() > 1 && deviations[i][1] < distanceDeviation) {
+			if(groups[i].size() > 2 && deviations[i][1] < distanceDeviation) {
 				distanceDeviation = deviations[i][1];
 				index = i;
 			}
@@ -189,14 +189,6 @@ public class ColorChecker {
 			}
 		}
 		Collections.sort(boxes);
-	}
-
-	private void obtainColors() {
-		ArrayList<double[]> colorsTmp = new ArrayList<>();
-		for (PolygonWrapper box : boxes) {
-			double d[] = BGR.get((int)box.getCenter().y, (int)box.getCenter().x);
-			colorsTmp.add(d);
-		}
 	}
 
 	public ArrayList<PolygonWrapper> getColorBoxes() {
