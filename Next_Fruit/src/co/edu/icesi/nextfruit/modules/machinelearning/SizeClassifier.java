@@ -8,10 +8,12 @@ import java.util.ArrayList;
 import co.edu.icesi.nextfruit.modules.computervision.FeaturesExtract;
 import co.edu.icesi.nextfruit.modules.model.CameraCalibration;
 import co.edu.icesi.nextfruit.modules.model.PolygonWrapper;
+import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instance;
+import weka.core.Instances;
 
 public class SizeClassifier extends WekaClassifierAdapter{
 
@@ -41,17 +43,45 @@ public class SizeClassifier extends WekaClassifierAdapter{
 		instance.setValue(features.get(definedAttributes), className);
 		this.trainingSet.add(instance);		
 	}
+	
+	
+	/**
+	 * 
+	 */
+	public Instances getInstanceFromFeatures(FeaturesExtract extracted){
+		
+		ArrayList<Attribute> features = this.getFeatures();
+		Instances dataUnlabeled = new Instances("to-classify", features, 0);
+		
+		// Getting results
+		PolygonWrapper polygon = extracted.getPolygon();
 
+		// Creating instance
+		int definedAttributes = 2;
+		Instance unknown = new DenseInstance(definedAttributes+1);
+
+		// Adding defined attributes
+		unknown.setValue(features.get(0), polygon.getArea());
+		unknown.setValue(features.get(1), polygon.getPerimeter());
+
+		// Adding class name
+		dataUnlabeled.add(unknown);
+		return dataUnlabeled;
+	}
+	
+	
 	@Override
 	protected ArrayList<Attribute> defineFeaturesVector() {
 
 		// Create and Initialize Attributes
 		ArrayList<String> sizeClassValues = new ArrayList<String>();
-		sizeClassValues.add("a");
-		sizeClassValues.add("b");
-		sizeClassValues.add("c");
-		sizeClassValues.add("d");
-		sizeClassValues.add("e");
+		//sizeClassValues.add("a");
+		//sizeClassValues.add("b");
+		sizeClassValues.add("big");
+		//sizeClassValues.add("c");
+		//sizeClassValues.add("d");
+		sizeClassValues.add("medium");
+		sizeClassValues.add("small");
 
 		// Defined attributes
 		Attribute area = new Attribute("area");

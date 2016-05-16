@@ -66,9 +66,26 @@ public abstract class WekaClassifier {
 	 * 			index[1] -> probability of being negative
 	 * @throws Exception
 	 */
-	public double[] classify(Classifier classificationModel, Instances dataUnlabeled)
+	public double[] classify(Classifier classificationModel, Instances dataUnlabeled, String type)
 			throws Exception{
 
+		double[] fDistribution = null;
+		
+		switch (type) {
+		case "size":
+			
+			// Get the likelihood of each classes
+			// fDistribution[0] is the probability of being big
+			// fDistribution[1] is the probability of being medium
+			// fDistribution[2] is the probability of being small
+			dataUnlabeled.setClassIndex(dataUnlabeled.numAttributes() - 1);
+			fDistribution = classificationModel.distributionForInstance(dataUnlabeled.firstInstance());
+			
+			break;
+		}
+		
+		return fDistribution;
+		/*
 		dataUnlabeled.setClassIndex(dataUnlabeled.numAttributes() - 1);
 
 		// Get the likelihood of each classes
@@ -76,7 +93,7 @@ public abstract class WekaClassifier {
 		// fDistribution[1] is the probability of being negative
 
 		double[] fDistribution = classificationModel.distributionForInstance(dataUnlabeled.firstInstance());
-		return fDistribution;
+		return fDistribution;*/
 	}
 
 	/**

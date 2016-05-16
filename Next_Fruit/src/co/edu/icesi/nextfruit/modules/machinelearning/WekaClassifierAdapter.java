@@ -13,6 +13,7 @@ import co.edu.icesi.nextfruit.modules.computervision.FeaturesExtract;
 import co.edu.icesi.nextfruit.modules.model.CameraCalibration;
 import co.edu.icesi.nextfruit.modules.model.MatchingColor;
 import co.edu.icesi.nextfruit.modules.model.MatchingColorInterpreter;
+import weka.core.Instance;
 import weka.core.Instances;
 
 public abstract class WekaClassifierAdapter extends WekaClassifier {
@@ -50,6 +51,10 @@ public abstract class WekaClassifierAdapter extends WekaClassifier {
 		for (String line : stringRepresentation)
 			matchingColors.add(MatchingColorInterpreter.identifyMatchingColor(line, inverseMatrixM, 0.5));
 	}
+	
+	
+	public abstract Instances getInstanceFromFeatures(FeaturesExtract extracted);
+	
 
 	protected List<MatchingColor> getMatchingColors() {
 		return matchingColors;

@@ -3,6 +3,7 @@ package co.edu.icesi.nextfruit.modules;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -20,13 +21,21 @@ import co.edu.icesi.nextfruit.modules.machinelearning.SizeClassifier;
 import co.edu.icesi.nextfruit.modules.machinelearning.WekaClassifier;
 import co.edu.icesi.nextfruit.modules.model.CameraCalibration;
 import co.edu.icesi.nextfruit.modules.model.CameraSettings;
+import co.edu.icesi.nextfruit.modules.model.ColorDistribution;
 import co.edu.icesi.nextfruit.modules.model.MatchingColor;
 import co.edu.icesi.nextfruit.modules.model.MatchingColorInterpreter;
+import co.edu.icesi.nextfruit.modules.model.PolygonWrapper;
 import co.edu.icesi.nextfruit.modules.persistence.CalibrationDataHandler;
 import co.edu.icesi.nextfruit.mvc.interfaces.Attachable;
 import co.edu.icesi.nextfruit.mvc.interfaces.Updateable;
 import co.edu.icesi.nextfruit.util.MatrixReader;
+import co.edu.icesi.nextfruit.util.Statistics;
 import weka.classifiers.Classifier;
+import weka.core.Attribute;
+import weka.core.DenseInstance;
+import weka.core.Instance;
+import weka.core.Instances;
+import weka.core.SerializationHelper;
 
 
 public class Model implements Attachable {
@@ -325,7 +334,7 @@ public class Model implements Attachable {
 	 * @return
 	 * @throws Exception
 	 */
-	public double[] classifyImage(File image, File classifier) throws Exception{
+	public double[] classifyImage2(File image, File classifier) throws Exception{
 
 		//		weka = new QualityFeaturesAdapter(getCameraCalibration(), 1);
 		//		Classifier model = weka.loadClassifierFromFile(classifier);
@@ -388,6 +397,31 @@ public class Model implements Attachable {
 		return null;
 	}
 
+	
+	
+	public double[] classifyImage(File image, File classifier, String type) throws Exception{
+
+		
+		double[] fDistribution = null;
+		
+		switch (type) {
+		case "size":
+			
+			CameraCalibration calibration = getCameraCalibration();
+			weka = new SizeClassifier(calibration);
+			Classifier model = (Classifier) SerializationHelper.read(classifier.getAbsolutePath());
+			SizeClassifier sC = new SizeClassifier(calibration);
+			FeaturesExtract extracted = new FeaturesExtract(image.getAbsolutePath());
+			extracted.extractFeatures(calibration);
+			
+			Instances dataUnlabeled = sC.getInstanceFromFeatures(extracted);
+			fDistribution = weka.classify(model, dataUnlabeled, "size");
+			
+			break;
+		}
+		
+		return fDistribution;
+	}
 
 
 	// ******************* MACHINE LEARNING MODULE ********************
