@@ -16,6 +16,7 @@ import weka.classifiers.Evaluation;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instance;
+import weka.core.Instances;
 
 public class QualityClassifier extends WekaClassifierAdapter {
 
@@ -161,6 +162,12 @@ public class QualityClassifier extends WekaClassifierAdapter {
 			writeLog("[saveEvaluationData]: No se pudo guardar el resultado de la evaluacion.");
 			e.printStackTrace();
 		}		
+	}
+
+	@Override
+	public Instances getInstanceFromFeatures(FeaturesExtract extracted) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

@@ -75,15 +75,14 @@ public class ClassificationController implements Initializable, ActionListener{
 				double[] result = null;
 				
 				if((imageToClassify != null) && (classifierToUse != null)){
-					result =  model.classifyImage(imageToClassify, classifierToUse);
+					result =  model.classifyImage(imageToClassify, classifierToUse, "size");
 				}
 				
 				if(result != null){
 					String msg = "<html><b>" +
-							"5r -> " + result[0] + "<br>" +
-							"5v -> " + result[1] + "<br>" +
-							"er -> " + result[2] + "<br>" +
-							"fea -> " + result[3] + "<br>" +
+							"big -> " + result[0] + "<br>" +
+							"medium -> " + result[1] + "<br>" +
+							"small -> " + result[2] + "<br>" +
 							"</b></html>";
 					view.showMessage(msg);
 				}else{

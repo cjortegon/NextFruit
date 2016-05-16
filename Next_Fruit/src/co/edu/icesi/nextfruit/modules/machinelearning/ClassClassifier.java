@@ -9,6 +9,8 @@ import co.edu.icesi.nextfruit.modules.computervision.FeaturesExtract;
 import co.edu.icesi.nextfruit.modules.model.CameraCalibration;
 import weka.classifiers.Evaluation;
 import weka.core.Attribute;
+import weka.core.Instance;
+import weka.core.Instances;
 
 public class ClassClassifier extends WekaClassifierAdapter{
 
@@ -86,6 +88,12 @@ public class ClassClassifier extends WekaClassifierAdapter{
 			writeLog("[saveEvaluationData]: No se pudo guardar el resultado de la evaluacion.");
 			e.printStackTrace();
 		}					
+	}
+
+	@Override
+	public Instances getInstanceFromFeatures(FeaturesExtract extracted) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
