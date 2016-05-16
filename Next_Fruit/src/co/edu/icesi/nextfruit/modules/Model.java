@@ -3,7 +3,6 @@ package co.edu.icesi.nextfruit.modules;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -19,24 +18,18 @@ import co.edu.icesi.nextfruit.modules.machinelearning.QualityClassifier;
 import co.edu.icesi.nextfruit.modules.machinelearning.RipenessClassifier;
 import co.edu.icesi.nextfruit.modules.machinelearning.SizeClassifier;
 import co.edu.icesi.nextfruit.modules.machinelearning.WekaClassifier;
+import co.edu.icesi.nextfruit.modules.machinelearning.WekaClassifierAdapter;
 import co.edu.icesi.nextfruit.modules.model.CameraCalibration;
 import co.edu.icesi.nextfruit.modules.model.CameraSettings;
-import co.edu.icesi.nextfruit.modules.model.ColorDistribution;
 import co.edu.icesi.nextfruit.modules.model.MatchingColor;
 import co.edu.icesi.nextfruit.modules.model.MatchingColorInterpreter;
-import co.edu.icesi.nextfruit.modules.model.PolygonWrapper;
 import co.edu.icesi.nextfruit.modules.persistence.CalibrationDataHandler;
 import co.edu.icesi.nextfruit.mvc.interfaces.Attachable;
 import co.edu.icesi.nextfruit.mvc.interfaces.Updateable;
 import co.edu.icesi.nextfruit.util.MatrixReader;
-import co.edu.icesi.nextfruit.util.Statistics;
 import weka.classifiers.Classifier;
-import weka.core.Attribute;
-import weka.core.DenseInstance;
-import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.SerializationHelper;
-
 
 public class Model implements Attachable {
 
@@ -58,13 +51,13 @@ public class Model implements Attachable {
 	// Machine learning module
 	private ModelBuilder modelBuilder;
 	private WekaClassifier weka;
+	private WekaClassifierAdapter classifiers[];
 
 	private double[][] definedColors = new double[][]{
 		{0.30,0.49,0.11},
 		{0.62,0.31,0.15},
 		{0.37,0.35,0.03}
 	};
-
 
 	/**
 	 * Creates an empty model ready to interact with all the classes from specific modules.
@@ -197,6 +190,7 @@ public class Model implements Attachable {
 
 	public boolean extractFeatures() {
 		if(featuresExtract != null && calibrationDataHandler != null) {
+			System.out.println("Extracting features...");
 			featuresExtract.extractFeatures(calibrationDataHandler.getCameraCalibration());
 			updateAll();
 			return true;
@@ -272,7 +266,6 @@ public class Model implements Attachable {
 		return false;
 	}
 
-
 	/**
 	 * Test a classifier.
 	 * @param type
@@ -302,125 +295,75 @@ public class Model implements Attachable {
 		case ModelBuilder.RIPENESS_CLASSIFIER:
 			weka = new RipenessClassifier(getCameraCalibration());
 			break;
-
 		}
 
 		Classifier param = weka.loadClassifierFromFile(classificationModel);
 		weka.testClassifierModel(param, trainingSetFile, 
 				testSetFile, testResults);
-
 	}
 
+	public void loadClassifier(String type, File classifier) throws Exception{
 
-	/**
-	 * NOT IMPLEMENTED YET
-	 * NOT IMPLEMENTED YET
-	 * NOT IMPLEMENTED YET
-	 * NOT IMPLEMENTED YET
-	 * NOT IMPLEMENTED YET
-	 * NOT IMPLEMENTED YET
-	 * NOT IMPLEMENTED YET
-	 * NOT IMPLEMENTED YET
-	 * NOT IMPLEMENTED YET
-	 * NOT IMPLEMENTED YET
-	 * NOT IMPLEMENTED YET
-	 * NOT IMPLEMENTED YET
-	 * NOT IMPLEMENTED YET
-	 * NOT IMPLEMENTED YET
-	 * NOT IMPLEMENTED YET
-	 * NOT IMPLEMENTED YET
-	 * @param image
-	 * @param classifier
-	 * @return
-	 * @throws Exception
-	 */
-	public double[] classifyImage2(File image, File classifier) throws Exception{
+		if(classifiers == null)
+			classifiers = new WekaClassifierAdapter[4];
 
-		//		weka = new QualityFeaturesAdapter(getCameraCalibration(), 1);
-		//		Classifier model = weka.loadClassifierFromFile(classifier);
-		//		ArrayList<Attribute> features = weka.getFeatures();
-		//		Instances dataUnlabeled = new Instances("test-instances", features, 0);
-		//		CameraCalibration calibration = getCameraCalibration();
-		//
-		//		// Creating temporal matching colors
-		//		matchingColors = new ArrayList<>();
-		//		for (double[] color : definedColors){
-		//			matchingColors.add(new MatchingColor(new double[]{color[0], color[1], 0.75}, color[2], calibration.getInverseWorkingSpaceMatrix()));
-		//		}
-		//
-		//		// Getting class name
-		//		String fileName = image.getName();
-		//		String className = null;
-		//		try {
-		//			className = fileName.substring(0, fileName.indexOf("-"));
-		//		} catch(Exception e1) {
-		//			try {
-		//				className = fileName.substring(0, fileName.indexOf("."));
-		//			} catch(Exception e2) {
-		//				className = fileName;
-		//			}
-		//		}
-		//
-		//		System.out.println("Extracting features... ("+className+")");
-		//
-		//		// Processing features
-		//		FeaturesExtract ft = new FeaturesExtract(image.getAbsolutePath());
-		//		ft.extractFeatures(calibration);
-		//		ft.analizeData(calibration, matchingColors);
-		//
-		//		// Getting results
-		//		Collection<ColorDistribution> matchs = ft.getMatchingColors();
-		//		Statistics luminantStatistics = ft.getLuminanceStatistics();
-		//		PolygonWrapper polygon = ft.getPolygon();
-		//		int index = 0;
-		//		double colors[] = new double[3];
-		//		for (ColorDistribution color : matchs)
-		//			colors[index++] = color.getRepeat()/(double)ft.getNumberOfPixels();
-		//
-		//		// Creating instances
-		//		Instance unknown = new DenseInstance(8);
-		//
-		//		unknown.setValue(features.get(0), polygon.getArea());
-		//		unknown.setValue(features.get(1), luminantStatistics.getMean());
-		//		unknown.setValue(features.get(2), luminantStatistics.getStandardDeviation());
-		//		unknown.setValue(features.get(3), luminantStatistics.getSkewness());
-		//		unknown.setValue(features.get(4), luminantStatistics.getKurtosis());
-		//		unknown.setValue(features.get(5), colors[0]);
-		//		unknown.setValue(features.get(6), colors[1]);
-		//		unknown.setValue(features.get(7), colors[2]);
-		//
-		//		dataUnlabeled.add(unknown);
-		//
-		//		double[] fDistribution = weka.classify(model, dataUnlabeled);
-		//		return fDistribution;
-
-		return null;
-	}
-
-	
-	
-	public double[] classifyImage(File image, File classifier, String type) throws Exception{
-
-		
-		double[] fDistribution = null;
-		
 		switch (type) {
-		case "size":
-			
-			CameraCalibration calibration = getCameraCalibration();
-			weka = new SizeClassifier(calibration);
-			Classifier model = (Classifier) SerializationHelper.read(classifier.getAbsolutePath());
-			SizeClassifier sC = new SizeClassifier(calibration);
-			FeaturesExtract extracted = new FeaturesExtract(image.getAbsolutePath());
-			extracted.extractFeatures(calibration);
-			
-			Instances dataUnlabeled = sC.getInstanceFromFeatures(extracted);
-			fDistribution = weka.classify(model, dataUnlabeled, "size");
-			
+
+		case ModelBuilder.QUALITY_CLASSIFIER:
+			classifiers[0] = new QualityClassifier(getCameraCalibration(), classifier);
+			break;
+
+		case ModelBuilder.CLASS_CLASSIFIER:
+			//classifiers[1] = new ClassClassifier(getCameraCalibration(), classifier);
+			break;
+
+		case ModelBuilder.SIZE_CLASSIFIER:
+			classifiers[2] = new SizeClassifier(getCameraCalibration(), classifier);
+			break;
+
+		case ModelBuilder.RIPENESS_CLASSIFIER:
+			classifiers[3] = new RipenessClassifier(getCameraCalibration(), classifier);
 			break;
 		}
-		
-		return fDistribution;
+	}
+
+	public boolean canClassify() {
+		boolean hasOneClassifier = classifiers != null;
+		if(hasOneClassifier) {
+			for (WekaClassifierAdapter classifier : classifiers) {
+				if(classifier != null) {
+					hasOneClassifier = true;
+					break;
+				}
+			}
+		}
+		return hasOneClassifier && featuresExtract != null;
+	}
+
+	public double[][] classifyImage() throws Exception {
+
+		if(classifiers == null || featuresExtract == null)
+			return null;
+
+		double[][] fDistributions = new double[classifiers.length][100];
+
+		if(!featuresExtract.hasExtractedFeatures()) {
+			extractFeatures();
+		}
+
+		for (int i = 0; i < classifiers.length; i++) {
+			if(classifiers[i] != null) {
+				try {
+					fDistributions[i] = classifiers[i].classify(classifiers[i].getInstanceFromFeatures(featuresExtract));
+				} catch(Exception e) {
+					System.out.println("Error in classifier: "+classifiers[i].getClass().getName());
+					e.printStackTrace();
+				}
+			}
+		}
+
+		updateAll();
+		return fDistributions;
 	}
 
 

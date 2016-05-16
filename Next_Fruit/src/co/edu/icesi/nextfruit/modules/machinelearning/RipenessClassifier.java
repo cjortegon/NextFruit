@@ -10,6 +10,7 @@ import java.util.Collection;
 import co.edu.icesi.nextfruit.modules.computervision.FeaturesExtract;
 import co.edu.icesi.nextfruit.modules.model.CameraCalibration;
 import co.edu.icesi.nextfruit.modules.model.ColorDistribution;
+import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
@@ -22,8 +23,13 @@ public class RipenessClassifier extends WekaClassifierAdapter{
 		super("strawberry-ripeness", calibration);
 	}
 
+	public RipenessClassifier(CameraCalibration calibration, File classifier) throws Exception {
+		super(classifier, calibration);
+	}
+
 	@Override
 	public void insertInstanceFromFeatures(FeaturesExtract extracted, String className) {
+
 		// Analyzing data
 		extracted.analizeData(calibration, getMatchingColors());
 
@@ -53,7 +59,7 @@ public class RipenessClassifier extends WekaClassifierAdapter{
 	protected ArrayList<Attribute> defineFeaturesVector() {
 
 		// Loading matching colors
-		File file = new File("resources/custom_colors.txt");
+		File file = new File("resources/matching_colors.txt");
 		try {
 			this.loadMatchingColors(file, calibration.getInverseWorkingSpaceMatrix());
 		} catch (IOException e) {
@@ -125,8 +131,29 @@ public class RipenessClassifier extends WekaClassifierAdapter{
 	}
 
 	@Override
-	public Instances getInstanceFromFeatures(FeaturesExtract extracted) {
-		// TODO Auto-generated method stub
-		return null;
+	public Instance getInstanceFromFeatures(FeaturesExtract extracted) {
+
+		// Analyzing data
+		extracted.analizeData(calibration, getMatchingColors());
+
+		// Getting results
+		Collection<ColorDistribution> matchs = extracted.getMatchingColors();
+		int index = 0;
+		double colors[] = new double[matchs.size()];
+		for (ColorDistribution color : matchs)
+			colors[index++] = color.getRepeat()/(double)extracted.getNumberOfPixels();
+
+		// Creating instance
+		Instance instance = new DenseInstance(1+colors.length);
+		ArrayList<Attribute> features = getFeatures();
+		int definedAttributes = 0; // Make sure this value is correct
+
+		// Adding colors
+		for (int i = 0; i < colors.length; i++)
+			instance.setValue(features.get(definedAttributes+i), colors[i]);
+		definedAttributes += colors.length;
+
+		return instance;
 	}
+
 }

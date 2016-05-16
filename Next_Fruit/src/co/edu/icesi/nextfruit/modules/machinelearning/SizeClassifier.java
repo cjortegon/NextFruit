@@ -21,6 +21,10 @@ public class SizeClassifier extends WekaClassifierAdapter{
 		super("strawberry-size", calibration);
 	}
 
+	public SizeClassifier(CameraCalibration calibration, File classifier) throws Exception {
+		super(classifier, calibration);
+	}
+
 	@Override
 	public void insertInstanceFromFeatures(FeaturesExtract extracted, String className) {
 		// Analyzing data
@@ -43,43 +47,14 @@ public class SizeClassifier extends WekaClassifierAdapter{
 		instance.setValue(features.get(definedAttributes), className);
 		this.trainingSet.add(instance);		
 	}
-	
-	
-	/**
-	 * 
-	 */
-	public Instances getInstanceFromFeatures(FeaturesExtract extracted){
-		
-		ArrayList<Attribute> features = this.getFeatures();
-		Instances dataUnlabeled = new Instances("to-classify", features, 0);
-		
-		// Getting results
-		PolygonWrapper polygon = extracted.getPolygon();
 
-		// Creating instance
-		int definedAttributes = 2;
-		Instance unknown = new DenseInstance(definedAttributes+1);
 
-		// Adding defined attributes
-		unknown.setValue(features.get(0), polygon.getArea());
-		unknown.setValue(features.get(1), polygon.getPerimeter());
-
-		// Adding class name
-		dataUnlabeled.add(unknown);
-		return dataUnlabeled;
-	}
-	
-	
 	@Override
 	protected ArrayList<Attribute> defineFeaturesVector() {
 
 		// Create and Initialize Attributes
 		ArrayList<String> sizeClassValues = new ArrayList<String>();
-		//sizeClassValues.add("a");
-		//sizeClassValues.add("b");
 		sizeClassValues.add("big");
-		//sizeClassValues.add("c");
-		//sizeClassValues.add("d");
 		sizeClassValues.add("medium");
 		sizeClassValues.add("small");
 
@@ -129,7 +104,24 @@ public class SizeClassifier extends WekaClassifierAdapter{
 		} catch (FileNotFoundException e) {
 			writeLog("[saveEvaluationData]: No se pudo guardar el resultado de la evaluacion.");
 			e.printStackTrace();
-		}				
+		}		
+	}
+
+	public Instance getInstanceFromFeatures(FeaturesExtract extracted) {
+
+		// Getting results
+		PolygonWrapper polygon = extracted.getPolygon();
+
+		// Creating instance
+		int definedAttributes = 2; // Make sure this value is correct
+		Instance instance = new DenseInstance(definedAttributes+1);
+		ArrayList<Attribute> features = getFeatures();
+
+		// Adding defined attributes
+		instance.setValue(features.get(0), polygon.getArea());
+		instance.setValue(features.get(1), polygon.getPerimeter());
+
+		return instance;
 	}
 
 }

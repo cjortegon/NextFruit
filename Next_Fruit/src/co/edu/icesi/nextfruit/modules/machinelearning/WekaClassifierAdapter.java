@@ -13,11 +13,13 @@ import co.edu.icesi.nextfruit.modules.computervision.FeaturesExtract;
 import co.edu.icesi.nextfruit.modules.model.CameraCalibration;
 import co.edu.icesi.nextfruit.modules.model.MatchingColor;
 import co.edu.icesi.nextfruit.modules.model.MatchingColorInterpreter;
+import weka.classifiers.Classifier;
 import weka.core.Instance;
 import weka.core.Instances;
 
 public abstract class WekaClassifierAdapter extends WekaClassifier {
 
+	private Classifier classifier;
 	private List<MatchingColor> matchingColors;
 
 	public WekaClassifierAdapter(String name, CameraCalibration calibration) {
@@ -25,7 +27,25 @@ public abstract class WekaClassifierAdapter extends WekaClassifier {
 		this.trainingSet = new Instances(name, getFeatures(), 0);
 	}
 
+	public WekaClassifierAdapter(File classifier, CameraCalibration calibration) throws Exception {
+		super(calibration);
+		this.classifier = loadClassifierFromFile(classifier);
+		this.trainingSet = new Instances("to-classify", getFeatures(), 0);
+	}
+
+	// Abstract methods
 	public abstract void insertInstanceFromFeatures(FeaturesExtract extracted, String className);
+	public abstract Instance getInstanceFromFeatures(FeaturesExtract extracted);
+
+	public double[] classify(Instance instance) throws Exception {
+		Instances instances = new Instances("to-classify", getFeatures(), 0);
+		instances.add(instance);
+		instances.setClassIndex(instance.numAttributes() - 1);
+		if(classifier != null) {
+			return classifier.distributionForInstance(instances.firstInstance());
+		}
+		return null;
+	}
 
 	public void loadMatchingColors(File file, double[][] inverseMatrixM) throws IOException {
 		BufferedReader reader = new BufferedReader(new FileReader(file));
@@ -51,13 +71,13 @@ public abstract class WekaClassifierAdapter extends WekaClassifier {
 		for (String line : stringRepresentation)
 			matchingColors.add(MatchingColorInterpreter.identifyMatchingColor(line, inverseMatrixM, 0.5));
 	}
-	
-	
-	public abstract Instances getInstanceFromFeatures(FeaturesExtract extracted);
-	
 
 	protected List<MatchingColor> getMatchingColors() {
 		return matchingColors;
+	}
+
+	public Classifier getClassifier() {
+		return classifier;
 	}
 
 }

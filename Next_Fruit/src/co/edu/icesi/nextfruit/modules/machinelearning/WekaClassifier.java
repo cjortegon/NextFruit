@@ -40,7 +40,7 @@ public abstract class WekaClassifier {
 	 * Class constructor.
 	 */
 	public WekaClassifier(CameraCalibration calibration) {
-		
+
 		this.calibration = calibration;
 		File temp = new File(LOG_PATH);
 
@@ -55,8 +55,7 @@ public abstract class WekaClassifier {
 		features = defineFeaturesVector();
 	}
 
-
-	/**
+	/*
 	 * Classify a given unknown instance, which is the first element in an Instances object
 	 * received as a parameter.
 	 * @param Classifier, the classifier object to be used.
@@ -65,27 +64,27 @@ public abstract class WekaClassifier {
 	 * 			index[0] -> probability of being positive
 	 * 			index[1] -> probability of being negative
 	 * @throws Exception
-	 */
+
 	public double[] classify(Classifier classificationModel, Instances dataUnlabeled, String type)
 			throws Exception{
 
 		double[] fDistribution = null;
-		
+
 		switch (type) {
 		case "size":
-			
+
 			// Get the likelihood of each classes
 			// fDistribution[0] is the probability of being big
 			// fDistribution[1] is the probability of being medium
 			// fDistribution[2] is the probability of being small
 			dataUnlabeled.setClassIndex(dataUnlabeled.numAttributes() - 1);
 			fDistribution = classificationModel.distributionForInstance(dataUnlabeled.firstInstance());
-			
+
 			break;
 		}
-		
+
 		return fDistribution;
-		/*
+
 		dataUnlabeled.setClassIndex(dataUnlabeled.numAttributes() - 1);
 
 		// Get the likelihood of each classes
@@ -93,8 +92,9 @@ public abstract class WekaClassifier {
 		// fDistribution[1] is the probability of being negative
 
 		double[] fDistribution = classificationModel.distributionForInstance(dataUnlabeled.firstInstance());
-		return fDistribution;*/
+		return fDistribution;
 	}
+	 */
 
 	/**
 	 * Saves an ARFF file that contains the data set received as a parameter.

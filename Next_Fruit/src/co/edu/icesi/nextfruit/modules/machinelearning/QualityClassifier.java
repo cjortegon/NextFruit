@@ -16,7 +16,6 @@ import weka.classifiers.Evaluation;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instance;
-import weka.core.Instances;
 
 public class QualityClassifier extends WekaClassifierAdapter {
 
@@ -24,7 +23,10 @@ public class QualityClassifier extends WekaClassifierAdapter {
 
 	public QualityClassifier(CameraCalibration calibration) {
 		super("strawberry-quality", calibration);
-		//this.calibration = calibration;
+	}
+
+	public QualityClassifier(CameraCalibration calibration, File classifier) throws Exception {
+		super(classifier, calibration);
 	}
 
 	@Override
@@ -47,12 +49,6 @@ public class QualityClassifier extends WekaClassifierAdapter {
 		ArrayList<Attribute> features = getFeatures();
 
 		// Adding defined attributes
-		//		System.out.println("Area="+polygon.getArea()
-		//		+" Entropy="+extracted.getEntropy()
-		//		+" Mean="+luminantStatistics.getMean()
-		//		+" SD="+luminantStatistics.getStandardDeviation()
-		//		+" Skewness="+luminantStatistics.getSkewness()
-		//		+" Kurtosis="+luminantStatistics.getKurtosis());
 		instance.setValue(features.get(0), polygon.getArea());
 		instance.setValue(features.get(1), extracted.getEntropy());
 		instance.setValue(features.get(2), luminantStatistics.getMean());
@@ -85,7 +81,7 @@ public class QualityClassifier extends WekaClassifierAdapter {
 	protected ArrayList<Attribute> defineFeaturesVector() {
 
 		// Loading matching colors
-		File file = new File("resources/custom_colors.txt");
+		File file = new File("resources/matching_colors.txt");
 		try {
 			this.loadMatchingColors(file, calibration.getInverseWorkingSpaceMatrix());
 		} catch (IOException e) {
@@ -165,9 +161,48 @@ public class QualityClassifier extends WekaClassifierAdapter {
 	}
 
 	@Override
-	public Instances getInstanceFromFeatures(FeaturesExtract extracted) {
-		// TODO Auto-generated method stub
-		return null;
+	public Instance getInstanceFromFeatures(FeaturesExtract extracted) {
+
+		// Analyzing data
+		extracted.analizeData(calibration, getMatchingColors());
+
+		// Getting results
+		Collection<ColorDistribution> matchs = extracted.getMatchingColors();
+		Statistics luminantStatistics = extracted.getLuminanceStatistics();
+		PolygonWrapper polygon = extracted.getPolygon();
+		int index = 0;
+		double colors[] = new double[matchs.size()];
+		for (ColorDistribution color : matchs)
+			colors[index++] = color.getRepeat()/(double)extracted.getNumberOfPixels();
+
+		// Creating instance
+		Instance instance = new DenseInstance(7+LUMINANCE_RANGE+colors.length);
+		System.out.println("new DenseInstance("+(7+LUMINANCE_RANGE+colors.length)+")");
+		ArrayList<Attribute> features = getFeatures();
+		System.out.println("features = "+features.size());
+
+		// Adding defined attributes
+		instance.setValue(features.get(0), polygon.getArea());
+		instance.setValue(features.get(1), extracted.getEntropy());
+		instance.setValue(features.get(2), luminantStatistics.getMean());
+		instance.setValue(features.get(3), luminantStatistics.getStandardDeviation());
+		instance.setValue(features.get(4), luminantStatistics.getSkewness());
+		instance.setValue(features.get(5), luminantStatistics.getKurtosis());
+		int definedAttributes = 6; // Make sure this value is correct
+
+		// Adding luminance ranges
+		double[] ranges = extracted.getHistogram().getRanges();
+		for (int i = 0; i < LUMINANCE_RANGE; i++) {
+			instance.setValue(features.get(definedAttributes+i), ranges[i]);
+		}
+		definedAttributes += LUMINANCE_RANGE;
+
+		// Adding colors
+		for (int i = 0; i < colors.length; i++)
+			instance.setValue(features.get(definedAttributes+i), colors[i]);
+		definedAttributes += colors.length;
+		System.out.println("definedAttributes = "+definedAttributes);
+		return instance;
 	}
 
 }

@@ -77,7 +77,7 @@ public class ComputerVisionController implements Initializable, ActionListener, 
 
 		case PROCESS:
 			if(!model.extractFeatures())
-				view.showMessage("Load image and camera calibration before processing image.");
+				view.showMessage("Load image before processing image.");
 			break;
 
 		case MATCHING_COLORS:

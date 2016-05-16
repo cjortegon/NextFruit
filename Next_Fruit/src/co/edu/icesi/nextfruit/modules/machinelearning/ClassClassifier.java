@@ -24,7 +24,7 @@ public class ClassClassifier extends WekaClassifierAdapter{
 		//
 		//	implementar features para la forma.
 		//
-		
+
 	}
 
 	@Override
@@ -77,7 +77,7 @@ public class ClassClassifier extends WekaClassifierAdapter{
 					"(" + cmMatrix[0][0] + ")" + " (" + cmMatrix[0][1] + ")" + " (" + cmMatrix[0][2] + ")" + "   | Class-E  (Real Value)" + separator +
 					"(" + cmMatrix[1][0] + ")" + " (" + cmMatrix[1][1] + ")" + " (" + cmMatrix[1][2] + ")" + "   | Class-I  (Real Value)" + separator +
 					"(" + cmMatrix[2][0] + ")" + " (" + cmMatrix[2][1] + ")" + " (" + cmMatrix[2][2] + ")" + "   | Class-II (Real Value)");
-			
+
 			PrintWriter writer = new PrintWriter(file);
 			writer.println(s);
 			writer.close();
@@ -91,7 +91,7 @@ public class ClassClassifier extends WekaClassifierAdapter{
 	}
 
 	@Override
-	public Instances getInstanceFromFeatures(FeaturesExtract extracted) {
+	public Instance getInstanceFromFeatures(FeaturesExtract extracted) {
 		// TODO Auto-generated method stub
 		return null;
 	}
