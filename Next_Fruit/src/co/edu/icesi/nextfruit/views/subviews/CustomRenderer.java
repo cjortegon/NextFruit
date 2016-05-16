@@ -13,7 +13,7 @@ import javax.swing.table.DefaultTableCellRenderer;
  * Custom renderer to align and paint every cell of a different colour.
  */
 @SuppressWarnings("serial")
-public class CustomRenderer extends DefaultTableCellRenderer{
+public class CustomRenderer extends DefaultTableCellRenderer {
 
 		
 	/**

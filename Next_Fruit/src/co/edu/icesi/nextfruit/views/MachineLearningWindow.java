@@ -18,9 +18,7 @@ import co.edu.icesi.nextfruit.mvc.interfaces.Updateable;
 import visualkey.KFrame;
 
 /**
- * This class represents a window that displays .... ... ...
  * @author JuanD
- *
  */
 public class MachineLearningWindow extends KFrame implements Initializable, Updateable{
 

@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.text.DecimalFormat;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -71,7 +72,8 @@ public class CalibrationResultsWindow extends KFrame implements Initializable, U
 		Object[][] rowData = new Object[4][6];
 
 		double[][][] rgbValues = cC.getReadRGB();
-		double[][][] labValues = cC.getReadLAB();
+		double[][][] xyyValues = cC.getReadXYY();
+		DecimalFormat df = new DecimalFormat("0.00");
 
 		rgbs = new int[4][6][3];
 		pixelsxCm = Double.parseDouble(pixelsXCm);
@@ -83,10 +85,9 @@ public class CalibrationResultsWindow extends KFrame implements Initializable, U
 				int g = (int)rgbValues[i][j][1];
 				int b = (int)rgbValues[i][j][2];
 
-				rowData[i][j] = "<html><b><center>" + "RGB: " + r +
-						", " + g + ", " + b + "<br>" +
-						"Lab: " + (int)labValues[i][j][0] + ", " + (int)labValues[i][j][1] + ", " +
-						(int)labValues[i][j][2] + "</center></b></html>";
+				rowData[i][j] = "<html><b><center>" + "RGB: " + r + ", " + g + ", " + b + "<br>" +
+						"xyY: " + df.format(xyyValues[i][j][0]) + ", " + df.format(xyyValues[i][j][1]) + ", " + df.format(xyyValues[i][j][2])
+						+ "</center></b></html>";
 
 				rgbs[i][j][0] = r;
 				rgbs[i][j][1] = g;

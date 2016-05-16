@@ -21,7 +21,7 @@ public class ColorChecker {
 
 	private Mat BGR, LAB, gray, MBlurred, silhouette;
 	private PolygonWrapper[][] grid;
-	private double[][][] originalsRGB, originalsLAB, readRGB, readLAB;
+	private double[][][] originalsRGB, originalsLAB, readRGB, readLAB, readXYY;
 	private ArrayList<PolygonWrapper> boxes;
 	private double averageBoxArea, averageBoxDistance, distanceDeviation;
 	private int sensibility;
@@ -33,6 +33,10 @@ public class ColorChecker {
 		this.BGR = Imgcodecs.imread(imagePath);
 	}
 
+	/**
+	 * This method processes the input image to obtain the calibration colors
+	 * @param settings CameraSettings object is needed to get transformation matrix from RGB to XYY
+	 */
 	public void process(CameraSettings settings) {
 		this.cameraSettings = settings;
 
@@ -40,6 +44,7 @@ public class ColorChecker {
 		grid = new PolygonWrapper[originalsRGB.length][originalsRGB[0].length];
 		readLAB = new double[grid.length][grid[0].length][3];
 		readRGB = new double[grid.length][grid[0].length][3];
+		readXYY = new double[grid.length][grid[0].length][3];
 
 		// Converting originals to LAB
 		originalsLAB = new double[originalsRGB.length][originalsRGB[0].length][3];
@@ -182,10 +187,10 @@ public class ColorChecker {
 				grid[i][j] = box;
 
 				readRGB[i][j] = box.getAverageRGB(BGR);
-				double rgb[] = new double[] {readRGB[i][j][0]/255, readRGB[i][j][1]/255, readRGB[i][j][2]/255};
-				readLAB[i][j] = ColorConverter.rgb2xyz(rgb, cameraSettings.getWorkingSpaceMatrix());
-				readLAB[i][j] = ColorConverter.xyz2lab(readLAB[i][j], cameraSettings.getWhiteX(), cameraSettings.getWhiteY(),
-						cameraSettings.getWhiteZ());
+				double rgb[] = readRGB[i][j];
+				double xyz[] = ColorConverter.rgb2xyz(rgb, cameraSettings.getWorkingSpaceMatrix());
+				readXYY[i][j] = ColorConverter.XYZ2xyY(xyz, cameraSettings.getWhiteX());
+				readLAB[i][j] = ColorConverter.xyz2lab(xyz, cameraSettings.getWhiteX(), cameraSettings.getWhiteY(), cameraSettings.getWhiteZ());
 			}
 		}
 		Collections.sort(boxes);
@@ -221,6 +226,10 @@ public class ColorChecker {
 
 	public double[][][] getReadLAB() {
 		return readLAB;
+	}
+
+	public double[][][] getReadXYY() {
+		return readXYY;
 	}
 
 	public CameraSettings getCameraSettings() {
