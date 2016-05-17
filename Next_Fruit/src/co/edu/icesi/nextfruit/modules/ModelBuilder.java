@@ -12,6 +12,7 @@ import co.edu.icesi.nextfruit.modules.machinelearning.RipenessClassifier;
 import co.edu.icesi.nextfruit.modules.machinelearning.SizeClassifier;
 import co.edu.icesi.nextfruit.modules.machinelearning.WekaClassifierAdapter;
 import co.edu.icesi.nextfruit.modules.model.CameraCalibration;
+import co.edu.icesi.nextfruit.util.ProgressUpdatable;
 import weka.classifiers.Classifier;
 import weka.classifiers.bayes.NaiveBayes;
 
@@ -21,9 +22,7 @@ import weka.classifiers.bayes.NaiveBayes;
 public class ModelBuilder {
 
 	public static final String NAIVE_BAYES = "Naive Bayes";
-	public static final String SECOND_TYPE = "Second type";
-	public static final String THIRD_TYPE = "Third type";
-	public static final String[] MODEL_TYPES = new String[]{NAIVE_BAYES, SECOND_TYPE, THIRD_TYPE};
+	public static final String[] MODEL_TYPES = new String[]{NAIVE_BAYES};
 
 	public static final String QUALITY_CLASSIFIER = "Quality";
 	public static final String SIZE_CLASSIFIER = "Size";
@@ -46,7 +45,7 @@ public class ModelBuilder {
 	 * This method reads all the files from the given folder and validates if is a JPEG PNG image.
 	 * @param folder Directory This is the location where the fruit images are located.
 	 */
-	public void loadImages(File folder) {
+	public int loadImages(File folder) {
 		File[] files = folder.listFiles();
 		images = new ArrayList<>();
 		for (File file : files) {
@@ -58,6 +57,7 @@ public class ModelBuilder {
 		}
 		hasLoadedImages = true;
 		System.out.println("Total images to train system: "+images.size());
+		return images.size();
 	}
 
 	/**
@@ -65,8 +65,9 @@ public class ModelBuilder {
 	 * @param classSeparator The special character or expression that separates the tag from the fruit class and the name of the specific instance.
 	 * @param destinationFile The destination file where the training set will be saved.
 	 * @param calibration The calibration settings.
+	 * @param progress May be null. This is the updateable object to keep track of the progress of this method.
 	 */
-	public void processTrainingSet(String classSeparator, File destinationFile, CameraCalibration calibration) {
+	public void processTrainingSet(String classSeparator, File destinationFile, CameraCalibration calibration, ProgressUpdatable progress) {
 
 		// Starting classifiers
 		this.classifiers[0] = new QualityClassifier(calibration);
@@ -77,13 +78,15 @@ public class ModelBuilder {
 		// Extracting features from images and creating new instances from that
 		int count = 0;
 		long startTime = System.currentTimeMillis();
+		if(progress != null) {
+			progress.updateProgress(0);
+			progress.updateMessage("Generating trainning set with "+images.size()+" images...");
+		}
+
 		for (File file : images) {
 			count ++;
 
 			try {
-				int percent = (int) ((count/((double)images.size()))*100);
-				System.out.println("Processing "+count+" of "+images.size()+" ("+percent+"%)");
-
 				// Getting class names
 				String fileName = file.getName();
 				fileName.substring(0, fileName.indexOf("."));
@@ -101,11 +104,15 @@ public class ModelBuilder {
 					for (int i = 0; i < classifiers.length; i++) {
 						if(i < classNames.length - 1 && classNames[i].length() < 4) {
 							System.out.println("Extracting features for instance type: "+classNames[i]);
+							if(progress != null)
+								progress.updateMessage("Extracting features for instance type: "+classNames[i]);
 							try {
 								classifiers[i].insertInstanceFromFeatures(extracted, classNames[i]);
 							} catch(Exception e) {
 								try {
 									System.err.println("Error inserting the instance "+classNames[classNames.length]+" for the classifier: "+classifiers[i].getClass().getName());
+									if(progress != null)
+										progress.updateMessage("Error inserting the instance "+classNames[classNames.length]+" for the classifier: "+classifiers[i].getClass().getName());
 									e.printStackTrace();
 								} catch(Exception e1) {}
 							}
@@ -115,8 +122,12 @@ public class ModelBuilder {
 					}
 					long classifiersTime = System.currentTimeMillis() - time - extractFeaturesTime;
 					System.out.println("Processing time: "+extractFeaturesTime+" / "+classifiersTime);
+					if(progress != null)
+						progress.updateMessage("Processing time: "+extractFeaturesTime+" / "+classifiersTime);
 				} catch(Exception e) {
 					System.err.println("Error processing image: "+fileName);
+					if(progress != null)
+						progress.updateMessage("Error processing image: "+fileName);
 					e.printStackTrace();
 				}
 			} catch(Exception e) {
@@ -124,6 +135,13 @@ public class ModelBuilder {
 				e.printStackTrace();
 			}
 			System.out.println("Time: "+calculateTime(startTime));
+			if(progress != null) {
+				double percent = (count/((double)images.size()));
+				progress.updateProgress(percent);
+			} else {
+				int percent = (int) ((count/((double)images.size()))*100);
+				System.out.println("Processing "+count+" of "+images.size()+" ("+percent+"%)");
+			}
 		}
 
 		// Saving data
@@ -187,6 +205,8 @@ public class ModelBuilder {
 
 	/**
 	 * This method can only be used if either processTrainingSet or loadTrainingSet have been called.
+	 * This method is deprecated, instead you should generate the dataset and use the graphical interface of Weka knowing to be more powerful.
+	 * @deprecated
 	 * @param classifierDestination The destination file where the model will be saved.
 	 * @param type The type of machine learning that will be created.
 	 * @return If the operation was successfully finished.
@@ -211,6 +231,14 @@ public class ModelBuilder {
 		return false;
 	}
 
+	/**
+	 * @deprecated
+	 * @param savedTrainingSet
+	 * @param classifierType
+	 * @param destinationFile
+	 * @param classifier
+	 * @throws Exception
+	 */
 	private void trainOneClassifier(File savedTrainingSet, Classifier classifierType, File destinationFile, String classifier) throws Exception {
 		switch (classifier) {
 		case QUALITY_CLASSIFIER:
@@ -231,6 +259,13 @@ public class ModelBuilder {
 		}
 	}
 
+	/**
+	 * This method was used to train classifiers, instead you should generate the dataset and use the graphical interface of Weka knowing to be more powerful.
+	 * @deprecated
+	 * @param classifierType
+	 * @param destinationFile
+	 * @throws Exception
+	 */
 	private void trainAll(Classifier classifierType, File destinationFile) throws Exception {
 		for (int i = 0; i < classifiers.length; i++) {
 			File toSave = new File(destinationFile.getParentFile().getAbsolutePath()+"/model"+i+"_"+destinationFile.getName());

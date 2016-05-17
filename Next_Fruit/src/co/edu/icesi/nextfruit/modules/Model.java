@@ -27,9 +27,8 @@ import co.edu.icesi.nextfruit.modules.persistence.CalibrationDataHandler;
 import co.edu.icesi.nextfruit.mvc.interfaces.Attachable;
 import co.edu.icesi.nextfruit.mvc.interfaces.Updateable;
 import co.edu.icesi.nextfruit.util.MatrixReader;
+import co.edu.icesi.nextfruit.util.ProgressUpdatable;
 import weka.classifiers.Classifier;
-import weka.core.Instances;
-import weka.core.SerializationHelper;
 
 public class Model implements Attachable {
 
@@ -52,12 +51,6 @@ public class Model implements Attachable {
 	private ModelBuilder modelBuilder;
 	private WekaClassifier weka;
 	private WekaClassifierAdapter classifiers[];
-
-	private double[][] definedColors = new double[][]{
-		{0.30,0.49,0.11},
-		{0.62,0.31,0.15},
-		{0.37,0.35,0.03}
-	};
 
 	/**
 	 * Creates an empty model ready to interact with all the classes from specific modules.
@@ -236,20 +229,21 @@ public class Model implements Attachable {
 	 * Loads the image file names from the given folder.
 	 * @param folder This is the location where the fruit images are located.
 	 */
-	public void loadImagesForTraining(File folder) {
+	public int loadImagesForTraining(File folder) {
 		if(folder != null && folder.isDirectory()) {
 			this.modelBuilder = new ModelBuilder();
-			this.modelBuilder.loadImages(folder);
+			return this.modelBuilder.loadImages(folder);
 		}
+		return 0;
 	}
 
 	/**
 	 * This method has to be called after loadImagesForTraining, it extracts the image features and creates a new training set.
 	 * @param destinationFile The file where the training set will be saved.
 	 */
-	public void processTrainingSet(File destinationFile) {
+	public void processTrainingSet(File destinationFile, ProgressUpdatable progress) {
 		if(modelBuilder != null && modelBuilder.hasLoadedImages()) {
-			this.modelBuilder.processTrainingSet("-", destinationFile, getCameraCalibration());
+			this.modelBuilder.processTrainingSet("-", destinationFile, getCameraCalibration(), progress);
 		}
 	}
 
