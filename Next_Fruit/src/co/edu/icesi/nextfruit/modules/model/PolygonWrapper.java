@@ -30,6 +30,7 @@ public class PolygonWrapper implements Comparable<PolygonWrapper> {
 	 * Constructor
 	 * @param box The list of points to start the polygon
 	 * @param reduceToRectangular True if you want to reduce the polygon into rectangular form.
+	 * @param calibration CameraCalibration object is used to convert from px to cm.
 	 */
 	public PolygonWrapper(Point[] box, boolean reduceToRectangular, CameraCalibration calibration) {
 		this.box = box;

@@ -1,8 +1,11 @@
 package co.edu.icesi.nextfruit.util;
 
 import java.util.ArrayList;
-import java.util.Collections;
 
+/**
+ * Utility class to find the first 2 statistics dimensions (mean and standard deviation) using a cumulative representation.
+ * @author cjortegon
+ */
 public class CumulativeStatistics {
 
 	private ArrayList<double[]> set;
@@ -26,10 +29,6 @@ public class CumulativeStatistics {
 	}
 
 	public double getMedian() {
-		//		if(set.size() == 0)
-		//			throw new IndexOutOfBoundsException();
-		//		Collections.sort(set);
-		//		return set.get((set.size()-1)/2);
 		throw new RuntimeException("Not implemented");
 	}
 

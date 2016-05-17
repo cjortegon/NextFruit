@@ -1,5 +1,8 @@
 package co.edu.icesi.nextfruit.modules.model;
 
+/**
+ * This class is used to wrap the translation matrix and white values to convert colors between rgb and xyz space
+ */
 public class CameraSettings {
 
 	/**
@@ -16,7 +19,6 @@ public class CameraSettings {
 	private double whiteX;
 	private double whiteY;
 	private double whiteZ;
-
 
 	public CameraSettings(double[][] matrix, String illuminant) {
 		this.WorkingSpaceMatrix = matrix;
@@ -91,27 +93,17 @@ public class CameraSettings {
 			this.whiteX = 1.00000;
 			this.whiteZ = 1.00000;
 			break;
-
 		}
-
 	}
 
 	//	****************** Access methods ******************
-	
+
 	public double[][] getWorkingSpaceMatrix() {
 		return WorkingSpaceMatrix;
 	}
 
-	public void setWorkingSpaceMatrix(double[][] workingSpaceMatrix) {
-		WorkingSpaceMatrix = workingSpaceMatrix;
-	}
-
 	public String getIlluminant() {
 		return illuminant;
-	}
-
-	public void setIluminant(String iluminant) {
-		this.illuminant = iluminant;
 	}
 
 	public double getWhiteX() {

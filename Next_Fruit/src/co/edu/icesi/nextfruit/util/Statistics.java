@@ -3,6 +3,10 @@ package co.edu.icesi.nextfruit.util;
 import java.util.ArrayList;
 import java.util.Collections;
 
+/**
+ * This class calculates the statistics from a give list of numbers.
+ * @author cjortegon
+ */
 public class Statistics {
 
 	private ArrayList<Double> set;

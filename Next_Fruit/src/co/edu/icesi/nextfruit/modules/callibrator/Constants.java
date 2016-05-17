@@ -1,12 +1,15 @@
-package co.edu.icesi.nextfruit.modules;
+package co.edu.icesi.nextfruit.modules.callibrator;
 
 public class Constants {
 
+	/**
+	 * Original colors in RGB from the Color Checker
+	 */
 	public static final double[][][] ORIGINALS = {
 			{{116,88,74},{195,150,134},{92,125,159},{95,113,70},{132,133,178},{103,193,173}},
 			{{224,127,56},{71,95,178},{198,87,103},{94,66,109},{168,195,71},{233,166,52}},
 			{{49,73,151},{76,155,78},{176,65,64},{243,205,45},{193,91,154},{0,139,171}},
 			{{246,246,247},{207,207,209},{165,166,169},{123,124,129},{86,90,91},{56,58,57}}
 	};
-	
+
 }

@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import org.opencv.core.Core;
 import org.opencv.core.Point;
 
-import co.edu.icesi.nextfruit.modules.Constants;
 import co.edu.icesi.nextfruit.modules.callibrator.ColorChecker;
+import co.edu.icesi.nextfruit.modules.callibrator.Constants;
 import co.edu.icesi.nextfruit.modules.model.PolygonWrapper;
 import co.edu.icesi.nextfruit.util.ImageUtility;
 import visualkey.KCanvas;

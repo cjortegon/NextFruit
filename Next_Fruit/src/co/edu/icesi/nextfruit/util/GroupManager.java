@@ -2,6 +2,10 @@ package co.edu.icesi.nextfruit.util;
 
 import java.util.ArrayList;
 
+/**
+ * Groups objects according to their proximity using statistical techniques.
+ * @author cjortegon
+ */
 public class GroupManager {
 
 	private ArrayList<Object> objects;
@@ -17,15 +21,20 @@ public class GroupManager {
 		this.values = new ArrayList<>();
 	}
 
+	/**
+	 * Adds one element
+	 * @param object representing the abstract element.
+	 * @param values representing the values to calculate the proximity between objects.
+	 */
 	public void add(Object object, double[] values) {
 		this.objects.add(object);
 		this.values.add(values);
 	}
-	
+
 	public int getNumberOfGroups() {
 		return numberOfGroups;
 	}
-	
+
 	public <E> ArrayList<E> getGroups(int group) {
 		ArrayList<E> selectedGroup = new ArrayList<>();
 		for (int i = 0; i < groups.length; i++) {
@@ -36,6 +45,9 @@ public class GroupManager {
 		return selectedGroup;
 	}
 
+	/**
+	 * Groups the added elements.
+	 */
 	public void makeGroups() {
 		adjacencyMatrix = new int[objects.size()][objects.size()];
 		for (int i = 0; i < objects.size(); i++) {

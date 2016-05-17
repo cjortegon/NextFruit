@@ -107,7 +107,7 @@ public class CalibrationDataHandler {
 		calibration = new CameraCalibration(colours, pixelsxCm, workingSpaceMatrix, whiteX, whiteY, whiteZ, illuminant);
 
 		//Test
-		calibration.imprimirPrueba();
+		calibration.printTest();
 
 		return calibration;
 	}

@@ -13,6 +13,10 @@ import org.opencv.imgproc.Imgproc;
 
 import co.edu.icesi.nextfruit.util.Geometry;
 
+/**
+ * This class calibrates the sizes finding a relation between pixels and centimeters using a pre-defined figure (find it in documentation).
+ * @author cjortegon
+ */
 public class SizeCalibrator {
 
 	private Mat mat;
@@ -27,6 +31,10 @@ public class SizeCalibrator {
 		this.columns = columns;
 	}
 
+	/**
+	 * Finds the relation between pixels and centimeters.
+	 * @param intersectionsSize size from each square in the grid of the pre-defined figure (find it in documentation).
+	 */
 	public void process(double intersectionsSize) {
 		this.intersectionsCentimeters = intersectionsSize;
 		Mat grayImage = new Mat();
@@ -40,7 +48,7 @@ public class SizeCalibrator {
 			Imgproc.cornerSubPix(grayImage, imageCorners, new Size(11, 11), new Size(-1, -1), term);
 		} else {
 		}
-		
+
 		points = imageCorners.toList();
 		Point last = null;
 		int count = 0;
@@ -53,11 +61,13 @@ public class SizeCalibrator {
 		}
 		pixelsBetweenIntersections /= (count - rows);
 	}
-	
+
+	// ******************** GETTERS *********************
+
 	public double getPixelsBetweenIntersections () {
 		return pixelsBetweenIntersections;
 	}
-	
+
 	public double getPixelsForCentimeter() {
 		return pixelsBetweenIntersections / intersectionsCentimeters;
 	}
@@ -65,9 +75,11 @@ public class SizeCalibrator {
 	public Mat getImage() {
 		return mat;
 	}
-	
+
 	public List<Point> getPoints() {
 		return points;
 	}
+
+	// ******************** GETTERS *********************
 
 }

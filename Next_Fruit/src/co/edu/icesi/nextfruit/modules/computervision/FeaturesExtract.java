@@ -33,14 +33,13 @@ public class FeaturesExtract {
 
 	public FeaturesExtract(String imagePath) {
 		mat = Imgcodecs.imread(imagePath);
-		//		CV_8UC1 = Imgcodecs.imread(imagePath, CvType.CV_8UC1);
 		entropy = -1;
 	}
 
 	// ***************** PUBLIC METHODS *****************
 
 	public void extractFeatures(CameraCalibration calibration) {
-		//		polygon = getContours(mat.clone(), calibration);
+		//		polygon = getContours1(mat.clone(), calibration);
 		//		polygon = getContours2(calibration);
 		//		polygon = getContours3(calibration);
 		polygon = getContours4(calibration);
@@ -74,7 +73,10 @@ public class FeaturesExtract {
 
 	// **************** PRIVATE METHODS *****************
 
-	private PolygonWrapper getContours(Mat src, CameraCalibration calibration) {
+	/**
+	 * @deprecated
+	 */
+	private PolygonWrapper getContours1(Mat src, CameraCalibration calibration) {
 
 		// Median blur
 		Mat mBlurred = new Mat();
@@ -138,6 +140,9 @@ public class FeaturesExtract {
 		return biggest;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	private PolygonWrapper getContours2(CameraCalibration calibration) {
 
 		// Threshold
@@ -203,6 +208,9 @@ public class FeaturesExtract {
 		return biggest;
 	}
 
+	/**
+	 * @deprecated
+	 */
 	private PolygonWrapper getContours3(CameraCalibration calibration) {
 		int ksize = 0;
 		int BORDER_DEFAULT = 4;
@@ -276,6 +284,11 @@ public class FeaturesExtract {
 		return biggest;
 	}
 
+	/**
+	 * Method to identity the position of the fruit.
+	 * @param calibration CameraCalibration object is used to convert from px to cm.
+	 * @return
+	 */
 	private PolygonWrapper getContours4(CameraCalibration calibration) {
 		int ksize = 0;
 		Mat kernel;

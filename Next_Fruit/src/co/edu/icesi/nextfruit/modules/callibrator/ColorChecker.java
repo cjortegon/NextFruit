@@ -17,6 +17,10 @@ import co.edu.icesi.nextfruit.util.Geometry;
 import co.edu.icesi.nextfruit.util.GroupManager;
 import co.edu.icesi.nextfruit.util.Statistics;
 
+/**
+ * This class calibrates the color using a picture taken to a color checker
+ * @author cjortegon
+ */
 public class ColorChecker {
 
 	private Mat BGR, LAB, gray, MBlurred, silhouette;
@@ -196,6 +200,8 @@ public class ColorChecker {
 		Collections.sort(boxes);
 	}
 
+	// ******************** GETTERS *********************
+
 	public ArrayList<PolygonWrapper> getColorBoxes() {
 		return boxes;
 	}
@@ -235,4 +241,6 @@ public class ColorChecker {
 	public CameraSettings getCameraSettings() {
 		return cameraSettings;
 	}
+
+	// ******************** GETTERS *********************
 }

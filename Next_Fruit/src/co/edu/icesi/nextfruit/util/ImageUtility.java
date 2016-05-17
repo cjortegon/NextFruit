@@ -6,17 +6,15 @@ import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.awt.image.WritableRaster;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-
-import javax.imageio.ImageIO;
 
 import org.opencv.core.Mat;
-import org.opencv.core.MatOfByte;
-import org.opencv.imgcodecs.Imgcodecs;
 
 import co.edu.icesi.nextfruit.modules.model.PolygonWrapper;
 
+/**
+ * This class converts between the different object format of images in java used in this application. And also helps to draw the image in a given canvas.
+ * @author cjortegon
+ */
 public class ImageUtility {
 
 	public static BufferedImage mat2Image(Mat mat) {

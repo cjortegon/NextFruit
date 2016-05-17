@@ -5,6 +5,10 @@ import java.util.ArrayList;
 
 import javax.swing.JFileChooser;
 
+/**
+ * This class helps the GUI to open Open and Save dialogs to make the user select a file or a directory.
+ * @author cjortegon
+ */
 public class FilesUtility {
 
 	public static File[] listFiles(String folder, String extension) {
@@ -76,7 +80,7 @@ public class FilesUtility {
 	 * @param title For the dialog window.
 	 * @return File to save.
 	 */
-	public static java.io.File chooseFileToSave(Component parent, String title){
+	public static java.io.File chooseFileToSave(Component parent, String title) {
 		JFileChooser chooser = new JFileChooser();
 		chooser.setCurrentDirectory(new java.io.File("./"));
 		chooser.setDialogTitle(title);

@@ -3,7 +3,6 @@ package co.edu.icesi.nextfruit.modules.model;
 import co.edu.icesi.nextfruit.modules.persistence.XMLColour;
 import org.jblas.DoubleMatrix;
 
-
 /**
  * This class contains the calibration information associated with a camera, and is loaded
  * from an XML file containing said information.
@@ -39,8 +38,8 @@ public class CameraCalibration {
 	private double whiteY;
 	private double whiteZ;
 
-	public CameraCalibration(XMLColour[][] rGBValues, double pixelsXCm, double[][] workingSpaceMatrix, double whiteX,
-			double whiteY, double whiteZ, String illuminant) {
+	public CameraCalibration(XMLColour[][] rGBValues, double pixelsXCm, double[][] workingSpaceMatrix,
+			double whiteX, double whiteY, double whiteZ, String illuminant) {
 		this.RGBValues = rGBValues;
 		this.pixelsXCm = pixelsXCm;
 		this.workingSpaceMatrix = workingSpaceMatrix;
@@ -48,11 +47,11 @@ public class CameraCalibration {
 		this.whiteY = whiteY;
 		this.whiteZ = whiteZ;
 		this.illuminant = illuminant;
-		
+
 		initializeInverseWorkingSpaceMatrix();
 	}
 
-	public void imprimirPrueba(){
+	public void printTest() {
 
 		System.out.println("pixelsxcm -> " + pixelsXCm);
 		System.out.println("illuminant -> " + illuminant);
@@ -105,7 +104,6 @@ public class CameraCalibration {
 		return inverseWorkingSpaceMatrix;
 	}
 
-	
 	/**
 	 * Initialize the parameter inverseWorkingSpaceMatrix, by calculating the
 	 * inverse of the matrix workingSpaceMatrix.
@@ -116,12 +114,12 @@ public class CameraCalibration {
 			DoubleMatrix inverseMatrix = org.jblas.Solve.pinv(originalMatrix);			
 
 			double[][] temp = {
-		 			{inverseMatrix.get(0), inverseMatrix.get(3), inverseMatrix.get(6)},
-		 			{inverseMatrix.get(1), inverseMatrix.get(4), inverseMatrix.get(7)},
-		 			{inverseMatrix.get(2), inverseMatrix.get(5), inverseMatrix.get(8)}};
-			
+					{inverseMatrix.get(0), inverseMatrix.get(3), inverseMatrix.get(6)},
+					{inverseMatrix.get(1), inverseMatrix.get(4), inverseMatrix.get(7)},
+					{inverseMatrix.get(2), inverseMatrix.get(5), inverseMatrix.get(8)}};
+
 			inverseWorkingSpaceMatrix = temp;
-			
+
 		}else{
 			inverseWorkingSpaceMatrix = null;
 		}

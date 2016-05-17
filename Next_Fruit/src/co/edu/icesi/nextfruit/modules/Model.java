@@ -11,6 +11,7 @@ import javax.xml.bind.JAXBException;
 import org.opencv.core.Core;
 
 import co.edu.icesi.nextfruit.modules.callibrator.ColorChecker;
+import co.edu.icesi.nextfruit.modules.callibrator.Constants;
 import co.edu.icesi.nextfruit.modules.callibrator.SizeCalibrator;
 import co.edu.icesi.nextfruit.modules.computervision.FeaturesExtract;
 import co.edu.icesi.nextfruit.modules.machinelearning.ClassClassifier;

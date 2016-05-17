@@ -6,11 +6,9 @@ import java.io.IOException;
 
 import co.edu.icesi.nextfruit.modules.model.CameraSettings;
 
-
 /**
  * This static class reads values from a csv file and load a double matrix with those values.
  * @author JuanD
- *
  */
 public class MatrixReader {
 	
@@ -35,7 +33,6 @@ public class MatrixReader {
 				matrixM[i][j] = Double.parseDouble(numbers[j].toString());
 			}
 		}
-
 		return matrixM;
 	}
 	

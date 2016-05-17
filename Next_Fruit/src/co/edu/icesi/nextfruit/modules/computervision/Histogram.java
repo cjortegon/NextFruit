@@ -14,6 +14,10 @@ import co.edu.icesi.nextfruit.util.ColorConverter;
 import co.edu.icesi.nextfruit.util.CumulativeStatistics;
 import co.edu.icesi.nextfruit.util.Statistics;
 
+/**
+ * This class has utility methods to process an image according to histogram based techniques.
+ * @author cjortegon
+ */
 public class Histogram {
 
 	private Mat mat;
@@ -44,6 +48,9 @@ public class Histogram {
 		}
 	}
 
+	/**
+	 * Applies a filter finding the white profile of the picture
+	 */
 	public void applyWhitePatch() {
 		double Rmax = 0, Gmax = 0, Bmax = 0;
 		for (int i = 0; i < mat.height(); i++) {
@@ -71,6 +78,10 @@ public class Histogram {
 		}
 	}
 
+	/**
+	 * Calculates statistics from the image in the 3 different channels (R,G,B)
+	 * @return a matrix with the statistics from the 3 channels where the first row contains the mean values and the second row contains the standard deviation.
+	 */
 	public double[][] obtainThreshold() {
 		if(rgbHistogram == null)
 			generateRGBHistogram(false);
@@ -89,27 +100,28 @@ public class Histogram {
 			{r.getStandardDeviation()*6, g.getStandardDeviation()*6, b.getStandardDeviation()*6}};
 	}
 
+	/**
+	 * Starts a luminant histogram empty.
+	 * @param size of the histogram.
+	 */
 	public void generateEmptyLuminanceHistogram(int size) {
 		histogram = new int[size];
 	}
 
+	/**
+	 * Accumulates the histogram in the given number of groups.
+	 * @param numberOfRanges to divide the histogram.
+	 */
 	public void generateRangesFromStatistics(int numberOfRanges) {
 		this.ranges = new double[numberOfRanges];
 		long sum = 0;
-		//		int max = 0;
 		for (int i = 0; i < histogram.length; i++) {
 			sum += histogram[i];
-			//			if(histogram[i] > max)
-			//				max = histogram[i];
 			ranges[(int) ((i*numberOfRanges)/((double)histogram.length))] += histogram[i];
 		}
 		for (int i = 0; i < ranges.length; i++) {
 			ranges[i] /= sum;
 		}
-	}
-
-	public double[] getRanges() {
-		return ranges;
 	}
 
 	public void increaseLuminancePosition(double value, boolean useAutofill) {
@@ -208,6 +220,13 @@ public class Histogram {
 		}
 	}
 
+	/**
+	 * Removes some colors from an image using a matching color profile.
+	 * @param rgb The mean value to be evaluated.
+	 * @param range The sensibility from the real color and the mean value evaluated.
+	 * @param matchColor The color to replace all the matches. May be null and matches wont be replaced.
+	 * @param notMatchColor The color to replace the colors that didn't match. May be null and those out of the range wont be replaced.
+	 */
 	public void filterFigureByColorProfile(double[] rgb, double[] range, double[] matchColor, double[] notMatchColor) {
 		if(matchColor != null || notMatchColor != null) {
 			range[0] /= 2;
@@ -236,8 +255,16 @@ public class Histogram {
 			}
 		}
 	}
-	
+
+	/**
+	 * Removes everything from the image that is outside from the given polygon.
+	 * @param polygon Polygon to filter the image.
+	 * @param insideColor The replacing color inside the polygon. May be null and the inside region will be kept as original.
+	 * @param outsideColor The replacing color outside the polygon. May be null and the outside region will be kept as original.
+	 */
 	public void filterFigureWithPolygon(PolygonWrapper polygon, double[] insideColor, double[] outsideColor) {
+		if(insideColor == null && outsideColor == null)
+			return;
 		for (int i = 0; i < mat.height(); i++) {
 			for (int j = 0; j < mat.width(); j++) {
 				if(polygon.contains(new Point(j, i))) {
@@ -253,6 +280,13 @@ public class Histogram {
 		}
 	}
 
+	/**
+	 * Removes some colors from an image using a matching gray profile.
+	 * @param gray The mean value to be evaluated.
+	 * @param range The sensibility from the real color and the mean value evaluated.
+	 * @param matchColor The color to replace all the matches. May be null and matches wont be replaced.
+	 * @param notMatchColor The color to replace the colors that didn't match. May be null and those out of the range wont be replaced.
+	 */
 	public void filterFigureByGrayProfile(int gray, int range, double[] matchColor, double[] notMatchColor) {
 		if(matchColor != null || notMatchColor != null) {
 			int max = gray + range;
@@ -275,6 +309,9 @@ public class Histogram {
 		}
 	}
 
+	/**
+	 * Removes the peaks from the histogram to make it more natural.
+	 */
 	public void smoothHistogram() {
 		int smooth[] = new int[histogram.length];
 		smooth[0] = histogram[0];
@@ -285,6 +322,9 @@ public class Histogram {
 		histogram = smooth;
 	}
 
+	/**
+	 * Fills the empty spaces in the histogram making an average between the neighbors.
+	 */
 	public void fillHistogram() {
 		int smooth[] = new int[histogram.length];
 		smooth[0] = histogram[0];
@@ -295,6 +335,9 @@ public class Histogram {
 		histogram = smooth;
 	}
 
+	/**
+	 * Makes the histogram to be softer.
+	 */
 	public void smoothFillHistogram() {
 		int smooth[] = new int[histogram.length];
 		smooth[0] = histogram[0];
@@ -305,6 +348,9 @@ public class Histogram {
 		histogram = smooth;
 	}
 
+	/**
+	 * Uses statistical methods to make the histogram to look smooth.
+	 */
 	public void statisticalSmothHistogram() {
 		int smooth[] = new int[histogram.length];
 		smooth[0] = histogram[0];
@@ -327,28 +373,49 @@ public class Histogram {
 		histogram = smooth;
 	}
 
+	/**
+	 * Calculates the statistics for all the present colors in the histogram.
+	 * @param polygon region to filter the statistical analysis. May be null.
+	 * @return a Collection of ColorDistribution containing the repetitions of each color.
+	 */
 	public Collection<ColorDistribution> getStatisticalColors(PolygonWrapper polygon) {
 		HashMap<Integer, ColorDistribution> map = new HashMap<>();
-		Iterator<Point> iterator = polygon.getIterator();
-		while(iterator.hasNext()) {
-			Point p = iterator.next();
-			double[] color = mat.get((int)p.y, (int)p.x);
-			int c = ColorConverter.bgr2rgb(color);
-			ColorDistribution colorDistribution = map.get(c);
-			if(colorDistribution == null) {
-				colorDistribution = new ColorDistribution(c);
-				map.put(c, colorDistribution);
-			} else {
-				colorDistribution.repeat();
+		if(polygon != null) {
+			Iterator<Point> iterator = polygon.getIterator();
+			while(iterator.hasNext()) {
+				Point p = iterator.next();
+				double[] color = mat.get((int)p.y, (int)p.x);
+				int c = ColorConverter.bgr2rgb(color);
+				ColorDistribution colorDistribution = map.get(c);
+				if(colorDistribution == null) {
+					colorDistribution = new ColorDistribution(c);
+					map.put(c, colorDistribution);
+				} else {
+					colorDistribution.repeat();
+				}
+			}
+		} else {
+			for (int i = 0; i < mat.rows(); i++) {
+				for (int j = 0; j < mat.cols(); j++) {
+					double[] color = mat.get(i, j);
+					int c = ColorConverter.bgr2rgb(color);
+					ColorDistribution colorDistribution = map.get(c);
+					if(colorDistribution == null) {
+						colorDistribution = new ColorDistribution(c);
+						map.put(c, colorDistribution);
+					} else {
+						colorDistribution.repeat();
+					}
+				}
 			}
 		}
 		return map.values();
 	}
 
-	public Mat getImage() {
-		return mat;
-	}
-
+	/**
+	 * Calculates the maximum value from the gray scale histogram.
+	 * @return
+	 */
 	public int getMaxHeight() {
 		int max = 0;
 		for (int i = 0; i < histogram.length; i++) {
@@ -356,6 +423,28 @@ public class Histogram {
 				max = histogram[i];
 		}
 		return max;
+	}
+
+	/**
+	 * Saves the image in the selected location.
+	 * @param filename
+	 */
+	public void save(String filename) {
+		Imgcodecs.imwrite(filename, mat);
+	}
+
+	// ******************** GETTERS *********************
+
+	public Mat getImage() {
+		return mat;
+	}
+
+	/**
+	 * <pre> generateRangesFromStatistics must be called first.
+	 * @return Returns the generated ranges in the method generateRangesFromStatistics(int).
+	 */
+	public double[] getRanges() {
+		return ranges;
 	}
 
 	public int[] getHistogram() {
@@ -374,8 +463,6 @@ public class Histogram {
 		return rgbHistogram[2];
 	}
 
-	public void save(String filename) {
-		Imgcodecs.imwrite(filename, mat);
-	}
+	// ******************** GETTERS *********************
 
 }
