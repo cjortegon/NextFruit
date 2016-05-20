@@ -42,7 +42,7 @@ public class FeaturesExtract {
 		//		polygon = getContours1(mat.clone(), calibration);
 		//		polygon = getContours2(calibration);
 		//		polygon = getContours3(calibration);
-		polygon = getContours4(calibration);
+		polygon = getContours(calibration);
 		histogram = new Histogram(mat);
 		histogram.applyWhitePatch();
 		colorStatistics = histogram.getStatisticalColors(polygon);
@@ -73,223 +73,223 @@ public class FeaturesExtract {
 
 	// **************** PRIVATE METHODS *****************
 
-	/**
-	 * @deprecated
-	 */
-	private PolygonWrapper getContours1(Mat src, CameraCalibration calibration) {
-
-		// Median blur
-		Mat mBlurred = new Mat();
-		int ksize = (int) (Math.sqrt(src.width()*src.height())/60);
-		if(ksize %2 == 0)
-			ksize ++;
-		Imgproc.medianBlur(src, mBlurred, ksize);
-
-		// Threshold
-		Mat thresh = new Mat();
-		Imgproc.threshold(mBlurred, thresh, 100, 255, CvType.CV_8UC1);
-
-		// Gray scale
-		Mat src_gray = new Mat();
-		Imgproc.cvtColor(thresh, src_gray, Imgproc.COLOR_BGR2GRAY);
-
-		// Cany
-		Mat canny = new Mat();
-		Imgproc.Canny(src_gray, canny, 0, 15);
-
-		// Kernel
-		Mat kernel;
-
-		// Close
-		kernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(3, 3));
-		Mat close = new Mat();
-		Imgproc.morphologyEx(canny, close, Imgproc.MORPH_CLOSE, kernel);
-
-		// Dilatation
-		kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(2, 2));
-		Mat dilatation = new Mat();
-		Imgproc.dilate(close, dilatation, kernel);
-
-		// Open
-		kernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(2, 2));
-		Mat open = new Mat();
-		Imgproc.morphologyEx(dilatation, open, Imgproc.MORPH_OPEN, kernel);
-
-		// Close
-		kernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(100, 100));
-		Mat close2 = new Mat();
-		Imgproc.morphologyEx(open, close2, Imgproc.MORPH_CLOSE, kernel);
-
-		// Getting contours
-		List<MatOfPoint> contours = new ArrayList<>();
-		Imgproc.findContours(close2, contours, close2, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
-
-		// Selecting the polygon
-		ArrayList<PolygonWrapper> boxes = new ArrayList<>();
-		PolygonWrapper biggest = null;
-		double biggestArea = 0;
-		for (MatOfPoint cnt : contours) {
-			PolygonWrapper polygon = new PolygonWrapper(cnt.toArray(), false, calibration);
-			boxes.add(polygon);
-			if(polygon.getArea() > biggestArea) {
-				biggest = polygon;
-				biggestArea = polygon.getArea();
-			}
-		}
-
-		return biggest;
-	}
-
-	/**
-	 * @deprecated
-	 */
-	private PolygonWrapper getContours2(CameraCalibration calibration) {
-
-		// Threshold
-		Mat thresh = new Mat();
-		int block = 11;
-		int C = 7;
-		Imgproc.adaptiveThreshold(CV_8UC1, thresh, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY, block, C);
-
-		// Cany
-		Mat canny = new Mat();
-		Imgproc.Canny(thresh, canny, 0, 15);
-
-		// Kernel
-		Mat kernel;
-
-		// Close
-		kernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(4, 4));
-		Mat close = new Mat();
-		Imgproc.morphologyEx(canny, close, Imgproc.MORPH_CLOSE, kernel);
-
-		// Open
-		kernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(5, 5));
-		Mat open = new Mat();
-		Imgproc.morphologyEx(close, open, Imgproc.MORPH_OPEN, kernel);
-
-		// Dilatation
-		kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(3, 3));
-		Mat dilatation = new Mat();
-		Imgproc.dilate(open, dilatation, kernel);
-
-		// Open
-		kernel = Imgproc.getStructuringElement(Imgproc.MORPH_CROSS, new Size(8, 8));
-		Mat open2 = new Mat();
-		Imgproc.morphologyEx(dilatation, open2, Imgproc.MORPH_OPEN, kernel);
-
-		// Black
-		kernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(30, 30));
-		Mat black = new Mat();
-		Imgproc.morphologyEx(open2, black, Imgproc.MORPH_BLACKHAT, kernel);
-
-		// Close
-		kernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(120, 120));
-		Mat close3 = new Mat();
-		Imgproc.morphologyEx(open2, close3, Imgproc.MORPH_CLOSE, kernel);
-
-		// Getting contours
-		List<MatOfPoint> contours = new ArrayList<>();
-		Imgproc.findContours(close3, contours, close3, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
-
-		// Selecting the polygon
-		ArrayList<PolygonWrapper> boxes = new ArrayList<>();
-		PolygonWrapper biggest = null;
-		double biggestArea = 0;
-		for (MatOfPoint cnt : contours) {
-			PolygonWrapper polygon = new PolygonWrapper(cnt.toArray(), false, calibration);
-			boxes.add(polygon);
-			if(polygon.getArea() > biggestArea) {
-				biggest = polygon;
-				biggestArea = polygon.getArea();
-			}
-		}
-		CV_8UC1 = null;
-		return biggest;
-	}
-
-	/**
-	 * @deprecated
-	 */
-	private PolygonWrapper getContours3(CameraCalibration calibration) {
-		int ksize = 0;
-		int BORDER_DEFAULT = 4;
-		Mat kernel;
-
-		ksize = (int) (Math.sqrt(mat.width()*mat.height())/30);
-		if(ksize %2 == 0)
-			ksize ++;
-		Mat blur = new Mat();
-		Imgproc.GaussianBlur(mat, blur, new Size(ksize, ksize), BORDER_DEFAULT);
-
-		// Sobel
-		Mat sobel = Mat.zeros(mat.width(), mat.height(), CvType.CV_32F);
-		int ddepth = -1;
-		double delta = 0;
-		ksize = 7;
-		int scale = 1;
-		Imgproc.Sobel(blur, sobel, ddepth, 1, 1, ksize, scale, delta);
-
-		// Blur a sobel
-		ksize = (int) (Math.sqrt(mat.width()*mat.height())/15);
-		if(ksize %2 == 0)
-			ksize ++;
-		Mat blur2 = new Mat();
-		Imgproc.GaussianBlur(sobel, blur2, new Size(ksize, ksize), BORDER_DEFAULT);
-
-		// Median blur
-		Mat MBlurred = new Mat();
-		ksize = 25;
-		if(ksize %2 == 0)
-			ksize ++;
-		Imgproc.medianBlur(blur2, MBlurred, ksize);
-
-		// Cany
-		Mat canny = new Mat();
-		Mat gray = MBlurred;
-		Imgproc.Canny(gray, canny, 0, 60);
-
-		// Dilatation
-		kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 5));
-		Mat dilatation = new Mat();
-		Imgproc.dilate(canny, dilatation, kernel);
-
-		// Black
-		kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(20, 20));
-		Mat black = new Mat();
-		Imgproc.morphologyEx(dilatation, black, Imgproc.MORPH_BLACKHAT, kernel);
-
-		// Close
-		kernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(40, 40));
-		Mat close = new Mat();
-		Imgproc.morphologyEx(black, close, Imgproc.MORPH_CLOSE, kernel);
-
-		// Getting contours
-		List<MatOfPoint> contours = new ArrayList<>();
-		Imgproc.findContours(close, contours, close, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
-		//		System.out.println("Number of contours: "+contours.size());
-
-		// Selecting the polygon
-		ArrayList<PolygonWrapper> boxes = new ArrayList<>();
-		PolygonWrapper biggest = null;
-		double biggestArea = 0;
-		for (MatOfPoint cnt : contours) {
-			PolygonWrapper polygon = new PolygonWrapper(cnt.toArray(), false, null);
-			boxes.add(polygon);
-			if(polygon.getArea() > biggestArea) {
-				biggest = polygon;
-				biggestArea = polygon.getArea();
-			}
-		}
-		return biggest;
-	}
+//	/**
+//	 * @deprecated
+//	 */
+//	private PolygonWrapper getContours1(Mat src, CameraCalibration calibration) {
+//
+//		// Median blur
+//		Mat mBlurred = new Mat();
+//		int ksize = (int) (Math.sqrt(src.width()*src.height())/60);
+//		if(ksize %2 == 0)
+//			ksize ++;
+//		Imgproc.medianBlur(src, mBlurred, ksize);
+//
+//		// Threshold
+//		Mat thresh = new Mat();
+//		Imgproc.threshold(mBlurred, thresh, 100, 255, CvType.CV_8UC1);
+//
+//		// Gray scale
+//		Mat src_gray = new Mat();
+//		Imgproc.cvtColor(thresh, src_gray, Imgproc.COLOR_BGR2GRAY);
+//
+//		// Cany
+//		Mat canny = new Mat();
+//		Imgproc.Canny(src_gray, canny, 0, 15);
+//
+//		// Kernel
+//		Mat kernel;
+//
+//		// Close
+//		kernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(3, 3));
+//		Mat close = new Mat();
+//		Imgproc.morphologyEx(canny, close, Imgproc.MORPH_CLOSE, kernel);
+//
+//		// Dilatation
+//		kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(2, 2));
+//		Mat dilatation = new Mat();
+//		Imgproc.dilate(close, dilatation, kernel);
+//
+//		// Open
+//		kernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(2, 2));
+//		Mat open = new Mat();
+//		Imgproc.morphologyEx(dilatation, open, Imgproc.MORPH_OPEN, kernel);
+//
+//		// Close
+//		kernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(100, 100));
+//		Mat close2 = new Mat();
+//		Imgproc.morphologyEx(open, close2, Imgproc.MORPH_CLOSE, kernel);
+//
+//		// Getting contours
+//		List<MatOfPoint> contours = new ArrayList<>();
+//		Imgproc.findContours(close2, contours, close2, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+//
+//		// Selecting the polygon
+//		ArrayList<PolygonWrapper> boxes = new ArrayList<>();
+//		PolygonWrapper biggest = null;
+//		double biggestArea = 0;
+//		for (MatOfPoint cnt : contours) {
+//			PolygonWrapper polygon = new PolygonWrapper(cnt.toArray(), false, calibration);
+//			boxes.add(polygon);
+//			if(polygon.getArea() > biggestArea) {
+//				biggest = polygon;
+//				biggestArea = polygon.getArea();
+//			}
+//		}
+//
+//		return biggest;
+//	}
+//
+//	/**
+//	 * @deprecated
+//	 */
+//	private PolygonWrapper getContours2(CameraCalibration calibration) {
+//
+//		// Threshold
+//		Mat thresh = new Mat();
+//		int block = 11;
+//		int C = 7;
+//		Imgproc.adaptiveThreshold(CV_8UC1, thresh, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY, block, C);
+//
+//		// Cany
+//		Mat canny = new Mat();
+//		Imgproc.Canny(thresh, canny, 0, 15);
+//
+//		// Kernel
+//		Mat kernel;
+//
+//		// Close
+//		kernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(4, 4));
+//		Mat close = new Mat();
+//		Imgproc.morphologyEx(canny, close, Imgproc.MORPH_CLOSE, kernel);
+//
+//		// Open
+//		kernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(5, 5));
+//		Mat open = new Mat();
+//		Imgproc.morphologyEx(close, open, Imgproc.MORPH_OPEN, kernel);
+//
+//		// Dilatation
+//		kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(3, 3));
+//		Mat dilatation = new Mat();
+//		Imgproc.dilate(open, dilatation, kernel);
+//
+//		// Open
+//		kernel = Imgproc.getStructuringElement(Imgproc.MORPH_CROSS, new Size(8, 8));
+//		Mat open2 = new Mat();
+//		Imgproc.morphologyEx(dilatation, open2, Imgproc.MORPH_OPEN, kernel);
+//
+//		// Black
+//		kernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(30, 30));
+//		Mat black = new Mat();
+//		Imgproc.morphologyEx(open2, black, Imgproc.MORPH_BLACKHAT, kernel);
+//
+//		// Close
+//		kernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(120, 120));
+//		Mat close3 = new Mat();
+//		Imgproc.morphologyEx(open2, close3, Imgproc.MORPH_CLOSE, kernel);
+//
+//		// Getting contours
+//		List<MatOfPoint> contours = new ArrayList<>();
+//		Imgproc.findContours(close3, contours, close3, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+//
+//		// Selecting the polygon
+//		ArrayList<PolygonWrapper> boxes = new ArrayList<>();
+//		PolygonWrapper biggest = null;
+//		double biggestArea = 0;
+//		for (MatOfPoint cnt : contours) {
+//			PolygonWrapper polygon = new PolygonWrapper(cnt.toArray(), false, calibration);
+//			boxes.add(polygon);
+//			if(polygon.getArea() > biggestArea) {
+//				biggest = polygon;
+//				biggestArea = polygon.getArea();
+//			}
+//		}
+//		CV_8UC1 = null;
+//		return biggest;
+//	}
+//
+//	/**
+//	 * @deprecated
+//	 */
+//	private PolygonWrapper getContours3(CameraCalibration calibration) {
+//		int ksize = 0;
+//		int BORDER_DEFAULT = 4;
+//		Mat kernel;
+//
+//		ksize = (int) (Math.sqrt(mat.width()*mat.height())/30);
+//		if(ksize %2 == 0)
+//			ksize ++;
+//		Mat blur = new Mat();
+//		Imgproc.GaussianBlur(mat, blur, new Size(ksize, ksize), BORDER_DEFAULT);
+//
+//		// Sobel
+//		Mat sobel = Mat.zeros(mat.width(), mat.height(), CvType.CV_32F);
+//		int ddepth = -1;
+//		double delta = 0;
+//		ksize = 7;
+//		int scale = 1;
+//		Imgproc.Sobel(blur, sobel, ddepth, 1, 1, ksize, scale, delta);
+//
+//		// Blur a sobel
+//		ksize = (int) (Math.sqrt(mat.width()*mat.height())/15);
+//		if(ksize %2 == 0)
+//			ksize ++;
+//		Mat blur2 = new Mat();
+//		Imgproc.GaussianBlur(sobel, blur2, new Size(ksize, ksize), BORDER_DEFAULT);
+//
+//		// Median blur
+//		Mat MBlurred = new Mat();
+//		ksize = 25;
+//		if(ksize %2 == 0)
+//			ksize ++;
+//		Imgproc.medianBlur(blur2, MBlurred, ksize);
+//
+//		// Cany
+//		Mat canny = new Mat();
+//		Mat gray = MBlurred;
+//		Imgproc.Canny(gray, canny, 0, 60);
+//
+//		// Dilatation
+//		kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 5));
+//		Mat dilatation = new Mat();
+//		Imgproc.dilate(canny, dilatation, kernel);
+//
+//		// Black
+//		kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(20, 20));
+//		Mat black = new Mat();
+//		Imgproc.morphologyEx(dilatation, black, Imgproc.MORPH_BLACKHAT, kernel);
+//
+//		// Close
+//		kernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(40, 40));
+//		Mat close = new Mat();
+//		Imgproc.morphologyEx(black, close, Imgproc.MORPH_CLOSE, kernel);
+//
+//		// Getting contours
+//		List<MatOfPoint> contours = new ArrayList<>();
+//		Imgproc.findContours(close, contours, close, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+//		//		System.out.println("Number of contours: "+contours.size());
+//
+//		// Selecting the polygon
+//		ArrayList<PolygonWrapper> boxes = new ArrayList<>();
+//		PolygonWrapper biggest = null;
+//		double biggestArea = 0;
+//		for (MatOfPoint cnt : contours) {
+//			PolygonWrapper polygon = new PolygonWrapper(cnt.toArray(), false, null);
+//			boxes.add(polygon);
+//			if(polygon.getArea() > biggestArea) {
+//				biggest = polygon;
+//				biggestArea = polygon.getArea();
+//			}
+//		}
+//		return biggest;
+//	}
 
 	/**
 	 * Method to identity the position of the fruit.
 	 * @param calibration CameraCalibration object is used to convert from px to cm.
 	 * @return
 	 */
-	private PolygonWrapper getContours4(CameraCalibration calibration) {
+	private PolygonWrapper getContours(CameraCalibration calibration) {
 		int ksize = 0;
 		Mat kernel;
 
