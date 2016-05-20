@@ -88,7 +88,7 @@ public class ClassificationController implements Initializable, ActionListener{
 					String message = "Quality :="+
 							"\n\tT:\t"+percentFormat(result[0][0])+
 							"\n\tF:\t"+percentFormat(result[0][1])+
-							"\n\nClass :=\t(not implemented)"+
+							//							"\n\nClass :=\t(not implemented)"+
 							"\n\nSize :="+
 							"\n\tBig:\t"+percentFormat(result[2][0])+
 							"\n\tMedium:\t"+percentFormat(result[2][1])+
