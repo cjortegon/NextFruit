@@ -1,0 +1,15 @@
+
+calibrator
+co.edu.icesi.nextfruit.controller
+co.edu.icesi.nextfruit.modules
+co.edu.icesi.nextfruit.modules.callibrator
+co.edu.icesi.nextfruit.modules.computervision
+co.edu.icesi.nextfruit.modules.machinelearning
+co.edu.icesi.nextfruit.modules.model
+co.edu.icesi.nextfruit.modules.persistence
+co.edu.icesi.nextfruit.mvc.interfaces
+co.edu.icesi.nextfruit.util
+co.edu.icesi.nextfruit.views
+co.edu.icesi.nextfruit.views.subviews
+formulas
+visualkey
