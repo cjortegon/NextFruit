@@ -84,6 +84,11 @@ public class ColorDistribution extends Color implements Comparable<ColorDistribu
 		return xyY;
 	}
 
+	public Color getColorWithOtherLuminant(double Y, CameraCalibration calibration) {
+		double[] temp = new double[]{xyY[0], xyY[1], Y};
+		return new Color(ColorConverter.bgr2rgb(ColorConverter.xyY2bgr(temp, calibration.getInverseWorkingSpaceMatrix())));
+	}
+
 	/**
 	 * Tells you if the given xyY color is closed to this color.
 	 * <pre> transform2xyY() must be called first.

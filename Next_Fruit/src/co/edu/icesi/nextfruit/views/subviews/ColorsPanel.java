@@ -12,7 +12,6 @@ import java.util.List;
 import co.edu.icesi.nextfruit.modules.Model;
 import co.edu.icesi.nextfruit.modules.model.ColorDistribution;
 import co.edu.icesi.nextfruit.modules.model.MatchingColor;
-import co.edu.icesi.nextfruit.modules.model.MatchingColorGroup;
 import co.edu.icesi.nextfruit.util.ColorConverter;
 import visualkey.KPanel;
 

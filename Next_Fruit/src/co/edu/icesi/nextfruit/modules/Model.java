@@ -197,7 +197,7 @@ public class Model implements Attachable {
 		String lines[] = text.split("\n");
 		double[][] inverseMatrixM = getCameraCalibration().getInverseWorkingSpaceMatrix();
 		for (String line : lines) {
-			MatchingColor mc = MatchingColorInterpreter.identifyMatchingColor(line, inverseMatrixM, 0.75);
+			MatchingColor mc = MatchingColorInterpreter.identifyMatchingColor(line, inverseMatrixM, 0.55);
 			if(mc != null)
 				matchingColors.add(mc);
 		}
@@ -244,7 +244,7 @@ public class Model implements Attachable {
 	 */
 	public void processTrainingSet(File destinationFile, ProgressUpdatable progress) {
 		if(modelBuilder != null && modelBuilder.hasLoadedImages()) {
-			this.modelBuilder.processTrainingSet("-", destinationFile, getCameraCalibration(), progress);
+			this.modelBuilder.buildDataset("-", destinationFile, getCameraCalibration(), progress);
 		}
 	}
 

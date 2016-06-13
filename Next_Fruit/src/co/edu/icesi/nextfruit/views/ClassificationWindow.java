@@ -2,7 +2,6 @@ package co.edu.icesi.nextfruit.views;
 
 import java.awt.Dimension;
 import java.awt.Image;
-import java.text.DecimalFormat;
 
 import javax.swing.JButton;
 import javax.swing.JScrollPane;

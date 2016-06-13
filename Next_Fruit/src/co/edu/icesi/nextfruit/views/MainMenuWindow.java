@@ -20,12 +20,13 @@ public class MainMenuWindow extends KFrame implements Initializable, Updateable 
 
 	@Override
 	public void init(Attachable model, Updateable view) {
+		setTitle("Next Fruit");
 
 		// Initializing objects
-		calibrationButton = new JButton("Camera calibration");
-		characterizationButton = new JButton("Fruit characterisation");
-		clasificationButton = new JButton("Fruit classification");
-		trainingButton = new JButton("Training and Configuration");
+		calibrationButton = new JButton("Camera Calibration");
+		characterizationButton = new JButton("Fruit Characterisation");
+		clasificationButton = new JButton("Fruit Classification");
+		trainingButton = new JButton("Dataset Generation");
 		loadSettingsFileButton = new JButton("Load calibration data from an XML file");
 		calibrationFile = new JLabel("(No calibration file loaded)");
 

@@ -44,7 +44,7 @@ public class MachineLearningWindow extends KFrame implements Initializable, Upda
 
 	@Override
 	public void init(Attachable model, Updateable view) {
-		setTitle("Data set generation");
+		setTitle("Dataset generation");
 
 		//	Initializing objects
 		//		lbDirectory = new JLabel("Load images from directory >> ");

@@ -67,7 +67,7 @@ public class ModelBuilder {
 	 * @param calibration The calibration settings.
 	 * @param progress May be null. This is the updateable object to keep track of the progress of this method.
 	 */
-	public void processTrainingSet(String classSeparator, File destinationFile, CameraCalibration calibration, ProgressUpdatable progress) {
+	public void buildDataset(String classSeparator, File destinationFile, CameraCalibration calibration, ProgressUpdatable progress) {
 
 		// Starting classifiers
 		this.classifiers[0] = new QualityClassifier(calibration);

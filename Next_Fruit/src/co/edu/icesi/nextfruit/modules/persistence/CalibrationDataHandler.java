@@ -57,7 +57,7 @@ public class CalibrationDataHandler {
 	 */
 	public void saveCalibrationData(File file, int[][][] rgbs, double pixxCm, 
 			String illuminant, double[][] workingSpaceMatrix, double whiteX,
-			double whiteY, double whiteZ) throws JAXBException{
+			double whiteY, double whiteZ) throws JAXBException {
 
 		context = JAXBContext.newInstance(XMLCalibrationData.class, XMLColour.class);
 		marshaller = context.createMarshaller();
@@ -89,7 +89,7 @@ public class CalibrationDataHandler {
 	 * @param file File object with the information about the XML file to read.
 	 * @throws JAXBException
 	 */
-	public CameraCalibration loadCalibrationData(File file) throws JAXBException{
+	public CameraCalibration loadCalibrationData(File file) throws JAXBException {
 
 		context = JAXBContext.newInstance(XMLCalibrationData.class, XMLColour.class);
 		unmarshaller = context.createUnmarshaller();

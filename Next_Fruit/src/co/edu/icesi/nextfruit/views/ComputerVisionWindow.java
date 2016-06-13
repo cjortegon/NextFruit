@@ -38,7 +38,7 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 	private static final Dimension CANVAS_SIZE_HORIZONTAL_SHORT = new Dimension(400, 125);
 	private static final Dimension CANVAS_SIZE_MINI = new Dimension(125, 125);
 	private static final Dimension CANVAS_SIZE_BIG = new Dimension(350, 350);
-	private static final double INITIAL_LUMINANT = 0.75;
+	private static final double INITIAL_LUMINANT = 0.55;
 
 	private Model model;
 	private Mat mat;
@@ -183,7 +183,7 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 
 	@Override
 	public void repaint() {
-		colorsPanel.setLuminantValue(Double.valueOf(luminanceField.getText().replace(",", ".")));
+		colorsPanel.setLuminantValue(getSelectedLuminance());
 		super.repaint();
 	}
 
@@ -216,7 +216,7 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 				int height = size.height - topMargin;
 				int x = width;
 				for (ColorDistribution color : matchingColors) {
-					g.setColor(color);
+					g.setColor(color.getColorWithOtherLuminant(getSelectedLuminance(), model.getCameraCalibration()));
 					double percent = color.getRepeat()/(double)model.getFeaturesExtract().getNumberOfPixels();
 					int y = (int)(height*(1-percent));
 					g.fillRect(x, y+topMargin, width, height);
@@ -227,6 +227,10 @@ public class ComputerVisionWindow extends KFrame implements Initializable, Updat
 			} catch(NullPointerException npe) {
 			}
 		}
+	}
+
+	private double getSelectedLuminance() {
+		return Double.valueOf(luminanceField.getText().replace(",", "."));
 	}
 
 	public class HistogramCanvas extends KPanel {
